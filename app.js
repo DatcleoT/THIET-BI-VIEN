@@ -19,6 +19,7 @@ const toSafe = (s) =>
     .replace(/[^a-zA-Z0-9]/g, "_")
     .toLowerCase();
 
+// --- TỰ ĐỘNG SINH Ô TẢI ẢNH ---
 function updateStepBoxes(inputId, containerId, prefix) {
   const text = document.getElementById(inputId).value;
   const lines = text.split("\n").filter((l) => l.trim() !== "");
@@ -50,34 +51,58 @@ document.getElementById("addSteps").oninput = () =>
 document.getElementById("insStepsInput").oninput = () =>
   updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg");
 
+// --- KHỞI TẠO (BẢN CHỐNG LỖI CRASH KHI PROFILE BỊ NULL) ---
 async function initApp() {
   const {
     data: { session },
   } = await supabase.auth.getSession();
   if (session) {
-    const { data: p } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", session.user.id)
-      .single();
-    currentProfile = p;
-    document.getElementById("userAvatarHeader").innerText = p.full_name
-      .trim()
-      .charAt(0)
-      .toUpperCase();
-    document.getElementById("userShortLabel").innerText = p.full_name
-      .split(" ")
-      .pop();
-    document.getElementById("userNameFull").innerText = p.full_name;
-    document.getElementById("userRoleBadge").innerText = p.role;
+    try {
+      let { data: p, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", session.user.id)
+        .single();
 
-    if (p.role !== "student")
-      document.getElementById("btnShowAddModal").classList.remove("hidden");
-    if (p.role === "admin")
-      document.getElementById("tabAdminUsers").classList.remove("hidden");
-    nav("systemView");
-    render("analyze");
-  } else nav("loginView");
+      // HỆ THỐNG TỰ ĐỘNG VÁ LỖI NẾU TÀI KHOẢN BỊ THIẾU PROFILE
+      if (!p || error) {
+        p = {
+          id: session.user.id,
+          full_name: session.user.user_metadata?.full_name || "Thành viên",
+          role: session.user.user_metadata?.role || "student",
+        };
+        await supabase.from("profiles").upsert([p]);
+      }
+
+      currentProfile = p;
+
+      // Cập nhật giao diện an toàn
+      const safeName = p.full_name || "Khách";
+      document.getElementById("userAvatarHeader").innerText = safeName
+        .trim()
+        .charAt(0)
+        .toUpperCase();
+      document.getElementById("userShortLabel").innerText = safeName
+        .split(" ")
+        .pop();
+      document.getElementById("userNameFull").innerText = safeName;
+      document.getElementById("userRoleBadge").innerText = p.role;
+
+      if (p.role !== "student")
+        document.getElementById("btnShowAddModal").classList.remove("hidden");
+      if (p.role === "admin")
+        document.getElementById("tabAdminUsers").classList.remove("hidden");
+
+      nav("systemView");
+      render("analyze");
+    } catch (err) {
+      console.error("Lỗi khi tải tài khoản:", err);
+      await supabase.auth.signOut();
+      toast("Sự cố dữ liệu tài khoản, vui lòng đăng nhập lại!");
+    }
+  } else {
+    nav("loginView");
+  }
 }
 initApp();
 
@@ -87,12 +112,13 @@ supabase.auth.onAuthStateChange((event) => {
   }
 });
 
+// --- RENDER THIẾT BỊ LÊN LƯỚI ---
 async function render(cat) {
   document.getElementById("deviceGrid").innerHTML =
     "<p style='text-align:center; width:100%; grid-column:1/-1; padding:40px;'>Đang tải dữ liệu lab...</p>";
   const { data } = await supabase.from("devices").select("*").eq("cat", cat);
-  allDevices = data;
-  displayDevices(data);
+  allDevices = data || [];
+  displayDevices(allDevices);
 }
 
 function displayDevices(list) {
@@ -114,6 +140,7 @@ function displayDevices(list) {
     const div = document.createElement("div");
     div.className = "device-card";
     div.onclick = () => openModal(d);
+
     div.innerHTML = `
           <img src="${img}" class="device-card-img" />
           <div class="device-card-body">
@@ -134,7 +161,7 @@ window.filterDevices = () => {
   displayDevices(allDevices.filter((d) => d.name.toLowerCase().includes(term)));
 };
 
-// --- LOGIC CHUYỂN TAB TRONG MODAL ---
+// --- LOGIC CHUYỂN TAB TRONG MODAL CHI TIẾT ---
 window.switchModalTab = (tabId) => {
   document.getElementById("btnTabInfo").classList.remove("active");
   document.getElementById("btnTabLog").classList.remove("active");
@@ -147,7 +174,7 @@ window.switchModalTab = (tabId) => {
   } else {
     document.getElementById("btnTabLog").classList.add("active");
     document.getElementById("mTabLog").classList.remove("hidden");
-    loadLogs(); // Tự động tải nhật ký
+    loadLogs();
     document.getElementById("logDate").valueAsDate = new Date();
   }
 };
@@ -186,7 +213,6 @@ window.openModal = (d) => {
     updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg");
   }
 
-  // Đảm bảo mỗi khi mở máy mới, nó luôn ưu tiên hiện Tab Thông Tin
   switchModalTab("info");
   document.getElementById("detailModal").classList.remove("hidden");
 };
@@ -195,7 +221,7 @@ window.closeModal = () => {
   document.getElementById("insZone").classList.add("hidden");
 };
 
-// --- LOGIC TẢI NHẬT KÝ ---
+// --- LOGIC TẢI VÀ GHI NHẬT KÝ SỬ DỤNG ---
 window.loadLogs = async () => {
   const container = document.getElementById("logListContainer");
   container.innerHTML =
@@ -236,7 +262,6 @@ window.loadLogs = async () => {
   });
 };
 
-// --- LOGIC LƯU NHẬT KÝ MỚI ---
 document.getElementById("btnSubmitLog").onclick = async () => {
   if (!currentProfile)
     return toast("Lỗi: Không tìm thấy thông tin tài khoản của bạn!");
@@ -278,6 +303,7 @@ document.getElementById("btnSubmitLog").onclick = async () => {
   }
 };
 
+// --- CẨM NANG SOP ---
 document.getElementById("btnViewSOP").onclick = () => {
   const content = document.getElementById("sopContent");
   content.innerHTML = "";
@@ -314,17 +340,18 @@ document.getElementById("btnViewSOP").onclick = () => {
   });
 };
 
+// --- ADMIN USERS ---
 window.loadAdminUsers = async () => {
   const { data } = await supabase
     .from("profiles")
     .select("*")
     .order("full_name");
-  allUsers = data;
-  document.getElementById("statTotal").innerText = data.length;
-  document.getElementById("statInstructor").innerText = data.filter(
+  allUsers = data || [];
+  document.getElementById("statTotal").innerText = allUsers.length;
+  document.getElementById("statInstructor").innerText = allUsers.filter(
     (u) => u.role === "instructor",
   ).length;
-  document.getElementById("statAdmin").innerText = data.filter(
+  document.getElementById("statAdmin").innerText = allUsers.filter(
     (u) => u.role === "admin",
   ).length;
   window.filterUsers();
@@ -342,7 +369,7 @@ window.filterUsers = () => {
     const isMe = u.id === currentProfile.id;
     const div = document.createElement("div");
     div.className = "user-card";
-    div.innerHTML = `<div class="user-card-header"><div class="user-avatar">${u.full_name.trim().charAt(0)}</div><div style="flex:1;"><b>${u.full_name}</b><br/><small style="color:var(--text-muted);">${u.id.substring(0, 8)}</small></div></div>
+    div.innerHTML = `<div class="user-card-header"><div class="user-avatar">${u.full_name.trim().charAt(0).toUpperCase()}</div><div style="flex:1;"><b>${u.full_name}</b><br/><small style="color:var(--text-muted);">${u.id.substring(0, 8)}</small></div></div>
                          <div class="user-card-actions" style="border-top: 1px dashed var(--border-color); padding-top: 15px; display: flex; gap: 10px;">
                            <select onchange="updateRole('${u.id}', this.value)" ${isMe ? "disabled" : ""} style="margin:0;"><option value="student" ${u.role === "student" ? "selected" : ""}>Sinh viên</option><option value="instructor" ${u.role === "instructor" ? "selected" : ""}>Phụ trách</option><option value="admin" ${u.role === "admin" ? "selected" : ""}>Admin</option></select>
                            <button class="btn" style="background:white; color:var(--a); border:1px solid var(--a); padding: 12px;" onclick="deleteUser('${u.id}')" ${isMe ? "disabled" : ""}>🗑️</button>
@@ -355,6 +382,7 @@ window.updateRole = async (uid, r) => {
   toast("Đã cập nhật vai trò", true);
 };
 
+// --- CRUD THIẾT BỊ ---
 async function uploadFiles(namePrefix, textLines, filePrefix) {
   for (let i = 1; i <= textLines; i++) {
     const f = document.getElementById(`${filePrefix}_${i}`)?.files[0];
@@ -373,18 +401,16 @@ document.getElementById("btnSubmitAdd").onclick = async () => {
   document.getElementById("btnSubmitAdd").disabled = true;
   document.getElementById("btnSubmitAdd").innerText = "Đang đẩy dữ liệu...";
 
-  await supabase
-    .from("devices")
-    .insert([
-      {
-        name,
-        cat,
-        status: "normal",
-        description: document.getElementById("addDesc").value,
-        steps,
-        created_by: currentProfile.id,
-      },
-    ]);
+  await supabase.from("devices").insert([
+    {
+      name,
+      cat,
+      status: "normal",
+      description: document.getElementById("addDesc").value,
+      steps,
+      created_by: currentProfile.id,
+    },
+  ]);
   const mainF = document.getElementById("addImgFile").files[0];
   if (mainF)
     await supabase.storage
@@ -433,6 +459,7 @@ document.getElementById("btnDeleteDevice").onclick = async () => {
   location.reload();
 };
 
+// --- AUTH & LOGIN/SIGNUP (BẢN VÁ LỖI CẬP NHẬT PROFILE) ---
 document.getElementById("btnSignIn").onclick = async () => {
   const { error } = await supabase.auth.signInWithPassword({
     email: lEmail.value,
@@ -447,14 +474,31 @@ document.getElementById("btnSignUp").onclick = async () => {
     code = rSecurityCode.value;
   if (role !== "student" && code !== "SEP2026")
     return toast("Mã bảo mật Lab không đúng!");
+
+  document.getElementById("btnSignUp").innerText = "ĐANG XỬ LÝ...";
+
   const { data, error } = await supabase.auth.signUp({
     email: rEmail.value,
     password: rPass.value,
     options: { data: { full_name: rName.value, role: role } },
   });
-  if (error) toast(error.message);
-  else {
-    alert("Đăng ký thành công!");
+
+  document.getElementById("btnSignUp").innerText = "ĐĂNG KÝ NGAY";
+
+  if (error) {
+    toast(error.message);
+  } else {
+    // Ép hệ thống chèn thông tin vào bảng profiles ngay lúc đăng ký
+    if (data?.user) {
+      await supabase.from("profiles").upsert([
+        {
+          id: data.user.id,
+          full_name: rName.value,
+          role: role,
+        },
+      ]);
+    }
+    alert("Đăng ký thành công! Vui lòng Đăng nhập.");
     nav("loginView");
   }
 };
@@ -485,6 +529,7 @@ document.getElementById("btnSubmitSysPass").onclick = async () => {
   location.reload();
 };
 
+// --- UI NAVIGATION ---
 document.getElementById("rRole").onchange = (e) =>
   document
     .getElementById("securityCodeWrapper")
