@@ -4,652 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hệ thống SEP HUST - Quản lý Thiết bị</title>
-    <style>
-      /* BẢNG MÀU CHUẨN HUST & BIẾN TOÀN CỤC */
-      :root {
-        --p: #b71a1c; /* Đỏ HUST */
-        --p-dark: #8c1315;
-        --p-light: #fde8e8;
-        --a: #ef4444; /* Đỏ báo lỗi/Xóa */
-        --s: #10b981; /* Xanh lá thành công */
-        --ins: #f59e0b; /* Vàng cảnh báo/Người phụ trách */
-        --bg: #f8fafc; /* Nền xám rất nhạt */
-        --card-bg: #ffffff;
-        --text-main: #1e293b;
-        --text-muted: #64748b;
-        --border-color: #e2e8f0;
-
-        /* Shadows tinh tế hơn */
-        --shadow-sm:
-          0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
-        --shadow-md:
-          0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-        --shadow-lg:
-          0 10px 15px -3px rgba(0, 0, 0, 0.08),
-          0 4px 6px -2px rgba(0, 0, 0, 0.04);
-        --shadow-hover:
-          0 20px 25px -5px rgba(0, 0, 0, 0.1),
-          0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-        /* Bo góc kỹ thuật hơn */
-        --radius: 8px;
-        --radius-lg: 12px;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-          Arial, sans-serif;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        background-color: var(--bg);
-        color: var(--text-main);
-        -webkit-font-smoothing: antialiased;
-        overflow-x: hidden;
-      }
-
-      /* KIỂU DÁNG CHUNG CHO CÁC KHỐI CHÍNH */
-      .card {
-        background: var(--card-bg);
-        padding: 40px;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
-        width: 420px;
-        max-width: 90vw;
-        text-align: center;
-        transition: all 0.3s ease;
-        margin: auto;
-        border: 1px solid var(--border-color);
-      }
-
-      .card.wide {
-        max-width: 1400px;
-        width: 95vw;
-        height: 92vh;
-        text-align: left;
-        display: flex;
-        flex-direction: column;
-        padding: 30px;
-        border-radius: var(--radius-lg);
-      }
-
-      .logo {
-        width: 140px;
-        max-width: 100%;
-        margin-bottom: 25px;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .card.wide .logo {
-        width: 80px;
-        position: absolute;
-        top: 25px;
-        right: 30px;
-        margin: 0;
-      }
-
-      /* FORM NHẬP LIỆU */
-      input,
-      select,
-      textarea {
-        width: 100%;
-        padding: 12px 16px;
-        margin: 8px 0 16px 0;
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius);
-        font-size: 14px;
-        background: #ffffff;
-        color: var(--text-main);
-        transition:
-          border-color 0.2s ease,
-          box-shadow 0.2s ease;
-      }
-
-      input::placeholder,
-      textarea::placeholder {
-        color: #94a3b8;
-      }
-
-      input:focus,
-      select:focus,
-      textarea:focus {
-        border-color: var(--p);
-        box-shadow: 0 0 0 3px rgba(183, 26, 28, 0.1);
-        outline: none;
-      }
-
-      /* NÚT BẤM */
-      .btn {
-        width: 100%;
-        padding: 12px 20px;
-        background: var(--p);
-        color: white;
-        border: none;
-        border-radius: var(--radius);
-        cursor: pointer;
-        font-weight: 600;
-        font-size: 14px;
-        letter-spacing: 0.3px;
-        margin-top: 10px;
-        transition: all 0.2s ease;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .btn:hover:not(:disabled) {
-        background: var(--p-dark);
-        transform: translateY(-1px);
-        box-shadow: var(--shadow-md);
-      }
-
-      .btn:active:not(:disabled) {
-        transform: translateY(0);
-      }
-      .btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-
-      .hidden {
-        display: none !important;
-      }
-
-      .link {
-        color: var(--p);
-        cursor: pointer;
-        font-weight: 500;
-        font-size: 14px;
-        transition: color 0.2s;
-      }
-      .link:hover {
-        color: var(--p-dark);
-        text-decoration: underline;
-      }
-
-      /* HEADER & TÌM KIẾM */
-      .header-actions {
-        display: flex;
-        gap: 15px;
-        align-items: center;
-        margin-right: 90px;
-        flex-wrap: wrap;
-      }
-
-      .search-box {
-        flex: 1;
-        min-width: 250px;
-        max-width: 100%;
-        position: relative;
-      }
-
-      .search-box input {
-        border-radius: 20px;
-        padding-left: 20px;
-        margin: 0;
-        background: #f1f5f9;
-        border: 1px solid transparent;
-      }
-
-      .search-box input:focus {
-        background: white;
-        border-color: var(--p);
-      }
-
-      /* TAB ĐIỀU HƯỚNG */
-      .tab-container {
-        display: flex;
-        gap: 10px;
-        overflow-x: auto;
-        padding: 15px 0;
-        border-bottom: 2px solid var(--border-color);
-        margin-bottom: 25px;
-        scrollbar-width: none;
-      }
-      .tab-container::-webkit-scrollbar {
-        display: none;
-      }
-
-      .tab-btn {
-        padding: 8px 20px;
-        border-radius: 20px;
-        border: 1px solid transparent;
-        background: transparent;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        color: var(--text-muted);
-        white-space: nowrap;
-        font-size: 14px;
-      }
-
-      .tab-btn:hover {
-        color: var(--text-main);
-        background: #f1f5f9;
-      }
-
-      .tab-btn.active {
-        background: var(--p);
-        color: white;
-        font-weight: 600;
-      }
-
-      /* LƯỚI THIẾT BỊ */
-      .device-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        flex: 1;
-        padding-right: 10px;
-        padding-bottom: 20px;
-      }
-
-      .device-grid::-webkit-scrollbar {
-        width: 6px;
-      }
-      .device-grid::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .device-grid::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 10px;
-      }
-      .device-grid::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-      }
-
-      /* THẺ THIẾT BỊ (CARD) */
-      .device-card {
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-lg);
-        background: #ffffff;
-        transition: all 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .device-card-img {
-        width: 100%;
-        height: 160px;
-        object-fit: cover;
-        background: #f8fafc;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      .device-card-body {
-        padding: 16px 20px;
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        justify-content: space-between;
-      }
-
-      .device-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-hover);
-        border-color: #cbd5e1;
-      }
-
-      .device-card h3 {
-        margin: 8px 0 0 0;
-        color: var(--text-main);
-        font-size: 16px;
-        font-weight: 600;
-        line-height: 1.4;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        word-wrap: break-word;
-      }
-
-      /* NHÃN TRẠNG THÁI & DANH MỤC */
-      .tag {
-        background: #f1f5f9;
-        color: var(--text-muted);
-        padding: 4px 10px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        display: inline-block;
-        white-space: nowrap;
-        border: 1px solid var(--border-color);
-      }
-
-      .status-badge {
-        font-size: 11px;
-        font-weight: 600;
-        padding: 4px 10px;
-        border-radius: 4px;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        white-space: nowrap;
-      }
-      .st-normal {
-        background: #ecfdf5;
-        color: #047857;
-        border: 1px solid #a7f3d0;
-      }
-      .st-maintenance {
-        background: #fffbeb;
-        color: #b45309;
-        border: 1px solid #fde68a;
-      }
-      .st-broken {
-        background: #fef2f2;
-        color: #b91c1c;
-        border: 1px solid #fecaca;
-      }
-
-      /* MODAL (CỬA SỔ CHI TIẾT VÀ THÊM THIẾT BỊ) */
-      .modal-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(15, 23, 42, 0.75);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-        backdrop-filter: blur(4px);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.2s ease;
-      }
-      .modal-overlay:not(.hidden) {
-        opacity: 1;
-        visibility: visible;
-      }
-
-      .modal-content {
-        background: white;
-        border-radius: var(--radius-lg);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        transform: scale(0.98) translateY(10px);
-        transition: all 0.2s ease-out;
-        scroll-behavior: smooth;
-        max-width: 900px;
-        width: 95vw;
-        max-height: 90vh;
-        overflow-y: auto;
-        padding: 40px;
-        position: relative;
-      }
-      .modal-overlay:not(.hidden) .modal-content {
-        transform: scale(1) translateY(0);
-      }
-
-      /* LƯỚI BỐ CỤC TRONG MODAL */
-      .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 30px;
-        text-align: left;
-      }
-
-      .input-group label {
-        display: block;
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--text-main);
-        margin-bottom: 4px;
-      }
-
-      .file-upload-wrapper {
-        background: #f8fafc;
-        padding: 16px;
-        border-radius: var(--radius);
-        border: 2px dashed #cbd5e1;
-        transition: border-color 0.2s;
-      }
-      .file-upload-wrapper:hover {
-        border-color: var(--p);
-      }
-
-      /* THÔNG BÁO TOAST XỊN XÒ (NÂNG CẤP) */
-      #toast-container {
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        z-index: 99999;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        pointer-events: none;
-      }
-
-      .toast {
-        padding: 14px 20px;
-        border-radius: var(--radius);
-        font-weight: 500;
-        font-size: 14px;
-        color: white;
-        box-shadow: var(--shadow-lg);
-        max-width: 350px;
-        word-wrap: break-word;
-        animation:
-          slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards,
-          fadeOut 0.4s 3.6s forwards;
-        pointer-events: auto;
-      }
-
-      .toast.success {
-        background: var(--s);
-        border-left: 6px solid #047857;
-      }
-      .toast.error {
-        background: var(--a);
-        border-left: 6px solid #b91c1c;
-      }
-
-      @keyframes slideInRight {
-        from {
-          transform: translateX(120%);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-      @keyframes fadeOut {
-        from {
-          transform: translateX(0);
-          opacity: 1;
-        }
-        to {
-          transform: translateX(120%);
-          opacity: 0;
-        }
-      }
-
-      /* OVERLAY TIẾN TRÌNH TẢI ẢNH (PROGRESS BAR) */
-      #progressOverlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(255, 255, 255, 0.9);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 10002;
-        border-radius: var(--radius-lg);
-        backdrop-filter: blur(2px);
-      }
-      .progress-box {
-        width: 80%;
-        max-width: 400px;
-        text-align: center;
-      }
-      .progress-track {
-        width: 100%;
-        height: 12px;
-        background: #e2e8f0;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-top: 15px;
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-      .progress-fill {
-        height: 100%;
-        width: 0%;
-        background: var(--p);
-        border-radius: 10px;
-        transition: width 0.3s ease;
-      }
-
-      /* MENU NGƯỜI DÙNG */
-      .user-menu-container {
-        position: relative;
-      }
-      .user-trigger {
-        background: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-weight: 500;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: var(--text-main);
-        transition: background 0.2s;
-        border: 1px solid var(--border-color);
-      }
-      .user-trigger:hover {
-        background: #f1f5f9;
-      }
-
-      .dropdown-menu {
-        position: absolute;
-        top: 120%;
-        right: 0;
-        background: white;
-        width: 220px;
-        box-shadow: var(--shadow-lg);
-        border-radius: var(--radius);
-        display: none;
-        z-index: 10001;
-        border: 1px solid var(--border-color);
-        overflow: hidden;
-        opacity: 0;
-        transform: translateY(-5px);
-        transition: all 0.2s ease;
-      }
-      .dropdown-menu.show {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-      }
-      .dropdown-item {
-        padding: 12px 16px;
-        cursor: pointer;
-        text-align: left;
-        font-size: 13px;
-        transition: 0.2s;
-        color: var(--text-main);
-      }
-      .dropdown-item:hover {
-        background: #f1f5f9;
-        color: var(--p);
-      }
-
-      /* KHU VỰC CHỈNH SỬA CHO ADMIN */
-      #insZone {
-        border: 1px solid var(--border-color);
-        padding: 24px;
-        border-radius: var(--radius);
-        background: #f8fafc;
-        margin-top: 30px;
-        transition: all 0.3s ease;
-      }
-
-      /* TIÊU ĐỀ BÀI VIẾT BÊN TRONG MODAL */
-      .section-title {
-        color: var(--text-main);
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 8px;
-        margin-bottom: 12px;
-        font-size: 16px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .content-text {
-        line-height: 1.6;
-        color: var(--text-muted);
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        font-size: 14px;
-      }
-
-      /* RESPONSIVE CHO MÀN HÌNH NHỎ */
-      @media (max-width: 768px) {
-        .card.wide {
-          padding: 20px;
-          height: 100vh;
-          width: 100vw;
-          border-radius: 0;
-          border: none;
-        }
-        .form-grid {
-          grid-template-columns: 1fr;
-          gap: 15px;
-        }
-        .header-actions {
-          margin-right: 0;
-          margin-top: 15px;
-          width: 100%;
-          justify-content: space-between;
-        }
-        .card.wide .logo {
-          display: none;
-        }
-        .search-box {
-          min-width: 100%;
-        }
-        .device-grid {
-          grid-template-columns: 1fr;
-          gap: 15px;
-          padding-right: 0;
-        }
-        .modal-content {
-          padding: 20px;
-          width: 100vw;
-          height: 100vh;
-          max-height: 100vh;
-          border-radius: 0;
-          transform: scale(1) translateY(0);
-        }
-        .device-card-img {
-          height: 200px;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div id="toast-container"></div>
@@ -657,16 +12,15 @@
     <div id="changePassModal" class="modal-overlay hidden">
       <div
         class="modal-content"
-        style="width: 400px; padding: 30px; height: auto"
+        style="
+          width: 400px;
+          max-width: 90vw;
+          height: auto;
+          padding: 30px;
+          display: block;
+        "
       >
-        <h2 id="modalPassTitle" style="margin-top: 0; font-size: 20px">
-          Thiết lập mật khẩu mới
-        </h2>
-        <p
-          style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px"
-        >
-          Vui lòng nhập mật khẩu mới có ít nhất 6 ký tự.
-        </p>
+        <h2 style="margin-top: 0; font-size: 20px">Thiết lập mật khẩu mới</h2>
         <input
           type="password"
           id="sysNewPass"
@@ -680,7 +34,7 @@
         <button
           id="btnSubmitSysPass"
           class="btn"
-          style="background: var(--text-main)"
+          style="width: 100%; margin-bottom: 10px"
         >
           CẬP NHẬT MẬT KHẨU
         </button>
@@ -690,10 +44,10 @@
             document.getElementById('changePassModal').classList.add('hidden')
           "
           style="
+            width: 100%;
             background: white;
             color: var(--text-main);
             border: 1px solid var(--border-color);
-            box-shadow: none;
           "
         >
           HỦY BỎ
@@ -703,638 +57,394 @@
 
     <div id="detailModal" class="modal-overlay hidden">
       <div class="modal-content">
-        <div
-          id="progressOverlayDetail"
-          class="hidden"
-          style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10002;
-            border-radius: var(--radius-lg);
-            backdrop-filter: blur(2px);
-          "
-        >
-          <div class="progress-box">
-            <h3 style="color: var(--text-main); margin-bottom: 5px">
-              Đang tải lên hệ thống...
-            </h3>
-            <p
-              id="progressTextDetail"
-              style="
-                color: var(--p);
-                font-weight: bold;
-                font-size: 20px;
-                margin: 0;
-              "
-            >
-              0%
-            </p>
-            <div class="progress-track">
-              <div id="progressBarDetail" class="progress-fill"></div>
+        <button class="btn-close-modal" onclick="closeModal()">×</button>
+        <div class="modal-left-pane">
+          <img id="mImage" src="" alt="Thiết bị" />
+          <div id="mStepGallery"></div>
+        </div>
+        <div class="modal-right-pane">
+          <div class="modal-header-info">
+            <div style="display: flex; gap: 8px; align-items: center">
+              <span id="mTag" class="tag"></span
+              ><span id="mStatusBadge" class="status-badge"></span>
+            </div>
+            <h2 id="mTitle">Tên thiết bị</h2>
+            <div style="display: flex; gap: 12px; margin-top: 16px">
+              <button id="btnToggleEdit" class="btn hidden">✎ CẬP NHẬT</button>
+              <button
+                id="btnDeleteDevice"
+                class="btn hidden"
+                style="
+                  background: white;
+                  color: var(--a);
+                  border: 1px solid var(--a);
+                "
+              >
+                ❌ XÓA
+              </button>
             </div>
           </div>
-        </div>
 
+          <div class="mini-tabs">
+            <button
+              class="mini-tab-btn active"
+              id="btnTabInfo"
+              onclick="switchModalTab('info')"
+            >
+              📄 Thông tin chung
+            </button>
+            <button
+              class="mini-tab-btn"
+              id="btnTabLog"
+              onclick="switchModalTab('log')"
+            >
+              📓 Nhật ký sử dụng
+            </button>
+          </div>
+
+          <div id="mTabInfo" class="modal-tab-content">
+            <div class="form-grid">
+              <div>
+                <h4 class="section-title">Mô tả chi tiết</h4>
+                <div id="mDesc" class="content-text"></div>
+              </div>
+              <div>
+                <h4 class="section-title">Quy trình vận hành</h4>
+                <div id="mSteps" class="content-text"></div>
+                <button
+                  id="btnViewSOP"
+                  class="btn"
+                  style="margin-top: 15px; width: 100%"
+                >
+                  📸 XEM CẨM NANG SOP
+                </button>
+              </div>
+            </div>
+            <div
+              id="insZone"
+              class="hidden"
+              style="
+                margin-top: 25px;
+                border-top: 2px dashed #e2e8f0;
+                padding-top: 20px;
+              "
+            >
+              <h4 class="section-title">CẬP NHẬT DỮ LIỆU</h4>
+              <select id="insStatus">
+                <option value="normal">🟢 Hoạt động tốt</option>
+                <option value="maintenance">🟡 Đang bảo trì</option>
+                <option value="broken">🔴 Đang báo lỗi</option>
+              </select>
+              <textarea
+                id="insInput"
+                rows="4"
+                placeholder="Mô tả thiết bị..."
+              ></textarea>
+              <textarea
+                id="insStepsInput"
+                rows="4"
+                placeholder="Quy trình vận hành..."
+              ></textarea>
+              <div
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px"
+              >
+                <div class="upload-box">
+                  <label>Đổi ảnh đại diện</label
+                  ><input type="file" id="updateImgFile" accept="image/*" />
+                </div>
+                <div class="upload-box">
+                  <label>Đổi ảnh từng bước</label>
+                  <div id="dynamicEditSteps"></div>
+                </div>
+              </div>
+              <button
+                id="btnSaveUpdate"
+                class="btn"
+                style="width: 100%; margin-top: 20px"
+              >
+                LƯU THAY ĐỔI
+              </button>
+            </div>
+          </div>
+
+          <div id="mTabLog" class="modal-tab-content hidden">
+            <div class="log-form-container">
+              <h4 style="margin: 0 0 15px 0">✍️ Thêm lượt sử dụng mới</h4>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: 1fr 1fr 1fr;
+                  gap: 10px;
+                "
+              >
+                <div><label>Ngày</label><input type="date" id="logDate" /></div>
+                <div>
+                  <label>Từ giờ</label><input type="time" id="logStart" />
+                </div>
+                <div>
+                  <label>Đến giờ</label><input type="time" id="logEnd" />
+                </div>
+              </div>
+              <label>Mục đích nghiên cứu / Ghi chú sự cố</label>
+              <input
+                type="text"
+                id="logPurpose"
+                placeholder="Ví dụ: Đo mẫu màng mỏng XRD..."
+                style="margin-bottom: 15px"
+              />
+              <button id="btnSubmitLog" class="btn" style="width: 100%">
+                GHI VÀO SỔ TAY LAB
+              </button>
+            </div>
+            <h4
+              style="
+                margin: 25px 0 15px 0;
+                border-bottom: 2px solid var(--border-color);
+                padding-bottom: 10px;
+              "
+            >
+              Lịch sử hoạt động
+            </h4>
+            <div id="logListContainer"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sopModal" class="modal-overlay hidden" style="z-index: 10005">
+      <div
+        class="modal-content"
+        style="
+          max-width: 850px;
+          height: 85vh;
+          flex-direction: column;
+          padding: 0;
+        "
+      >
         <div
           style="
+            padding: 20px 30px;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            flex-wrap: wrap;
-            gap: 15px;
+            align-items: center;
+            background: var(--bg-body);
           "
         >
-          <div style="flex: 1; min-width: 250px">
-            <div
-              style="
-                display: flex;
-                gap: 8px;
-                align-items: center;
-                flex-wrap: wrap;
-                margin-bottom: 8px;
-              "
-            >
-              <span id="mTag" class="tag"></span>
-              <span id="mStatusBadge" class="status-badge"></span>
-            </div>
-            <h2
-              id="mTitle"
-              style="margin: 0; font-size: 24px; word-wrap: break-word"
-            ></h2>
-          </div>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap">
-            <button
-              id="btnToggleEdit"
-              class="btn hidden"
-              style="
-                width: auto;
-                background: var(--text-main);
-                margin: 0;
-                padding: 8px 16px;
-                font-size: 13px;
-                box-shadow: none;
-              "
-            >
-              ✎ CẬP NHẬT
-            </button>
-            <button
-              id="btnDeleteDevice"
-              class="btn hidden"
-              style="
-                width: auto;
-                background: white;
-                color: var(--a);
-                border: 1px solid var(--a);
-                margin: 0;
-                padding: 8px 16px;
-                font-size: 13px;
-                box-shadow: none;
-              "
-            >
-              XÓA
-            </button>
-          </div>
-        </div>
-
-        <img
-          id="mImage"
-          src=""
-          style="
-            width: 100%;
-            border-radius: var(--radius);
-            margin: 20px 0;
-            border: 1px solid var(--border-color);
-            object-fit: cover;
-            max-height: 400px;
-            background: #f8fafc;
-          "
-          alt="Thiết bị"
-        />
-
-        <div class="form-grid">
-          <div>
-            <h4 class="section-title">Mô tả thiết bị</h4>
-            <div id="mDesc" class="content-text"></div>
-          </div>
-          <div>
-            <h4 class="section-title">Quy trình vận hành</h4>
-            <div id="mSteps" class="content-text"></div>
-          </div>
-        </div>
-
-        <div
-          id="mStepGallery"
-          style="
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            margin-top: 24px;
-            padding-bottom: 10px;
-            scrollbar-width: thin;
-          "
-        ></div>
-
-        <div id="insZone" class="hidden">
-          <h3
-            style="
-              margin-top: 0;
-              margin-bottom: 20px;
-              font-size: 16px;
-              border-bottom: 1px solid var(--border-color);
-              padding-bottom: 10px;
-            "
-          >
-            THÔNG TIN CẬP NHẬT
-          </h3>
-
-          <div class="input-group">
-            <label>Trạng thái hiện tại</label>
-            <select id="insStatus">
-              <option value="normal">🟢 Hoạt động tốt</option>
-              <option value="maintenance">🟡 Đang bảo trì / hiệu chuẩn</option>
-              <option value="broken">🔴 Đang báo lỗi / hỏng</option>
-            </select>
-          </div>
-
-          <div class="input-group">
-            <label>Mô tả thiết bị</label>
-            <textarea id="insInput" rows="4"></textarea>
-          </div>
-          <div class="input-group">
-            <label>Quy trình vận hành</label>
-            <textarea id="insStepsInput" rows="4"></textarea>
-          </div>
-
-          <div
-            style="
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-              gap: 15px;
-              margin-top: 10px;
-            "
-          >
-            <div class="file-upload-wrapper">
-              <label>Thay đổi ảnh chính</label>
-              <input
-                type="file"
-                id="updateImgFile"
-                accept="image/*"
-                style="
-                  border: none;
-                  padding: 0;
-                  background: transparent;
-                  margin: 0;
-                "
-              />
-            </div>
-            <div class="file-upload-wrapper">
-              <label>Thay đổi ảnh quy trình</label>
-              <input
-                type="file"
-                id="stepImgFiles"
-                multiple
-                accept="image/*"
-                style="
-                  border: none;
-                  padding: 0;
-                  background: transparent;
-                  margin: 0;
-                "
-              />
-            </div>
-          </div>
-
-          <div
-            style="display: flex; justify-content: flex-end; margin-top: 20px"
-          >
-            <button
-              id="btnSaveUpdate"
-              class="btn"
-              style="width: auto; padding: 10px 24px"
-            >
-              LƯU THAY ĐỔI
-            </button>
-          </div>
-        </div>
-
-        <div style="text-align: center; margin-top: 30px">
+          <h2 style="margin: 0; font-size: 20px">Cẩm nang Vận hành chi tiết</h2>
           <button
-            class="btn"
-            onclick="closeModal()"
-            style="
-              width: auto;
-              min-width: 120px;
-              display: inline-block;
-              background: white;
-              color: var(--text-main);
-              border: 1px solid var(--border-color);
-              box-shadow: none;
+            class="btn-close-modal"
+            style="position: static"
+            onclick="
+              document.getElementById('sopModal').classList.add('hidden')
             "
           >
-            ĐÓNG
+            ×
           </button>
         </div>
+        <div
+          id="sopContent"
+          style="padding: 30px; overflow-y: auto; flex: 1"
+        ></div>
       </div>
     </div>
 
     <div id="addDeviceModal" class="modal-overlay hidden">
       <div
         class="modal-content"
-        style="max-width: 800px; padding: 30px; position: relative"
+        style="max-width: 900px; padding: 40px; display: block; height: auto"
       >
-        <div
-          id="progressOverlayAdd"
-          class="hidden"
-          style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.9);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 10002;
-            border-radius: var(--radius-lg);
-            backdrop-filter: blur(2px);
+        <button
+          class="btn-close-modal"
+          onclick="
+            document.getElementById('addDeviceModal').classList.add('hidden')
           "
         >
-          <div class="progress-box">
-            <h3 style="color: var(--text-main); margin-bottom: 5px">
-              Đang tải dữ liệu và ảnh lên hệ thống...
-            </h3>
-            <p
-              id="progressTextAdd"
-              style="
-                color: var(--p);
-                font-weight: bold;
-                font-size: 20px;
-                margin: 0;
-              "
-            >
-              0%
-            </p>
-            <div class="progress-track">
-              <div id="progressBarAdd" class="progress-fill"></div>
-            </div>
-          </div>
-        </div>
-
+          ×
+        </button>
         <h2
           style="
             margin-top: 0;
-            font-size: 20px;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            padding-bottom: 15px;
           "
         >
           THÊM THIẾT BỊ MỚI
         </h2>
-
-        <div class="form-grid">
-          <div class="form-left">
-            <div class="input-group">
-              <label>Tên thiết bị</label>
-              <input
-                type="text"
-                id="addName"
-                placeholder="Nhập tên chính xác..."
-              />
-            </div>
-
-            <div
-              style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px"
-            >
-              <div class="input-group">
-                <label>Phân loại</label>
-                <select id="addCat">
-                  <option value="analyze">Phân tích & Đo lường</option>
-                  <option value="nano">Cấu trúc Nano</option>
-                  <option value="optics">Đo Quang Học</option>
-                  <option value="ndt">Kiểm tra NDT</option>
-                  <option value="magnet">Từ tính & Điện</option>
-                  <option value="nuclear">Hạt nhân & Môi trường</option>
-                  <option value="edu">Giảng dạy & Tính toán</option>
-                </select>
-              </div>
-              <div class="input-group">
-                <label>Trạng thái ban đầu</label>
-                <select id="addStatus">
-                  <option value="normal">🟢 Hoạt động tốt</option>
-                  <option value="maintenance">🟡 Đang bảo trì</option>
-                  <option value="broken">🔴 Đang báo lỗi</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="input-group">
-              <label>Mô tả đặc tính kỹ thuật</label>
-              <textarea
-                id="addDesc"
-                rows="4"
-                placeholder="Nhập thông số, công dụng..."
-              ></textarea>
-            </div>
-          </div>
-
-          <div class="form-right">
-            <div class="input-group">
-              <label>Hướng dẫn vận hành ngắn gọn</label>
-              <textarea
-                id="addSteps"
-                rows="4"
-                placeholder="Các bước cơ bản..."
-              ></textarea>
-            </div>
-            <div class="file-upload-wrapper">
-              <label>Tải lên ảnh đại diện</label>
-              <input
-                type="file"
-                id="addImgFile"
-                accept="image/*"
-                style="
-                  border: none;
-                  padding: 0;
-                  background: transparent;
-                  margin-bottom: 15px;
-                "
-              />
-
-              <label>Tải lên ảnh các bước (Chọn nhiều file)</label>
-              <input
-                type="file"
-                id="addStepImgFiles"
-                accept="image/*"
-                multiple
-                style="
-                  border: none;
-                  padding: 0;
-                  background: transparent;
-                  margin: 0;
-                "
-              />
-            </div>
-          </div>
-        </div>
-
         <div
-          style="
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 25px;
-            border-top: 1px solid var(--border-color);
-            padding-top: 20px;
-          "
+          class="form-grid"
+          style="grid-template-columns: 1fr 1fr; gap: 30px"
         >
-          <button
-            class="btn"
-            onclick="
-              document.getElementById('addDeviceModal').classList.add('hidden')
-            "
-            style="
-              width: auto;
-              background: white;
-              color: var(--text-main);
-              border: 1px solid var(--border-color);
-              box-shadow: none;
-            "
-          >
-            HỦY BỎ
-          </button>
-          <button
-            id="btnSubmitAdd"
-            class="btn"
-            style="width: auto; margin: 0; padding: 10px 24px"
-          >
-            LƯU VÀO HỆ THỐNG
-          </button>
+          <div>
+            <label>Tên thiết bị</label><input type="text" id="addName" />
+            <label>Phân loại nhóm</label>
+            <select id="addCat">
+              <option value="analyze">Phân tích & Đo lường</option>
+              <option value="nano">Cấu trúc Nano</option>
+              <option value="optics">Đo Quang Học</option>
+              <option value="ndt">Kiểm tra NDT</option>
+              <option value="magnet">Từ tính & Điện</option>
+              <option value="nuclear">Hạt nhân & Môi trường</option>
+              <option value="edu">Giảng dạy & Tính toán</option>
+            </select>
+            <label>Mô tả kỹ thuật</label
+            ><textarea id="addDesc" rows="5"></textarea>
+          </div>
+          <div>
+            <label>Hướng dẫn vận hành</label
+            ><textarea
+              id="addSteps"
+              rows="5"
+              placeholder="Mỗi lần Enter xuống dòng sẽ tự tạo 1 ô up ảnh..."
+            ></textarea>
+            <div class="upload-box">
+              <label>Tải lên ảnh đại diện</label
+              ><input type="file" id="addImgFile" accept="image/*" />
+              <div
+                style="
+                  margin-top: 15px;
+                  border-top: 1px dashed #cbd5e1;
+                  padding-top: 15px;
+                "
+              >
+                <label>Tải lên ảnh từng bước</label>
+                <div id="dynamicAddSteps">
+                  <p
+                    style="
+                      font-size: 12px;
+                      color: var(--text-muted);
+                      font-style: italic;
+                    "
+                  >
+                    * Hãy gõ quy trình vận hành ở ô bên trên để tự tạo ô tải
+                    ảnh.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <button
+          id="btnSubmitAdd"
+          class="btn"
+          style="width: 100%; margin-top: 25px"
+        >
+          LƯU VÀO HỆ THỐNG
+        </button>
       </div>
     </div>
 
     <div id="mainCard" class="card">
-      <img src="logovien.png" alt="Logo HUST" class="logo" />
-
       <div id="loginView">
-        <h2 style="margin-bottom: 8px; font-size: 22px">
-          Hệ thống Quản lý Thiết bị
-        </h2>
-        <p
-          style="color: var(--text-muted); font-size: 14px; margin-bottom: 25px"
-        >
+        <img
+          src="logovien.png"
+          alt="Logo"
+          class="logo"
+          style="width: 90px; margin-bottom: 20px"
+        />
+        <h2>Hệ thống SEP HUST</h2>
+        <p style="color: var(--text-muted); margin-bottom: 25px">
           Trường Vật liệu - Đại học Bách khoa Hà Nội
         </p>
-
-        <div style="text-align: left">
-          <input type="email" id="lEmail" placeholder="Email (@hust.edu.vn)" />
-          <input type="password" id="lPass" placeholder="Mật khẩu" />
-        </div>
-
-        <button class="btn" id="btnSignIn">ĐĂNG NHẬP</button>
-
+        <input type="email" id="lEmail" placeholder="Email đăng nhập" />
+        <input type="password" id="lPass" placeholder="Mật khẩu" />
+        <button class="btn" id="btnSignIn" style="width: 100%">
+          ĐĂNG NHẬP
+        </button>
         <div
           style="
             margin-top: 20px;
-            font-size: 13px;
+            font-size: 14px;
             display: flex;
             justify-content: center;
             gap: 15px;
           "
         >
-          <span class="link" onclick="nav('regView')">Đăng ký tài khoản</span>
-          <span style="color: var(--border-color)">|</span>
-          <span
-            class="link"
-            style="color: var(--text-muted)"
-            onclick="nav('forgotView')"
-            >Quên mật khẩu?</span
-          >
+          <span class="link" onclick="nav('regView')">Đăng ký tài khoản</span> |
+          <span class="link" onclick="nav('forgotView')">Quên mật khẩu?</span>
         </div>
       </div>
 
       <div id="regView" class="hidden">
-        <h2 style="margin-bottom: 20px; font-size: 20px">Tạo tài khoản mới</h2>
-        <div style="text-align: left">
-          <input type="text" id="rName" placeholder="Họ và Tên" />
-          <input type="text" id="rMSSV" placeholder="MSSV / Mã cán bộ" />
-          <select id="rRole">
-            <option value="student">👨‍🎓 Sinh viên (Chỉ xem dữ liệu)</option>
-            <option value="instructor">🛠️ Người phụ trách thiết bị</option>
-          </select>
-          <div id="securityCodeWrapper" class="hidden">
-            <input
-              type="password"
-              id="rSecurityCode"
-              placeholder="Mã bảo mật Lab cung cấp..."
-              style="background: #f8fafc; border-color: #cbd5e1"
-            />
-          </div>
-          <input type="email" id="rEmail" placeholder="Email (@hust.edu.vn)" />
+        <h2>Tạo tài khoản mới</h2>
+        <input type="text" id="rName" placeholder="Họ và Tên" />
+        <select id="rRole">
+          <option value="student">👨‍🎓 Sinh viên (Chỉ xem)</option>
+          <option value="instructor">🛠️ Người phụ trách Lab</option>
+          <option value="admin">👑 Quản trị viên</option>
+        </select>
+        <div id="securityCodeWrapper" class="hidden">
           <input
             type="password"
-            id="rPass"
-            placeholder="Mật khẩu (từ 6 ký tự)"
+            id="rSecurityCode"
+            placeholder="Mã bảo mật (VD: SEP2026)"
           />
         </div>
-
-        <button class="btn" id="btnSignUp" style="background: var(--text-main)">
-          XÁC NHẬN ĐĂNG KÝ
+        <input type="email" id="rEmail" placeholder="Email liên hệ" />
+        <input type="password" id="rPass" placeholder="Mật khẩu (từ 6 ký tự)" />
+        <button class="btn" id="btnSignUp" style="width: 100%">
+          ĐĂNG KÝ NGAY
         </button>
-        <p style="margin-top: 15px; font-size: 13px">
-          <span
-            class="link"
-            style="color: var(--text-muted)"
-            onclick="nav('loginView')"
-            >← Quay lại</span
+        <p style="margin-top: 15px">
+          <span class="link" onclick="nav('loginView')"
+            >← Quay lại Đăng nhập</span
           >
         </p>
       </div>
 
       <div id="forgotView" class="hidden">
-        <h2 style="margin-bottom: 10px; font-size: 20px">Khôi phục mật khẩu</h2>
-        <p
-          style="color: var(--text-muted); margin-bottom: 20px; font-size: 13px"
-        >
-          Hệ thống sẽ gửi liên kết đặt lại mật khẩu qua email của bạn.
-        </p>
+        <h2>Khôi phục mật khẩu</h2>
         <input type="email" id="fEmail" placeholder="Nhập email đăng ký..." />
-        <button class="btn" id="btnReset" style="background: var(--text-main)">
+        <button class="btn" id="btnReset" style="width: 100%">
           GỬI YÊU CẦU
         </button>
-        <p style="margin-top: 15px; font-size: 13px">
-          <span
-            class="link"
-            style="color: var(--text-muted)"
-            onclick="nav('loginView')"
-            >← Quay lại</span
+        <p style="margin-top: 15px">
+          <span class="link" onclick="nav('loginView')"
+            >← Quay lại Đăng nhập</span
           >
         </p>
       </div>
 
       <div id="systemView" class="hidden">
-        <div
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 15px;
-            flex-wrap: wrap;
-          "
-        >
-          <div>
-            <h1
-              style="
-                color: var(--text-main);
-                margin: 0;
-                font-size: 22px;
-                font-weight: 700;
-              "
-            >
-              THIẾT BỊ PHÒNG THÍ NGHIỆM
-            </h1>
-            <p
-              style="
-                margin: 4px 0 0 0;
-                color: var(--text-muted);
-                font-size: 13px;
-              "
-            >
-              Trường Vật liệu - HUST
-            </p>
-          </div>
-
-          <div class="header-actions">
-            <div class="search-box">
-              <input
-                type="text"
-                id="searchDevice"
-                placeholder="🔍 Tìm kiếm thiết bị..."
-                oninput="filterDevices()"
-              />
+        <header class="dashboard-header">
+          <div class="header-title-group">
+            <img src="logovien.png" alt="Logo" style="width: 55px" />
+            <div>
+              <h1 style="margin: 0; font-size: 18px; color: var(--text-main)">
+                HỆ THỐNG SEP HUST
+              </h1>
             </div>
-
+          </div>
+          <div class="header-actions">
             <button
               id="btnShowAddModal"
               class="btn hidden"
-              style="
-                width: auto;
-                margin: 0;
-                padding: 10px 20px;
-                border-radius: 20px;
-                font-size: 13px;
-                white-space: nowrap;
-              "
               onclick="
                 document
                   .getElementById('addDeviceModal')
                   .classList.remove('hidden')
               "
             >
-              + THÊM MỚI
+              + THÊM THIẾT BỊ
             </button>
-
-            <div class="user-menu-container">
-              <div class="user-trigger" id="userTrigger">
-                <div
-                  style="
-                    width: 28px;
-                    height: 28px;
-                    background: var(--p-light);
-                    border-radius: 50%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    color: var(--p);
-                    font-weight: 600;
-                    font-size: 12px;
-                  "
-                >
-                  U
-                </div>
-                <span id="userShortLabel">Tài khoản</span>
-                <span style="font-size: 10px; color: var(--text-muted)">▼</span>
-              </div>
+            <div class="user-menu-container" id="userTrigger">
+              <div class="user-avatar-small" id="userAvatarHeader">U</div>
+              <span id="userShortLabel" style="font-weight: 600"
+                >Tài khoản</span
+              >
               <div class="dropdown-menu" id="userDropdown">
                 <div
                   style="
-                    padding: 16px;
-                    background: #f8fafc;
+                    padding: 15px;
                     border-bottom: 1px solid var(--border-color);
                   "
                 >
-                  <strong
-                    style="
-                      display: block;
-                      color: var(--text-main);
-                      margin-bottom: 4px;
-                      font-size: 13px;
-                    "
-                    id="userNameFull"
-                    >Họ Tên</strong
-                  >
-                  <span
-                    style="
-                      font-size: 11px;
-                      color: var(--text-muted);
-                      background: white;
-                      padding: 2px 6px;
-                      border-radius: 4px;
-                      border: 1px solid var(--border-color);
-                    "
+                  <strong id="userNameFull">Họ Tên</strong><br />
+                  <small
                     id="userRoleBadge"
-                    >Vai trò</span
+                    class="tag"
+                    style="margin-top: 5px; display: inline-block"
+                    >Vai trò</small
                   >
                 </div>
                 <div
@@ -1360,608 +470,114 @@
               </div>
             </div>
           </div>
+        </header>
+
+        <div class="hust-hero">
+          <span class="hero-badge">Trường Vật liệu - ĐHBK Hà Nội</span>
+          <h1 class="hero-title">Quản lý & Vận hành Thiết bị</h1>
+          <p class="hero-subtitle">
+            Tra cứu thông số kỹ thuật và cẩm nang SOP của các thiết bị trong Lab
+          </p>
         </div>
 
-        <div class="tab-container">
-          <button class="tab-btn active" data-cat="analyze">
-            Phân Tích & Đo Lường
-          </button>
-          <button class="tab-btn" data-cat="nano">Cấu trúc Nano</button>
-          <button class="tab-btn" data-cat="optics">Đo Quang Học</button>
-          <button class="tab-btn" data-cat="ndt">Kiểm Tra NDT</button>
-          <button class="tab-btn" data-cat="magnet">Từ Tính & Điện</button>
-          <button class="tab-btn" data-cat="nuclear">
-            Hạt Nhân & Môi Trường
-          </button>
-          <button class="tab-btn" data-cat="edu">Giảng Dạy & Tính Toán</button>
+        <div class="hust-search-container">
+          <div class="hust-search-box">
+            <span style="font-size: 18px; opacity: 0.5">🔍</span>
+            <input
+              type="text"
+              id="searchDevice"
+              placeholder="Nhập tên thiết bị cần tìm..."
+              oninput="filterDevices()"
+            />
+          </div>
         </div>
 
-        <div class="device-grid" id="deviceGrid"></div>
-      </div>
-    </div>
+        <main class="main-content-wrapper">
+          <div class="tab-container">
+            <button class="tab-btn active" data-cat="analyze">
+              Phân Tích & Đo Lường
+            </button>
+            <button class="tab-btn" data-cat="nano">Cấu trúc Nano</button>
+            <button class="tab-btn" data-cat="optics">Đo Quang Học</button>
+            <button class="tab-btn" data-cat="ndt">Kiểm Tra NDT</button>
+            <button class="tab-btn" data-cat="magnet">Từ Tính & Điện</button>
+            <button class="tab-btn" data-cat="nuclear">
+              Hạt Nhân & Môi Trường
+            </button>
+            <button class="tab-btn" data-cat="edu">
+              Giảng Dạy & Tính Toán
+            </button>
+            <button
+              id="tabAdminUsers"
+              class="tab-btn hidden"
+              data-cat="users"
+              style="
+                color: var(--p);
+                border-color: var(--p-light);
+                margin-left: auto;
+              "
+            >
+              👑 Quản lý Người dùng
+            </button>
+          </div>
 
-    <script type="module">
-      import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+          <div class="device-grid" id="deviceGrid"></div>
 
-      const supabase = createClient(
-        "https://iddadoxyxtgutjhaxloc.supabase.co",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkZGFkb3h5eHRndXRqaGF4bG9jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2NjI3NzgsImV4cCI6MjA4NTIzODc3OH0.7Hdzr0byvX-BXGsQkDpV46fzjXs7wSa2Fv4lz4GcGDA",
-      );
-
-      let currentProfile = null;
-      let selectedDevice = null;
-      let allLoadedDevices = [];
-
-      async function checkCurrentSession() {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (session) {
-          loadUserProfile(session.user.id);
-        } else {
-          nav("loginView");
-        }
-      }
-      checkCurrentSession();
-
-      supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === "PASSWORD_RECOVERY") {
-          document.getElementById("changePassModal").classList.remove("hidden");
-          document.getElementById("modalPassTitle").innerText =
-            "Thiết lập mật khẩu mới";
-        }
-        if (event === "SIGNED_IN" && session) {
-          loadUserProfile(session.user.id);
-        }
-      });
-
-      async function loadUserProfile(userId) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", userId)
-          .single();
-        if (profile) {
-          currentProfile = profile;
-          const shortName = profile.full_name.split(" ").pop();
-          document.getElementById("userShortLabel").innerText = shortName;
-          document.getElementById("userNameFull").innerText = profile.full_name;
-          document.getElementById("userRoleBadge").innerText =
-            profile.role === "instructor" ? "Người phụ trách" : "Sinh viên";
-
-          if (profile.role === "instructor") {
-            // Hiển thị nút Thêm Mới cho Instructor
-            document
-              .getElementById("btnShowAddModal")
-              .classList.remove("hidden");
-          }
-
-          nav("systemView");
-          const activeTabBtn = document.querySelector(".tab-btn.active");
-          render(activeTabBtn ? activeTabBtn.dataset.cat : "analyze");
-        }
-      }
-
-      const trigger = document.getElementById("userTrigger");
-      const dropdown = document.getElementById("userDropdown");
-      trigger.onclick = (e) => {
-        e.stopPropagation();
-        dropdown.classList.toggle("show");
-      };
-      window.onclick = () => {
-        if (dropdown.classList.contains("show"))
-          dropdown.classList.remove("show");
-      };
-
-      const toSafeFileName = (str) =>
-        str
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "")
-          .replace(/đ/g, "d")
-          .replace(/Đ/g, "D")
-          .replace(/[^a-zA-Z0-9]/g, "_")
-          .toLowerCase();
-
-      /* HÀM THÔNG BÁO TOAST MỚI (XẾP CHỒNG, HIỂN THỊ LỖI CHI TIẾT) */
-      const errLog = (m, isSuccess = false) => {
-        const container = document.getElementById("toast-container");
-        const toast = document.createElement("div");
-        toast.className = `toast ${isSuccess ? "success" : "error"}`;
-        toast.innerHTML = `${isSuccess ? "✅" : "❌"} ${m}`;
-        container.appendChild(toast);
-        setTimeout(() => {
-          if (toast.parentNode) toast.remove();
-        }, 4000);
-      };
-
-      /* HÀM XỬ LÝ TIẾN TRÌNH PROGRESS BAR TÁCH BIỆT CHO 2 MODAL */
-      let progressIntervalAdd, progressIntervalDetail;
-
-      const startProgressAdd = () => {
-        document
-          .getElementById("progressOverlayAdd")
-          .classList.remove("hidden");
-        let p = 0;
-        document.getElementById("progressBarAdd").style.width = "0%";
-        document.getElementById("progressTextAdd").innerText = "0%";
-        progressIntervalAdd = setInterval(() => {
-          p += Math.random() * 15;
-          if (p > 90) p = 90;
-          document.getElementById("progressBarAdd").style.width = p + "%";
-          document.getElementById("progressTextAdd").innerText =
-            Math.round(p) + "%";
-        }, 200);
-      };
-
-      const finishProgressAdd = () => {
-        clearInterval(progressIntervalAdd);
-        document.getElementById("progressBarAdd").style.width = "100%";
-        document.getElementById("progressTextAdd").innerText = "100%";
-        setTimeout(() => {
-          document.getElementById("progressOverlayAdd").classList.add("hidden");
-        }, 500);
-      };
-
-      const startProgressDetail = () => {
-        document
-          .getElementById("progressOverlayDetail")
-          .classList.remove("hidden");
-        let p = 0;
-        document.getElementById("progressBarDetail").style.width = "0%";
-        document.getElementById("progressTextDetail").innerText = "0%";
-        progressIntervalDetail = setInterval(() => {
-          p += Math.random() * 15;
-          if (p > 90) p = 90;
-          document.getElementById("progressBarDetail").style.width = p + "%";
-          document.getElementById("progressTextDetail").innerText =
-            Math.round(p) + "%";
-        }, 200);
-      };
-
-      const finishProgressDetail = () => {
-        clearInterval(progressIntervalDetail);
-        document.getElementById("progressBarDetail").style.width = "100%";
-        document.getElementById("progressTextDetail").innerText = "100%";
-        setTimeout(() => {
-          document
-            .getElementById("progressOverlayDetail")
-            .classList.add("hidden");
-        }, 500);
-      };
-
-      window.nav = (id) => {
-        ["loginView", "regView", "forgotView", "systemView"].forEach((v) =>
-          document.getElementById(v).classList.add("hidden"),
-        );
-        document.getElementById(id).classList.remove("hidden");
-        document.getElementById("mainCard").className =
-          id === "systemView" ? "card wide" : "card";
-      };
-
-      async function render(cat) {
-        const grid = document.getElementById("deviceGrid");
-        grid.innerHTML =
-          '<div style="background:#f1f5f9; height:200px; border-radius:12px; opacity:0.6; animation: pulse 1.5s infinite"></div>'.repeat(
-            4,
-          );
-        const { data, error } = await supabase
-          .from("devices")
-          .select("*")
-          .eq("cat", cat);
-        if (error) return errLog(error.message);
-        allLoadedDevices = data;
-        displayDevices(data);
-      }
-
-      function displayDevices(list) {
-        const grid = document.getElementById("deviceGrid");
-        grid.innerHTML = list.length
-          ? ""
-          : "<p style='grid-column: 1/-1; text-align:center; color: var(--text-muted); padding: 40px; font-size: 14px;'>Chưa có thiết bị nào trong danh mục này.</p>";
-        list.forEach((d) => {
-          const safeName = toSafeFileName(d.name);
-          const imgSrc = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safeName}.jpg?t=${Date.now()}`;
-
-          let stClass = "st-normal";
-          let stText = "🟢 Sẵn sàng";
-          if (d.status === "maintenance") {
-            stClass = "st-maintenance";
-            stText = "🟡 Bảo trì";
-          } else if (d.status === "broken") {
-            stClass = "st-broken";
-            stText = "🔴 Báo lỗi";
-          }
-
-          const div = document.createElement("div");
-          div.className = "device-card";
-          div.onclick = () => openModal(d);
-          div.innerHTML = `
-            <img src="${imgSrc}" class="device-card-img" onerror="this.src='https://via.placeholder.com/400x200?text=HUST+MATERIAL'" alt="${d.name}" />
-            <div class="device-card-body">
-              <div>
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; flex-wrap: wrap;">
-                  <span class="tag">${d.cat}</span>
-                  <span class="status-badge ${stClass}">${stText}</span>
-                </div>
-                <h3>${d.name}</h3>
+          <div id="usersGrid" class="hidden" style="width: 100%">
+            <div class="admin-stats-container">
+              <div class="stat-card">
+                <div>👥 TỔNG TÀI KHOẢN</div>
+                <div class="stat-value" id="statTotal">0</div>
               </div>
-              <div style="margin-top: 16px; color: var(--text-muted); font-size: 13px; display: flex; align-items: center; gap: 4px; font-weight: 500;">
-                Nhấn để xem chi tiết →
+              <div class="stat-card">
+                <div>🛠️ PHỤ TRÁCH LAB</div>
+                <div class="stat-value" id="statInstructor">0</div>
+              </div>
+              <div class="stat-card" style="border-color: var(--p-light)">
+                <div>👑 QUẢN TRỊ VIÊN</div>
+                <div class="stat-value" id="statAdmin">0</div>
               </div>
             </div>
-          `;
-          grid.appendChild(div);
-        });
-      }
-
-      window.filterDevices = () => {
-        const term = document
-          .getElementById("searchDevice")
-          .value.toLowerCase();
-        const filtered = allLoadedDevices.filter((d) =>
-          d.name.toLowerCase().includes(term),
-        );
-        displayDevices(filtered);
-      };
-
-      window.openModal = async (device) => {
-        selectedDevice = device;
-        document.getElementById("mTitle").innerText = device.name;
-        document.getElementById("mTag").innerText = device.cat;
-        document.getElementById("mDesc").innerText =
-          device.description || "Chưa có thông tin mô tả chi tiết.";
-        document.getElementById("mSteps").innerText =
-          device.steps || "Chưa có tài liệu hướng dẫn vận hành.";
-
-        let stClass = "st-normal";
-        let stText = "🟢 Đang hoạt động tốt";
-        if (device.status === "maintenance") {
-          stClass = "st-maintenance";
-          stText = "🟡 Đang bảo trì / hiệu chuẩn";
-        } else if (device.status === "broken") {
-          stClass = "st-broken";
-          stText = "🔴 Đang báo lỗi / hỏng";
-        }
-
-        const badge = document.getElementById("mStatusBadge");
-        badge.className = `status-badge ${stClass}`;
-        badge.innerText = stText;
-
-        const safeName = toSafeFileName(device.name);
-        const imgEl = document.getElementById("mImage");
-        imgEl.src = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safeName}.jpg?t=${Date.now()}`;
-        imgEl.onerror = () =>
-          (imgEl.src =
-            "https://via.placeholder.com/800x400?text=HUST+MATERIAL+DEVICE");
-
-        const gallery = document.getElementById("mStepGallery");
-        gallery.innerHTML = "";
-        for (let i = 1; i <= 8; i++) {
-          const sImg = document.createElement("img");
-          sImg.style =
-            "height:100px; width: 150px; border-radius:8px; cursor:pointer; border:1px solid var(--border-color); object-fit: cover; transition: transform 0.2s;";
-          sImg.onmouseover = () => (sImg.style.transform = "scale(1.02)");
-          sImg.onmouseout = () => (sImg.style.transform = "scale(1)");
-          sImg.src = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safeName}/step_${i}.jpg?t=${Date.now()}`;
-          sImg.onerror = () => sImg.remove();
-          sImg.onclick = () => window.open(sImg.src, "_blank");
-          gallery.appendChild(sImg);
-        }
-
-        document.getElementById("detailModal").classList.remove("hidden");
-
-        const isInstructor = currentProfile?.role === "instructor";
-        document.getElementById("insZone").classList.add("hidden");
-        document
-          .getElementById("btnToggleEdit")
-          .classList.toggle("hidden", !isInstructor);
-        document
-          .getElementById("btnDeleteDevice")
-          .classList.toggle("hidden", !isInstructor);
-
-        if (isInstructor) {
-          document.getElementById("insInput").value = device.description || "";
-          document.getElementById("insStepsInput").value = device.steps || "";
-          document.getElementById("insStatus").value =
-            device.status || "normal";
-        }
-      };
-
-      document.getElementById("btnToggleEdit").onclick = () => {
-        const insZone = document.getElementById("insZone");
-        if (insZone.classList.contains("hidden")) {
-          insZone.classList.remove("hidden");
-          insZone.scrollIntoView({ behavior: "smooth", block: "center" });
-        } else {
-          insZone.classList.add("hidden");
-        }
-      };
-
-      window.closeModal = () => {
-        document.getElementById("detailModal").classList.add("hidden");
-        document.getElementById("insZone").classList.add("hidden");
-      };
-
-      document.getElementById("btnDeleteDevice").onclick = async () => {
-        if (
-          !confirm(
-            `Hành động này không thể hoàn tác. Bạn chắc chắn muốn xóa thiết bị "${selectedDevice.name}"?`,
-          )
-        )
-          return;
-        const btn = document.getElementById("btnDeleteDevice");
-        const originalText = btn.innerText;
-        btn.innerText = "ĐANG XÓA...";
-        btn.disabled = true;
-        try {
-          const { error } = await supabase
-            .from("devices")
-            .delete()
-            .eq("id", selectedDevice.id);
-          if (error) throw error;
-          const safeName = toSafeFileName(selectedDevice.name);
-          await supabase.storage
-            .from("device-photos")
-            .remove([`${safeName}.jpg`]);
-          errLog("Xóa thiết bị thành công!", true);
-          render(selectedDevice.cat);
-          closeModal();
-        } catch (e) {
-          errLog("Lỗi xóa: " + e.message);
-        } finally {
-          btn.innerText = originalText;
-          btn.disabled = false;
-        }
-      };
-
-      document.getElementById("btnSignIn").onclick = async () => {
-        const email = document.getElementById("lEmail").value.trim();
-        const password = document.getElementById("lPass").value;
-        if (!email || !password)
-          return errLog("Vui lòng nhập đầy đủ thông tin!");
-        const btn = document.getElementById("btnSignIn");
-        const originalText = btn.innerText;
-        btn.innerText = "ĐANG KIỂM TRA...";
-        btn.disabled = true;
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        btn.innerText = originalText;
-        btn.disabled = false;
-        if (error) return errLog("Sai email hoặc mật khẩu.");
-        loadUserProfile(data.user.id);
-      };
-
-      document.getElementById("btnLogOut").onclick = async (e) => {
-        e.stopPropagation();
-        await supabase.auth.signOut();
-        location.reload();
-      };
-
-      document.getElementById("btnSubmitSysPass").onclick = async () => {
-        const newPass = document.getElementById("sysNewPass").value;
-        const confirmPass = document.getElementById("sysConfirmPass").value;
-        if (newPass.length < 6) return errLog("Mật khẩu cần ít nhất 6 ký tự");
-        if (newPass !== confirmPass)
-          return errLog("Xác nhận mật khẩu không khớp");
-        const btn = document.getElementById("btnSubmitSysPass");
-        btn.innerText = "ĐANG CẬP NHẬT...";
-        btn.disabled = true;
-        const { error } = await supabase.auth.updateUser({ password: newPass });
-        btn.innerText = "CẬP NHẬT MẬT KHẨU";
-        btn.disabled = false;
-        if (error) errLog(error.message);
-        else {
-          errLog("Đổi mật khẩu thành công!", true);
-          document.getElementById("changePassModal").classList.add("hidden");
-          if (currentProfile) nav("systemView");
-        }
-      };
-
-      document.getElementById("rRole").onchange = (e) => {
-        const wrapper = document.getElementById("securityCodeWrapper");
-        if (e.target.value === "instructor") wrapper.classList.remove("hidden");
-        else wrapper.classList.add("hidden");
-      };
-
-      document.getElementById("btnSignUp").onclick = async () => {
-        const email = document.getElementById("rEmail").value.trim();
-        const password = document.getElementById("rPass").value;
-        const fullName = document.getElementById("rName").value.trim();
-        const role = document.getElementById("rRole").value;
-        const securityCode = document
-          .getElementById("rSecurityCode")
-          .value.trim();
-        const SECRET_CODE = "VLKT2026";
-
-        if (!fullName) return errLog("Vui lòng nhập Họ và Tên!");
-        if (!email.endsWith("@hust.edu.vn"))
-          return errLog("Email bắt buộc phải có đuôi @hust.edu.vn");
-        if (password.length < 6)
-          return errLog("Mật khẩu phải từ 6 ký tự trở lên!");
-        if (role === "instructor" && securityCode !== SECRET_CODE)
-          return errLog("Mã bảo mật nội bộ không chính xác.");
-
-        const btn = document.getElementById("btnSignUp");
-        const originalText = btn.innerText;
-        btn.innerText = "ĐANG XỬ LÝ...";
-        btn.disabled = true;
-
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) {
-          btn.innerText = originalText;
-          btn.disabled = false;
-          return errLog(error.message);
-        }
-
-        await supabase
-          .from("profiles")
-          .insert([{ id: data.user.id, full_name: fullName, role: role }]);
-        errLog("Đăng ký thành công! Vui lòng đăng nhập.", true);
-        btn.innerText = originalText;
-        btn.disabled = false;
-        document.getElementById("rSecurityCode").value = "";
-        nav("loginView");
-      };
-
-      document.getElementById("btnReset").onclick = async () => {
-        const email = document.getElementById("fEmail").value.trim();
-        if (!email) return errLog("Vui lòng nhập email đăng ký!");
-        const btn = document.getElementById("btnReset");
-        const originalText = btn.innerText;
-        btn.innerText = "ĐANG GỬI...";
-        btn.disabled = true;
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: window.location.origin + window.location.pathname,
-        });
-        btn.innerText = originalText;
-        btn.disabled = false;
-        if (error) errLog(error.message);
-        else errLog("Đã gửi liên kết khôi phục tới email!", true);
-      };
-
-      document.querySelectorAll(".tab-btn").forEach((btn) => {
-        btn.onclick = () => {
-          document
-            .querySelectorAll(".tab-btn")
-            .forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
-          document.getElementById("searchDevice").value = "";
-          render(btn.dataset.cat);
-        };
-      });
-
-      /* CẬP NHẬT HÀM UPLOAD ĐỂ BẮT ĐƯỢC LỖI TỪ SUPABASE STORAGE */
-      async function uploadDevicePhoto(file, deviceName) {
-        const fileName = toSafeFileName(deviceName) + ".jpg";
-        const { error } = await supabase.storage
-          .from("device-photos")
-          .upload(fileName, file, { upsert: true });
-        if (error) throw new Error("Lỗi tải ảnh đại diện: " + error.message);
-      }
-
-      async function uploadStepPhotos(files, deviceName) {
-        const folder = toSafeFileName(deviceName);
-        for (let i = 0; i < files.length; i++) {
-          const fileName = `${folder}/step_${i + 1}.jpg`;
-          const { error } = await supabase.storage
-            .from("device-photos")
-            .upload(fileName, files[i], { upsert: true });
-          if (error)
-            throw new Error(`Lỗi tải ảnh quy trình ${i + 1}: ` + error.message);
-        }
-      }
-
-      document.getElementById("btnSubmitAdd").onclick = async () => {
-        const name = document.getElementById("addName").value.trim();
-        const cat = document.getElementById("addCat").value;
-        const status = document.getElementById("addStatus").value;
-        const description = document.getElementById("addDesc").value;
-        const steps = document.getElementById("addSteps").value;
-        const mainFile = document.getElementById("addImgFile").files[0];
-        const stepFiles = document.getElementById("addStepImgFiles").files;
-
-        if (!name) return errLog("Vui lòng nhập tên thiết bị!");
-        const btn = document.getElementById("btnSubmitAdd");
-        const originalText = btn.innerText;
-        btn.innerText = "ĐANG TẢI DỮ LIỆU LÊN...";
-        btn.disabled = true;
-
-        // Bắt đầu chạy Progress Overlay cho Modal Thêm Mới
-        if (mainFile || stepFiles.length > 0) startProgressAdd();
-
-        try {
-          const { error: insertError } = await supabase.from("devices").insert([
-            {
-              name,
-              cat,
-              status,
-              description,
-              steps,
-              created_by: currentProfile.id,
-            },
-          ]);
-          if (insertError)
-            throw new Error("Lỗi Database: " + insertError.message);
-
-          if (mainFile) await uploadDevicePhoto(mainFile, name);
-          if (stepFiles.length > 0) await uploadStepPhotos(stepFiles, name);
-
-          errLog("Thêm thiết bị và ảnh thành công!", true);
-          document.getElementById("addDeviceModal").classList.add("hidden");
-
-          // Reset form
-          document.getElementById("addName").value = "";
-          document.getElementById("addDesc").value = "";
-          document.getElementById("addSteps").value = "";
-          document.getElementById("addImgFile").value = "";
-          document.getElementById("addStepImgFiles").value = "";
-          document.getElementById("addStatus").value = "normal";
-
-          document
-            .querySelectorAll(".tab-btn")
-            .forEach((b) => b.classList.remove("active"));
-          const newTab = document.querySelector(`.tab-btn[data-cat='${cat}']`);
-          if (newTab) newTab.classList.add("active");
-          render(cat);
-        } catch (e) {
-          errLog(e.message);
-        } finally {
-          finishProgressAdd();
-          btn.innerText = originalText;
-          btn.disabled = false;
-        }
-      };
-
-      document.getElementById("btnSaveUpdate").onclick = async () => {
-        const newDesc = document.getElementById("insInput").value;
-        const newSteps = document.getElementById("insStepsInput").value;
-        const newStatus = document.getElementById("insStatus").value;
-        const mainFile = document.getElementById("updateImgFile").files[0];
-        const stepFiles = document.getElementById("stepImgFiles").files;
-
-        const btn = document.getElementById("btnSaveUpdate");
-        const originalText = btn.innerText;
-        btn.innerText = "ĐANG TẢI LÊN...";
-        btn.disabled = true;
-
-        // Bắt đầu chạy Progress Overlay cho Modal Chi Tiết
-        if (mainFile || stepFiles.length > 0) startProgressDetail();
-
-        try {
-          const { error: updateError } = await supabase
-            .from("devices")
-            .update({
-              description: newDesc,
-              steps: newSteps,
-              status: newStatus,
-            })
-            .eq("id", selectedDevice.id);
-          if (updateError)
-            throw new Error("Lỗi Database: " + updateError.message);
-
-          if (mainFile) await uploadDevicePhoto(mainFile, selectedDevice.name);
-          if (stepFiles.length > 0)
-            await uploadStepPhotos(stepFiles, selectedDevice.name);
-
-          errLog("Cập nhật dữ liệu và hình ảnh thành công!", true);
-          render(selectedDevice.cat);
-          document.getElementById("insZone").classList.add("hidden");
-          openModal({
-            ...selectedDevice,
-            description: newDesc,
-            steps: newSteps,
-            status: newStatus,
-          });
-        } catch (e) {
-          errLog(e.message); // Hiển thị Toast màu đỏ với thông báo chi tiết
-        } finally {
-          finishProgressDetail();
-          btn.innerText = originalText;
-          btn.disabled = false;
-        }
-      };
-    </script>
+            <div class="admin-toolbar">
+              <div
+                class="hust-search-box"
+                style="
+                  flex: 1;
+                  box-shadow: none;
+                  border: 1px solid var(--border-color);
+                  margin: 0;
+                  padding: 5px 20px;
+                "
+              >
+                <span style="opacity: 0.5">🔍</span>
+                <input
+                  type="text"
+                  id="searchUser"
+                  placeholder="Tìm sinh viên, cán bộ..."
+                  oninput="filterUsers()"
+                />
+              </div>
+              <select
+                id="filterRole"
+                onchange="filterUsers()"
+                style="
+                  width: 200px;
+                  margin: 0;
+                  border-radius: 30px;
+                  padding: 12px 20px;
+                "
+              >
+                <option value="all">Tất cả vai trò</option>
+                <option value="student">👨‍🎓 Sinh viên</option>
+                <option value="instructor">🛠️ Phụ trách Lab</option>
+                <option value="admin">👑 Admin</option>
+              </select>
+            </div>
+            <div id="adminUserList" class="admin-user-list"></div>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script type="module" src="app.js?v=4"></script>
   </body>
 </html>
