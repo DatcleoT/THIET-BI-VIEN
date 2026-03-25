@@ -157,16 +157,7 @@ function displayDevices(list) {
 
     const div = document.createElement("div");
     div.className = "device-card";
-    div.style.cursor = "pointer"; // Bắt buộc để iOS Safari nhận diện Click
-
-    // ĐIỀU HƯỚNG CHUẨN XÁC
-    div.onclick = () => {
-      if (d.cat === "ptn") {
-        openPtnWikiModal(d);
-      } else {
-        openDeviceModal(d);
-      }
-    };
+    div.style.cursor = "pointer";
 
     div.innerHTML = `
       <img src="${img}" class="device-card-img" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'"/>
@@ -178,6 +169,16 @@ function displayDevices(list) {
             TÌM HIỂU THÊM <i class="ph ph-arrow-right" style="margin-left: 4px; vertical-align: middle;"></i>
         </div>
       </div>`;
+
+    // GẮN SỰ KIỆN CLICK BẰNG HÀM CHUẨN (Không dùng thuộc tính HTML)
+    div.addEventListener("click", () => {
+      if (d.cat === "ptn") {
+        openPtnWikiModal(d);
+      } else {
+        openDeviceModal(d);
+      }
+    });
+
     grid.appendChild(div);
   });
 }
