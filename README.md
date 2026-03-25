@@ -1,57 +1,70 @@
-# 🔬 Hệ thống Quản lý Thiết bị Phòng Thí nghiệm (SEP HUST)
-**Đơn vị áp dụng:** Trường Vật liệu - Đại học Bách khoa Hà Nội (HUST)
+HỆ THỐNG QUẢN LÝ THIẾT BỊ VÀ CƠ SỞ VẬT CHẤT PHÒNG THÍ NGHIỆM (SEP HUST)
+Viện Vật lý Kỹ thuật - Đại học Bách khoa Hà Nội
 
-![HUST Material](https://via.placeholder.com/1200x300/b71a1c/ffffff?text=HUST+MATERIAL+-+LAB+MANAGEMENT+SYSTEM)
+Đây là hệ thống phần mềm quản lý thiết bị phòng thí nghiệm toàn diện (Laboratory Information Management System - LIMS) được thiết kế chuyên biệt cho Viện Vật lý Kỹ thuật (SEP), Đại học Bách khoa Hà Nội. Hệ thống cung cấp nền tảng quản trị tập trung cho hệ sinh thái máy móc đo lường phức tạp và quy trình vận hành tại 10 phòng thí nghiệm chuyên sâu của Viện.
 
-## 📖 Giới thiệu Dự án
-Hệ thống Quản lý Thiết bị Phòng Thí nghiệm là một Web Application được thiết kế nhằm số hóa toàn bộ cơ sở dữ liệu về thiết bị, máy móc tại Trường Vật liệu - HUST. 
+1. TÍNH NĂNG CỐT LÕI
+Hệ thống được phát triển theo kiến trúc hướng dịch vụ (Service-Oriented Architecture), cung cấp các phân hệ chính sau:
 
-Hệ thống cung cấp một **"Bách khoa toàn thư" nội bộ**, giúp sinh viên dễ dàng tra cứu nguyên lý vật lý, ứng dụng và quy trình thao tác chuẩn (SOP) của các thiết bị công nghệ cao trước khi bước vào phòng Lab. Đồng thời, cung cấp cho Cán bộ quản lý công cụ mạnh mẽ để theo dõi tình trạng thiết bị theo thời gian thực (Real-time).
+1.1. Quản trị Cơ sở vật chất và Thiết bị
+Phân loại tự động: Tổ chức hệ sinh thái thiết bị theo 7 chuyên ngành nghiên cứu đặc thù (Phân tích & Đo lường, Cấu trúc Nano, Quang học, Kiểm tra NDT, Từ tính, Hạt nhân, Giảng dạy).
 
----
+Hồ sơ Phòng thí nghiệm (Wiki Base): Số hóa thông tin 10 phòng thí nghiệm cấp Viện. Tích hợp giao diện hiển thị chuyên biệt dưới dạng Báo cáo tổng quan, bao gồm thông tin trưởng phòng, định hướng nghiên cứu và danh mục trang thiết bị.
 
-## ✨ Tính năng nổi bật
+Cẩm nang vận hành (SOP Viewer): Chuẩn hóa quy trình vận hành máy móc thành hệ thống Timeline dọc tích hợp hình ảnh minh họa cho từng thao tác, đảm bảo an toàn lao động trong PTN.
 
-### 1. Phân quyền và Bảo mật đa tầng (Role-Based Access Control)
-* **👩‍🎓 Sinh viên (Read-only):** Đăng nhập bằng email nội bộ, tra cứu tài liệu, quy trình và xem trạng thái máy móc.
-* **🛠️ Người phụ trách (Instructor - CRUD):** Yêu cầu **Mã bảo mật nội bộ** khi đăng ký. Cán bộ có toàn quyền Thêm mới, Cập nhật thông số, Đổi trạng thái (Bảo trì/Báo lỗi) và Xóa thiết bị.
-* **Bảo mật cấp CSDL (Row Level Security - RLS):** Ngăn chặn tuyệt đối các luồng tải ảnh/chỉnh sửa dữ liệu trái phép thông qua API giả mạo.
+1.2. Giám sát Hoạt động và Tương tác
+Sổ tay điện tử (Digital Logbook): Thay thế sổ ghi chép giấy truyền thống. Cho phép sinh viên và nghiên cứu viên ghi nhận thời gian sử dụng, mục đích thí nghiệm và báo cáo sự cố theo thời gian thực.
 
-### 2. Quản lý Thiết bị Toàn diện
-* Phân loại logic theo 7 nhóm chuyên môn sâu: *Phân tích & Đo lường, Cấu trúc Nano, Đo Quang học, Kiểm tra NDT, Từ tính & Điện, Hạt nhân & Môi trường, Giảng dạy.*
-* **Nội dung chuẩn học thuật:** Dữ liệu máy móc được chuẩn hóa, mô tả chi tiết Nguyên lý hoạt động và Ứng dụng thực tiễn thay vì chỉ nêu thông số khô khan.
-* Tìm kiếm và Lọc dữ liệu (Real-time Search) không có độ trễ.
+Hệ thống Thông báo (Broadcast): Tích hợp chuông thông báo (Notification Bell). Hỗ trợ Ban quản trị phát đi các thông báo khẩn cấp (lịch bảo trì, nội quy phòng lab) đến toàn bộ tài khoản trong hệ thống.
 
-### 3. Trải nghiệm người dùng (UI/UX) Hiện đại
-* **Giao diện Single Page Application (SPA):** Điều hướng mượt mà không cần tải lại trang. Chế độ hiển thị thẻ Card nổi 3D hiện đại mang đậm bản sắc Đại học Bách khoa Hà Nội.
-* **Toast Notification & Progress Bar:** Hệ thống thông báo trạng thái trượt xếp chồng thông minh và thanh tiến trình trực quan khi tải file lớn (Async Upload).
-* Tương thích hoàn hảo trên cả máy tính và thiết bị di động (Responsive Web Design).
+Trung tâm Hỗ trợ (Feedback Loop): Hệ thống thu nhận góp ý, báo lỗi thiết bị trực tiếp từ người dùng, tự động phân loại và chuyển đến hòm thư của Quản trị viên.
 
----
+1.3. Quản lý Định danh và Phân quyền (RBAC)
+Cơ chế xác thực an toàn, chia làm 3 cấp độ:
 
-## 🛠️ Công nghệ sử dụng (Tech Stack)
+Sinh viên/Học viên: Quyền tra cứu SOP, tra cứu thông tin phòng lab, đặt lịch và ghi sổ tay sử dụng thiết bị.
 
-* **Frontend:** HTML5, CSS3 (Grid/Flexbox/Animations), Vanilla JavaScript (ES6+). Kiến trúc Lightweight (Không dùng Framework) giúp trang web tải tức thì.
-* **Backend & Database:** [Supabase](https://supabase.com/) (PostgreSQL).
-* **Authentication:** Supabase Auth (Quản lý đăng nhập, khôi phục mật khẩu).
-* **Storage:** Supabase Storage Bucket (Lưu trữ ảnh thiết bị và quy trình với RLS Policy bảo vệ).
-* **Deployment:** GitHub Pages.
+Cán bộ phụ trách (Instructor): Cấp quyền thông qua Mã bảo mật nội bộ. Cho phép chỉnh sửa thông số máy, cập nhật quy trình vận hành và kiểm duyệt lịch sử.
 
----
+Quản trị viên (Admin): Toàn quyền kiểm soát tài khoản người dùng, xử lý hòm thư phản hồi và phát thông báo hệ thống.
 
-## ⚙️ Cấu trúc Cơ sở dữ liệu (Database Schema)
+2. KIẾN TRÚC KỸ THUẬT VÀ CÔNG NGHỆ
+Dự án được xây dựng hoàn toàn bằng kiến trúc Serverless, loại bỏ sự phụ thuộc vào máy chủ vật lý, tối ưu hóa tốc độ và chi phí vận hành.
 
-Hệ thống hoạt động dựa trên 2 bảng (Tables) chính trên PostgreSQL:
-1. **`profiles`**: Lưu trữ hồ sơ người dùng (`id`, `full_name`, `role`).
-2. **`devices`**: Quản lý thông tin thiết bị (`id`, `name`, `cat`, `status`, `description`, `steps`, `created_by`).
+Frontend: Thuần HTML5, CSS3 và Vanilla JavaScript (Module). Giao diện thiết kế theo triết lý "Luxury Dashboard", sử dụng bộ font tiêu chuẩn Be Vietnam Pro và thư viện Phosphor Icons.
 
----
+Backend & Database: Supabase (PostgreSQL). Quản trị dữ liệu quan hệ, tích hợp Row Level Security (RLS) để bảo mật truy cập.
 
-## 🚀 Hướng dẫn Cài đặt (Dành cho nhà phát triển)
+Authentication: Supabase Auth (JWT). Quản lý phiên đăng nhập và định danh người dùng.
 
-Nếu bạn muốn clone dự án này về và chạy trên môi trường cục bộ (Localhost):
+Storage: Supabase Storage. Lưu trữ và phân phối tài nguyên hình ảnh thiết bị thông qua CDN nội bộ.
 
-1. **Clone repository:**
-   ```bash
-   git clone [https://github.com/YourUsername/THIET-BI-VIEN.git](https://github.com/YourUsername/THIET-BI-VIEN.git)
-   cd THIET-BI-VIEN
+3. HƯỚNG DẪN CÀI ĐẶT (DÀNH CHO NHÀ PHÁT TRIỂN)
+Vì ứng dụng không yêu cầu môi trường Node.js hay Build tools (Webpack/Vite), quá trình triển khai cực kỳ tinh gọn.
+
+3.1. Cấu hình cục bộ
+Sao chép kho lưu trữ (Clone repository):
+git clone <đường-dẫn-repo>
+
+Mở thư mục dự án và chạy file index.html thông qua tiện ích Live Server (trên VS Code) hoặc tải trực tiếp lên các dịch vụ hosting tĩnh (Vercel, GitHub Pages, Netlify).
+
+3.2. Cấu hình Cơ sở dữ liệu (Supabase)
+Hệ thống yêu cầu các bảng dữ liệu sau để hoạt động hoàn chỉnh:
+
+profiles: Thông tin người dùng (id, full_name, role).
+
+devices: Danh mục thiết bị và phòng thí nghiệm (id, name, cat, status, description, steps).
+
+device_logs: Sổ tay sử dụng thiết bị (id, device_id, user_id, user_name, usage_date, start_time, end_time, purpose).
+
+feedbacks: Hòm thư góp ý (id, user_id, user_name, subject, content, status).
+
+notifications: Thông báo hệ thống (id, title, message).
+
+Lưu ý: Các truy vấn SQL cấu trúc (Schema) và bộ dữ liệu khởi tạo đã được lưu trữ trong mã nguồn đi kèm để hỗ trợ việc tái tạo cơ sở dữ liệu trên các dự án mới.
+
+4. TÀI LIỆU VÀ BẢN QUYỀN
+Hệ thống được phát triển dưới dạng đồ án học thuật ứng dụng. Toàn bộ dữ liệu mô tả phòng thí nghiệm và quy trình vận hành thiết bị được tham chiếu từ các tài liệu hướng dẫn lưu hành nội bộ và cổng thông tin điện tử của Viện Vật lý Kỹ thuật - Đại học Bách khoa Hà Nội (sep.hust.edu.vn).
+
+Mã nguồn mở và cho phép phát triển, tùy biến theo giấy phép MIT.
