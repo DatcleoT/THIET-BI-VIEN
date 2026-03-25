@@ -726,9 +726,26 @@ textarea:focus {
     flex-direction: column;
     gap: 15px;
     align-items: stretch;
+    position: relative;
   }
   .hust-search-box {
     width: 100%;
+  }
+  .header-actions {
+    justify-content: flex-end;
+  }
+
+  /* SỬA LỖI DROPDOWN MENU BỊ KHUẤT TRÊN MOBILE */
+  .dropdown-menu {
+    position: fixed; /* Chuyển sang fixed để ghim lên màn hình */
+    top: 140px !important; /* Đẩy xuống dưới thanh tìm kiếm */
+    left: 50% !important;
+    transform: translateX(-50%); /* Căn giữa hoàn hảo */
+    width: 90vw !important; /* Rộng 90% màn hình */
+    max-width: 350px;
+    right: auto !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
   }
 
   /* Ép các lưới (Grid) về 1 cột dọc duy nhất */
