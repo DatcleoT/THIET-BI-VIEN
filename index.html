@@ -4,9 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hệ thống SEP HUST - Quản lý Thiết bị</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -14,128 +17,614 @@
     <div id="toast-container"></div>
 
     <div id="changePassModal" class="modal-overlay hidden">
-      <div class="modal-content" style="width: 400px; max-width: 90vw; height: auto; padding: 35px; display: block;">
-        <h2 style="margin-top: 0; font-size: 20px; font-weight: 800;">Thiết lập mật khẩu mới</h2>
-        <input type="password" id="sysNewPass" placeholder="Mật khẩu mới (6+ ký tự)" />
-        <input type="password" id="sysConfirmPass" placeholder="Xác nhận mật khẩu" />
-        <button id="btnSubmitSysPass" class="btn" style="width: 100%; margin-bottom: 10px;">CẬP NHẬT MẬT KHẨU</button>
-        <button class="btn btn-outline" onclick="document.getElementById('changePassModal').classList.add('hidden')" style="width: 100%;">HỦY BỎ</button>
+      <div
+        class="modal-content"
+        style="
+          width: 400px;
+          max-width: 90vw;
+          height: auto;
+          padding: 35px;
+          display: block;
+        "
+      >
+        <h2 style="margin-top: 0; font-size: 20px; font-weight: 800">
+          Thiết lập mật khẩu mới
+        </h2>
+        <input
+          type="password"
+          id="sysNewPass"
+          placeholder="Mật khẩu mới (6+ ký tự)"
+        />
+        <input
+          type="password"
+          id="sysConfirmPass"
+          placeholder="Xác nhận mật khẩu"
+        />
+        <button
+          id="btnSubmitSysPass"
+          class="btn"
+          style="width: 100%; margin-bottom: 10px"
+        >
+          CẬP NHẬT MẬT KHẨU
+        </button>
+        <button
+          class="btn btn-outline"
+          onclick="
+            document.getElementById('changePassModal').classList.add('hidden')
+          "
+          style="width: 100%"
+        >
+          HỦY BỎ
+        </button>
       </div>
     </div>
 
     <div id="feedbackModal" class="modal-overlay hidden">
-      <div class="modal-content" style="width: 500px; max-width: 90vw; height: auto; padding: 35px; display: block;">
-        <button class="btn-close-modal" onclick="document.getElementById('feedbackModal').classList.add('hidden')"><i class="ph ph-x"></i></button>
-        <h2 style="margin-top: 0; font-size: 20px; font-weight: 800; color: var(--text-main);"><i class="ph ph-chat-teardrop-text" style="color: var(--p); margin-right: 8px;"></i> Gửi Góp ý & Báo lỗi</h2>
-        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 25px;">Mọi ý kiến đóng góp của bạn sẽ được gửi trực tiếp đến Ban quản trị hệ thống để xem xét và cải thiện.</p>
-        
+      <div
+        class="modal-content"
+        style="
+          width: 500px;
+          max-width: 90vw;
+          height: auto;
+          padding: 35px;
+          display: block;
+        "
+      >
+        <button
+          class="btn-close-modal"
+          onclick="
+            document.getElementById('feedbackModal').classList.add('hidden')
+          "
+        >
+          <i class="ph ph-x"></i>
+        </button>
+        <h2
+          style="
+            margin-top: 0;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-main);
+          "
+        >
+          <i
+            class="ph ph-chat-teardrop-text"
+            style="color: var(--p); margin-right: 8px"
+          ></i>
+          Gửi Góp ý & Báo lỗi
+        </h2>
+        <p
+          style="font-size: 14px; color: var(--text-muted); margin-bottom: 25px"
+        >
+          Mọi ý kiến đóng góp của bạn sẽ được gửi trực tiếp đến Ban quản trị hệ
+          thống để xem xét và cải thiện.
+        </p>
+
         <label>Chủ đề</label>
         <select id="fbSubject">
           <option value="Báo lỗi phần mềm">Báo lỗi phần mềm / Chức năng</option>
           <option value="Đề xuất cải tiến">Đề xuất tính năng mới</option>
-          <option value="Báo cáo thiết bị hỏng">Báo cáo thiết bị thực tế bị hỏng</option>
+          <option value="Báo cáo thiết bị hỏng">
+            Báo cáo thiết bị thực tế bị hỏng
+          </option>
           <option value="Khác">Vấn đề khác</option>
         </select>
-        
+
         <label>Nội dung chi tiết</label>
-        <textarea id="fbContent" rows="5" placeholder="Mô tả chi tiết vấn đề bạn gặp phải hoặc ý kiến đóng góp..."></textarea>
-        
-        <button id="btnSubmitFeedback" class="btn" style="width: 100%; margin-top: 15px;"><i class="ph ph-paper-plane-right" style="margin-right: 6px;"></i> GỬI PHẢN HỒI</button>
+        <textarea
+          id="fbContent"
+          rows="5"
+          placeholder="Mô tả chi tiết vấn đề bạn gặp phải hoặc ý kiến đóng góp..."
+        ></textarea>
+
+        <button
+          id="btnSubmitFeedback"
+          class="btn"
+          style="width: 100%; margin-top: 15px"
+        >
+          <i class="ph ph-paper-plane-right" style="margin-right: 6px"></i> GỬI
+          PHẢN HỒI
+        </button>
       </div>
     </div>
 
     <div id="detailModal" class="modal-overlay hidden">
-      <div class="modal-content" style="flex-direction: column;">
-        <button class="btn-close-modal" onclick="closeModal()"><i class="ph ph-x"></i></button>
-        
-        <div class="modal-header-info" style="padding: 30px 35px 0;">
-          <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px;">
-            <span id="mTag" class="tag"></span><span id="mStatusBadge" class="tag" style="background: white; border: 1px solid var(--border-color);"></span>
+      <div class="modal-content" style="flex-direction: column">
+        <button class="btn-close-modal" onclick="closeModal()">
+          <i class="ph ph-x"></i>
+        </button>
+
+        <div class="modal-header-info" style="padding: 30px 35px 0">
+          <div
+            style="
+              display: flex;
+              gap: 10px;
+              align-items: center;
+              margin-bottom: 12px;
+            "
+          >
+            <span id="mTag" class="tag"></span
+            ><span
+              id="mStatusBadge"
+              class="tag"
+              style="background: white; border: 1px solid var(--border-color)"
+            ></span>
           </div>
-          <h2 id="mTitle" style="margin: 0; font-size: 24px; font-weight: 800;">Tên thiết bị</h2>
+          <h2 id="mTitle" style="margin: 0; font-size: 24px; font-weight: 800">
+            Tên thiết bị
+          </h2>
         </div>
 
-        <div class="mini-tabs" style="padding: 0 35px;">
-          <button class="mini-tab-btn active" id="btnTabInfo" onclick="switchModalTab('info')"><i class="ph ph-info" style="margin-right: 6px; font-size: 16px; vertical-align: text-bottom;"></i> THÔNG TIN & SOP</button>
-          <button class="mini-tab-btn" id="btnTabLog" onclick="switchModalTab('log')"><i class="ph ph-notebook" style="margin-right: 6px; font-size: 16px; vertical-align: text-bottom;"></i> SỔ TAY NHẬT KÝ</button>
-          <button class="mini-tab-btn hidden" id="btnTabEdit" onclick="switchModalTab('edit')"><i class="ph ph-sliders-horizontal" style="margin-right: 6px; font-size: 16px; vertical-align: text-bottom;"></i> CẬP NHẬT DỮ LIỆU</button>
+        <div class="mini-tabs" style="padding: 0 35px">
+          <button
+            class="mini-tab-btn active"
+            id="btnTabInfo"
+            onclick="switchModalTab('info')"
+          >
+            <i
+              class="ph ph-info"
+              style="
+                margin-right: 6px;
+                font-size: 16px;
+                vertical-align: text-bottom;
+              "
+            ></i>
+            THÔNG TIN & SOP
+          </button>
+          <button
+            class="mini-tab-btn"
+            id="btnTabLog"
+            onclick="switchModalTab('log')"
+          >
+            <i
+              class="ph ph-notebook"
+              style="
+                margin-right: 6px;
+                font-size: 16px;
+                vertical-align: text-bottom;
+              "
+            ></i>
+            SỔ TAY NHẬT KÝ
+          </button>
+          <button
+            class="mini-tab-btn hidden"
+            id="btnTabEdit"
+            onclick="switchModalTab('edit')"
+          >
+            <i
+              class="ph ph-sliders-horizontal"
+              style="
+                margin-right: 6px;
+                font-size: 16px;
+                vertical-align: text-bottom;
+              "
+            ></i>
+            CẬP NHẬT DỮ LIỆU
+          </button>
         </div>
 
-        <div style="flex: 1; overflow-y: auto; padding: 25px 35px 35px;">
+        <div style="flex: 1; overflow-y: auto; padding: 25px 35px 35px">
           <div id="mTabInfo" class="modal-tab-content">
-            <div style="display: flex; gap: 40px; flex-wrap: wrap;">
-              <div style="flex: 1; min-width: 300px;">
-                <img id="mImage" src="" alt="Thiết bị" style="width: 100%; height: 320px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border-color);" />
-                <div id="mStepGallery" style="display: flex; gap: 10px; margin-top: 15px; overflow-x: auto; padding-bottom: 10px;"></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="upload-box">
+                    <label>Đổi ảnh đại diện</label>
+                    <input type="file" id="updateImgFile" accept="image/*" />
+                    <button id="btnDeleteMainImg" class="btn btn-outline" style="margin-top: 15px; width: 100%; color: var(--a); border-color: #fecaca;">
+                        <i class="ph ph-trash" style="margin-right: 6px; vertical-align: middle;"></i> Gỡ ảnh hiện tại
+                    </button>
+                </div>
+                <div class="upload-box"><label>Đổi ảnh từng bước</label><div id="dynamicEditSteps"></div></div>
               </div>
-              <div style="flex: 1; min-width: 320px;">
+                  id="mStepGallery"
+                  style="
+                    display: flex;
+                    gap: 10px;
+                    margin-top: 15px;
+                    overflow-x: auto;
+                    padding-bottom: 10px;
+                  "
+                ></div>
+              </div>
+              <div style="flex: 1; min-width: 320px">
                 <h4 class="section-title">Mô tả kỹ thuật</h4>
-                <div id="mDesc" class="content-text" style="margin-bottom: 35px;"></div>
-                
+                <div
+                  id="mDesc"
+                  class="content-text"
+                  style="margin-bottom: 35px"
+                ></div>
+
                 <h4 class="section-title">Quy trình vận hành</h4>
                 <div id="mStepsContainer"></div>
-                
-                <button id="btnViewSOP" class="btn btn-outline" style="margin-top: 35px; width: 100%; padding: 14px;"><i class="ph ph-book-open-text" style="margin-right: 8px; font-size: 18px; vertical-align: middle;"></i> MỞ CẨM NANG VẬN HÀNH</button>
+
+                <button
+                  id="btnViewSOP"
+                  class="btn btn-outline"
+                  style="margin-top: 35px; width: 100%; padding: 14px"
+                >
+                  <i
+                    class="ph ph-book-open-text"
+                    style="
+                      margin-right: 8px;
+                      font-size: 18px;
+                      vertical-align: middle;
+                    "
+                  ></i>
+                  MỞ CẨM NANG VẬN HÀNH
+                </button>
               </div>
             </div>
           </div>
 
           <div id="mTabLog" class="modal-tab-content hidden">
             <div class="log-form-container">
-              <h4 style="margin: 0 0 15px 0; font-size: 14px; text-transform: uppercase; color: var(--text-muted);"><i class="ph ph-pencil-simple-line" style="margin-right: 6px; font-size: 16px; vertical-align: text-bottom;"></i> Thêm lượt sử dụng mới</h4>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+              <h4
+                style="
+                  margin: 0 0 15px 0;
+                  font-size: 14px;
+                  text-transform: uppercase;
+                  color: var(--text-muted);
+                "
+              >
+                <i
+                  class="ph ph-pencil-simple-line"
+                  style="
+                    margin-right: 6px;
+                    font-size: 16px;
+                    vertical-align: text-bottom;
+                  "
+                ></i>
+                Thêm lượt sử dụng mới
+              </h4>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                  gap: 15px;
+                "
+              >
                 <div><label>Ngày</label><input type="date" id="logDate" /></div>
-                <div><label>Từ giờ</label><input type="time" id="logStart" /></div>
-                <div><label>Đến giờ</label><input type="time" id="logEnd" /></div>
+                <div>
+                  <label>Từ giờ</label><input type="time" id="logStart" />
+                </div>
+                <div>
+                  <label>Đến giờ</label><input type="time" id="logEnd" />
+                </div>
               </div>
               <label>Mục đích nghiên cứu / Ghi chú sự cố</label>
-              <input type="text" id="logPurpose" placeholder="Nhập nội dung thực hiện..." style="margin-bottom: 15px;" />
-              <button id="btnSubmitLog" class="btn" style="width: 100%;">GHI SỔ TAY</button>
+              <input
+                type="text"
+                id="logPurpose"
+                placeholder="Nhập nội dung thực hiện..."
+                style="margin-bottom: 15px"
+              />
+              <button id="btnSubmitLog" class="btn" style="width: 100%">
+                GHI SỔ TAY
+              </button>
             </div>
-            <h4 style="margin: 35px 0 15px 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; font-size: 14px; text-transform: uppercase; color: var(--text-muted);">Lịch sử hoạt động</h4>
+            <h4
+              style="
+                margin: 35px 0 15px 0;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 10px;
+                font-size: 14px;
+                text-transform: uppercase;
+                color: var(--text-muted);
+              "
+            >
+              Lịch sử hoạt động
+            </h4>
             <div id="logListContainer"></div>
           </div>
 
           <div id="mTabEdit" class="modal-tab-content hidden">
-            <div style="background: #ffffff; padding: 30px; border-radius: 8px; border: 1px solid var(--border-color);">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <h4 style="margin: 0; color: var(--text-main); font-size: 16px;">CHỈNH SỬA THÔNG SỐ THIẾT BỊ</h4>
-                <button id="btnDeleteDevice" class="btn btn-danger" style="padding: 10px 20px;"><i class="ph ph-trash" style="margin-right: 6px;"></i> XÓA THIẾT BỊ</button>
+            <div
+              style="
+                background: #ffffff;
+                padding: 30px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 25px;
+                "
+              >
+                <h4 style="margin: 0; color: var(--text-main); font-size: 16px">
+                  CHỈNH SỬA THÔNG SỐ THIẾT BỊ
+                </h4>
+                <button
+                  id="btnDeleteDevice"
+                  class="btn btn-danger"
+                  style="padding: 10px 20px"
+                >
+                  <i class="ph ph-trash" style="margin-right: 6px"></i> XÓA
+                  THIẾT BỊ
+                </button>
               </div>
               <label>Trạng thái máy</label>
-              <select id="insStatus"><option value="normal">Hoạt động tốt</option><option value="maintenance">Đang bảo trì</option><option value="broken">Báo lỗi sự cố</option></select>
+              <select id="insStatus">
+                <option value="normal">Hoạt động tốt</option>
+                <option value="maintenance">Đang bảo trì</option>
+                <option value="broken">Báo lỗi sự cố</option>
+              </select>
               <label>Mô tả thiết bị</label>
               <textarea id="insInput" rows="4"></textarea>
               <label>Quy trình vận hành</label>
               <textarea id="insStepsInput" rows="4"></textarea>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="upload-box"><label>Đổi ảnh đại diện</label><input type="file" id="updateImgFile" accept="image/*" /></div>
-                <div class="upload-box"><label>Đổi ảnh từng bước</label><div id="dynamicEditSteps"></div></div>
+              <div
+                style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px"
+              >
+                <div class="upload-box">
+                  <label>Đổi ảnh đại diện</label
+                  ><input type="file" id="updateImgFile" accept="image/*" />
+                </div>
+                <div class="upload-box">
+                  <label>Đổi ảnh từng bước</label>
+                  <div id="dynamicEditSteps"></div>
+                </div>
               </div>
-              <button id="btnSaveUpdate" class="btn" style="width: 100%; margin-top: 25px"><i class="ph ph-floppy-disk" style="margin-right: 6px; font-size: 16px; vertical-align: text-bottom;"></i> LƯU THAY ĐỔI</button>
+              <button
+                id="btnSaveUpdate"
+                class="btn"
+                style="width: 100%; margin-top: 25px"
+              >
+                <i
+                  class="ph ph-floppy-disk"
+                  style="
+                    margin-right: 6px;
+                    font-size: 16px;
+                    vertical-align: text-bottom;
+                  "
+                ></i>
+                LƯU THAY ĐỔI
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="sopModal" class="modal-overlay hidden" style="z-index: 10005;">
-      <div class="modal-content" style="max-width: 850px; height: 85vh; flex-direction: column; padding: 0;">
-        <div style="padding: 25px 35px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: white;">
-          <h2 style="margin: 0; font-size: 20px; font-weight: 800;"><i class="ph ph-book-open-text" style="color: var(--p); margin-right: 10px;"></i> Cẩm nang Vận hành chi tiết</h2>
-          <button class="btn-close-modal" style="position: static;" onclick="document.getElementById('sopModal').classList.add('hidden')"><i class="ph ph-x"></i></button>
+    <div id="ptnWikiModal" class="modal-overlay hidden" style="z-index: 10010">
+      <div
+        class="modal-content"
+        style="
+          max-width: 900px;
+          height: 85vh;
+          flex-direction: column;
+          padding: 0;
+          background: #fff;
+        "
+      >
+        <div
+          style="
+            padding: 25px 40px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9fafb;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+          "
+        >
+          <div>
+            <div
+              style="
+                font-size: 12px;
+                color: var(--text-muted);
+                font-weight: 700;
+                letter-spacing: 1px;
+                margin-bottom: 5px;
+                text-transform: uppercase;
+              "
+            >
+              Thông tin Cơ sở vật chất
+            </div>
+            <h2
+              id="wTitle"
+              style="
+                margin: 0;
+                font-size: 24px;
+                font-weight: 800;
+                color: var(--p);
+              "
+            >
+              Tên Phòng Thí Nghiệm
+            </h2>
+          </div>
+          <button
+            class="btn-close-modal"
+            style="position: static"
+            onclick="
+              document.getElementById('ptnWikiModal').classList.add('hidden')
+            "
+          >
+            <i class="ph ph-x"></i>
+          </button>
         </div>
-        <div id="sopContent" style="padding: 35px; overflow-y: auto; flex: 1;"></div>
+
+        <div style="padding: 40px; overflow-y: auto; flex: 1">
+          <h3
+            style="
+              color: var(--text-main);
+              font-size: 18px;
+              margin-bottom: 15px;
+              border-bottom: 2px solid var(--p-light);
+              padding-bottom: 8px;
+            "
+          >
+            <i class="ph ph-info" style="color: var(--p); margin-right: 8px"></i
+            >1. Thông tin chung
+          </h3>
+          <ul
+            id="wInfo"
+            style="
+              list-style: none;
+              padding: 0;
+              font-size: 15px;
+              color: #4b5563;
+              line-height: 1.8;
+              margin-bottom: 35px;
+            "
+          ></ul>
+
+          <h3
+            style="
+              color: var(--text-main);
+              font-size: 18px;
+              margin-bottom: 15px;
+              border-bottom: 2px solid var(--p-light);
+              padding-bottom: 8px;
+            "
+          >
+            <i
+              class="ph ph-buildings"
+              style="color: var(--p); margin-right: 8px"
+            ></i
+            >2. Giới thiệu phòng thí nghiệm
+          </h3>
+          <div
+            id="wIntro"
+            style="
+              font-size: 15px;
+              color: #4b5563;
+              line-height: 1.8;
+              margin-bottom: 35px;
+              text-align: justify;
+            "
+          ></div>
+
+          <h3
+            style="
+              color: var(--text-main);
+              font-size: 18px;
+              margin-bottom: 15px;
+              border-bottom: 2px solid var(--p-light);
+              padding-bottom: 8px;
+            "
+          >
+            <i
+              class="ph ph-list-numbers"
+              style="color: var(--p); margin-right: 8px"
+            ></i
+            >3. Các bộ thí nghiệm / Thiết bị
+          </h3>
+          <ol
+            id="wList"
+            style="
+              padding-left: 20px;
+              font-size: 15px;
+              color: #4b5563;
+              line-height: 1.8;
+              margin-bottom: 30px;
+            "
+          ></ol>
+
+          <div
+            id="wImageContainer"
+            style="margin-top: 30px; text-align: center"
+          >
+            <img
+              id="wImage"
+              src=""
+              style="
+                max-width: 100%;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                border: 1px solid var(--border-color);
+                display: none;
+              "
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="sopModal" class="modal-overlay hidden" style="z-index: 10005">
+      <div
+        class="modal-content"
+        style="
+          max-width: 850px;
+          height: 85vh;
+          flex-direction: column;
+          padding: 0;
+        "
+      >
+        <div
+          style="
+            padding: 25px 35px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+          "
+        >
+          <h2 style="margin: 0; font-size: 20px; font-weight: 800">
+            <i
+              class="ph ph-book-open-text"
+              style="color: var(--p); margin-right: 10px"
+            ></i>
+            Cẩm nang Vận hành chi tiết
+          </h2>
+          <button
+            class="btn-close-modal"
+            style="position: static"
+            onclick="
+              document.getElementById('sopModal').classList.add('hidden')
+            "
+          >
+            <i class="ph ph-x"></i>
+          </button>
+        </div>
+        <div
+          id="sopContent"
+          style="padding: 35px; overflow-y: auto; flex: 1"
+        ></div>
       </div>
     </div>
 
     <div id="addDeviceModal" class="modal-overlay hidden">
-      <div class="modal-content" style="max-width: 900px; padding: 40px; display: block; height: auto;">
-        <button class="btn-close-modal" onclick="document.getElementById('addDeviceModal').classList.add('hidden')"><i class="ph ph-x"></i></button>
-        <h2 style="margin-top: 0; font-size: 22px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px;"><i class="ph ph-plus-circle" style="color: var(--p); margin-right: 8px; vertical-align: text-bottom;"></i> THÊM THIẾT BỊ MỚI</h2>
-        <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 35px; margin-top: 25px;">
+      <div
+        class="modal-content"
+        style="max-width: 900px; padding: 40px; display: block; height: auto"
+      >
+        <button
+          class="btn-close-modal"
+          onclick="
+            document.getElementById('addDeviceModal').classList.add('hidden')
+          "
+        >
+          <i class="ph ph-x"></i>
+        </button>
+        <h2
+          style="
+            margin-top: 0;
+            font-size: 22px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+          "
+        >
+          <i
+            class="ph ph-plus-circle"
+            style="
+              color: var(--p);
+              margin-right: 8px;
+              vertical-align: text-bottom;
+            "
+          ></i>
+          THÊM DỮ LIỆU MỚI
+        </h2>
+        <div
+          class="form-grid"
+          style="grid-template-columns: 1fr 1fr; gap: 35px; margin-top: 25px"
+        >
           <div>
-            <label>Tên thiết bị</label><input type="text" id="addName" />
+            <label>Tên thiết bị / Phòng Lab</label
+            ><input type="text" id="addName" />
             <label>Phân loại nhóm</label>
             <select id="addCat">
               <option value="analyze">Phân tích & Đo lường</option>
@@ -145,103 +634,274 @@
               <option value="magnet">Từ tính & Điện</option>
               <option value="nuclear">Hạt nhân & Môi trường</option>
               <option value="edu">Giảng dạy & Tính toán</option>
+              <option value="ptn">
+                Phòng Thí Nghiệm (Chỉ xem - Không log)
+              </option>
             </select>
-            <label>Mô tả kỹ thuật</label><textarea id="addDesc" rows="5"></textarea>
+            <label
+              >Mô tả kỹ thuật (Với Lab, chia bằng dấu | giữa Vị trí và Giới
+              thiệu)</label
+            ><textarea id="addDesc" rows="5"></textarea>
           </div>
           <div>
-            <label>Hướng dẫn vận hành</label><textarea id="addSteps" rows="5" placeholder="Mỗi lần xuống dòng (Enter) sẽ tự tạo ô tải ảnh..."></textarea>
+            <label>Quy trình vận hành (Với Lab là Danh sách Thiết bị)</label
+            ><textarea
+              id="addSteps"
+              rows="5"
+              placeholder="Mỗi lần xuống dòng (Enter) sẽ tự tạo ô tải ảnh..."
+            ></textarea>
             <div class="upload-box">
-              <label><i class="ph ph-image" style="margin-right: 6px; font-size: 16px; vertical-align: text-bottom;"></i> Tải lên ảnh đại diện</label><input type="file" id="addImgFile" accept="image/*" />
-              <div style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                <label><i class="ph ph-images" style="margin-right: 6px; font-size: 16px; vertical-align: text-bottom;"></i> Tải lên ảnh từng bước</label>
-                <div id="dynamicAddSteps"><p style="font-size: 12px; color: var(--text-muted); font-style: italic;">* Nhập quy trình để tự tạo ô tải ảnh.</p></div>
+              <label
+                ><i
+                  class="ph ph-image"
+                  style="
+                    margin-right: 6px;
+                    font-size: 16px;
+                    vertical-align: text-bottom;
+                  "
+                ></i>
+                Tải lên ảnh đại diện</label
+              ><input type="file" id="addImgFile" accept="image/*" />
+              <div
+                style="
+                  margin-top: 15px;
+                  border-top: 1px solid var(--border-color);
+                  padding-top: 15px;
+                "
+              >
+                <label
+                  ><i
+                    class="ph ph-images"
+                    style="
+                      margin-right: 6px;
+                      font-size: 16px;
+                      vertical-align: text-bottom;
+                    "
+                  ></i>
+                  Tải lên ảnh từng bước</label
+                >
+                <div id="dynamicAddSteps">
+                  <p
+                    style="
+                      font-size: 12px;
+                      color: var(--text-muted);
+                      font-style: italic;
+                    "
+                  >
+                    * Nhập quy trình để tự tạo ô tải ảnh.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <button id="btnSubmitAdd" class="btn" style="width: 100%; margin-top: 30px;"><i class="ph ph-check-circle" style="margin-right: 6px; font-size: 16px; vertical-align: text-bottom;"></i> LƯU VÀO HỆ THỐNG</button>
+        <button
+          id="btnSubmitAdd"
+          class="btn"
+          style="width: 100%; margin-top: 30px"
+        >
+          <i
+            class="ph ph-check-circle"
+            style="
+              margin-right: 6px;
+              font-size: 16px;
+              vertical-align: text-bottom;
+            "
+          ></i>
+          LƯU VÀO HỆ THỐNG
+        </button>
       </div>
     </div>
 
     <div id="authWrapper">
       <div id="loginView">
-        <img src="logovien.png" alt="Logo" class="logo" style="width: 110px; margin-bottom: 25px;"/>
-        <h2 style="font-weight: 800; letter-spacing: -0.5px;">HỆ THỐNG SEP HUST</h2>
-        <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px;">Trường Vật liệu - Đại học Bách khoa Hà Nội</p>
-        <div style="text-align: left;">
+        <img
+          src="logovien.png"
+          alt="Logo"
+          class="logo"
+          style="width: 110px; margin-bottom: 25px"
+        />
+        <h2 style="font-weight: 800; letter-spacing: -0.5px">
+          HỆ THỐNG SEP HUST
+        </h2>
+        <p
+          style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px"
+        >
+          Trường Vật liệu - Đại học Bách khoa Hà Nội
+        </p>
+        <div style="text-align: left">
           <label>Email đăng nhập</label>
           <input type="email" id="lEmail" placeholder="Nhập địa chỉ email" />
           <label>Mật khẩu</label>
           <input type="password" id="lPass" placeholder="Nhập mật khẩu" />
         </div>
-        <button class="btn" id="btnSignIn" style="width: 100%; margin-top: 10px;">ĐĂNG NHẬP <i class="ph ph-arrow-right" style="margin-left: 6px; vertical-align: middle;"></i></button>
-        <div style="margin-top: 25px; font-size: 13px; display: flex; justify-content: center; gap: 20px;">
+        <button
+          class="btn"
+          id="btnSignIn"
+          style="width: 100%; margin-top: 10px"
+        >
+          ĐĂNG NHẬP
+          <i
+            class="ph ph-arrow-right"
+            style="margin-left: 6px; vertical-align: middle"
+          ></i>
+        </button>
+        <div
+          style="
+            margin-top: 25px;
+            font-size: 13px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+          "
+        >
           <span class="link" onclick="nav('regView')">Đăng ký tài khoản</span>
-          <span style="color: #cbd5e1;">|</span>
+          <span style="color: #cbd5e1">|</span>
           <span class="link" onclick="nav('forgotView')">Quên mật khẩu?</span>
         </div>
       </div>
 
       <div id="regView" class="hidden">
-        <h2 style="font-weight: 800;">Tạo tài khoản mới</h2>
-        <div style="text-align: left; margin-top: 20px;">
-          <label>Họ và Tên</label><input type="text" id="rName" placeholder="Nhập đầy đủ họ tên" />
+        <h2 style="font-weight: 800">Tạo tài khoản mới</h2>
+        <div style="text-align: left; margin-top: 20px">
+          <label>Họ và Tên</label
+          ><input type="text" id="rName" placeholder="Nhập đầy đủ họ tên" />
           <label>Vai trò</label>
           <select id="rRole">
             <option value="student">Sinh viên / Khách</option>
             <option value="instructor">Cán bộ phụ trách Lab</option>
             <option value="admin">Quản trị viên hệ thống</option>
           </select>
-          <div id="securityCodeWrapper" class="hidden"><label>Mã bảo mật Lab</label><input type="password" id="rSecurityCode" placeholder="Nhập mã xác thực" /></div>
-          <label>Email</label><input type="email" id="rEmail" placeholder="Nhập email liên hệ" />
-          <label>Mật khẩu</label><input type="password" id="rPass" placeholder="Tối thiểu 6 ký tự" />
+          <div id="securityCodeWrapper" class="hidden">
+            <label>Mã bảo mật Lab</label
+            ><input
+              type="password"
+              id="rSecurityCode"
+              placeholder="Nhập mã xác thực"
+            />
+          </div>
+          <label>Email</label
+          ><input type="email" id="rEmail" placeholder="Nhập email liên hệ" />
+          <label>Mật khẩu</label
+          ><input type="password" id="rPass" placeholder="Tối thiểu 6 ký tự" />
         </div>
-        <button class="btn" id="btnSignUp" style="width: 100%; margin-top: 10px;">ĐĂNG KÝ NGAY</button>
-        <p style="margin-top: 20px; font-size: 13px;"><span class="link" onclick="nav('loginView')"><i class="ph ph-arrow-left"></i> Quay lại Đăng nhập</span></p>
+        <button
+          class="btn"
+          id="btnSignUp"
+          style="width: 100%; margin-top: 10px"
+        >
+          ĐĂNG KÝ NGAY
+        </button>
+        <p style="margin-top: 20px; font-size: 13px">
+          <span class="link" onclick="nav('loginView')"
+            ><i class="ph ph-arrow-left"></i> Quay lại Đăng nhập</span
+          >
+        </p>
       </div>
 
       <div id="forgotView" class="hidden">
-        <h2 style="font-weight: 800;">Khôi phục mật khẩu</h2>
-        <div style="text-align: left; margin-top: 20px;">
+        <h2 style="font-weight: 800">Khôi phục mật khẩu</h2>
+        <div style="text-align: left; margin-top: 20px">
           <label>Email đăng ký</label>
           <input type="email" id="fEmail" placeholder="Nhập email của bạn..." />
         </div>
-        <button class="btn" id="btnReset" style="width: 100%; margin-top: 10px;">GỬI YÊU CẦU</button>
-        <p style="margin-top: 20px; font-size: 13px;"><span class="link" onclick="nav('loginView')"><i class="ph ph-arrow-left"></i> Quay lại Đăng nhập</span></p>
+        <button class="btn" id="btnReset" style="width: 100%; margin-top: 10px">
+          GỬI YÊU CẦU
+        </button>
+        <p style="margin-top: 20px; font-size: 13px">
+          <span class="link" onclick="nav('loginView')"
+            ><i class="ph ph-arrow-left"></i> Quay lại Đăng nhập</span
+          >
+        </p>
       </div>
     </div>
 
     <div id="systemView" class="hidden dashboard-layout">
       <aside class="sidebar">
         <div class="sidebar-header">
-          <img src="logovien.png" alt="Logo" style="width: 60px;" />
+          <img src="logovien.png" alt="Logo" style="width: 120px" />
           <div>
-            <h1 style="margin: 0 0 2px 0; font-size: 20px; color: var(--p); letter-spacing: -0.5px; font-weight: 800;">SEP HUST</h1>
-            <small style="color: var(--text-muted); font-size: 13px; font-weight: 600;">Trường Vật liệu</small>
+            <h1
+              style="
+                margin: 0 0 2px 0;
+                font-size: 20px;
+                color: var(--p);
+                letter-spacing: -0.5px;
+                font-weight: 800;
+              "
+            >
+              SEP HUST
+            </h1>
+            <small
+              style="
+                color: var(--text-muted);
+                font-size: 13px;
+                font-weight: 600;
+              "
+              >Trường Vật liệu</small
+            >
           </div>
         </div>
-        
+
         <div class="sidebar-menu">
           <div class="menu-label">QUẢN LÝ THIẾT BỊ</div>
-          <button class="nav-btn active" data-cat="analyze"><i class="ph ph-microscope"></i> Phân Tích & Đo Lường</button>
-          <button class="nav-btn" data-cat="nano"><i class="ph ph-atom"></i> Cấu trúc Nano</button>
-          <button class="nav-btn" data-cat="optics"><i class="ph ph-binoculars"></i> Đo Quang Học</button>
-          <button class="nav-btn" data-cat="ndt"><i class="ph ph-radar"></i> Kiểm Tra NDT</button>
-          <button class="nav-btn" data-cat="magnet"><i class="ph ph-magnet"></i> Từ Tính & Điện</button>
-          <button class="nav-btn" data-cat="nuclear"><i class="ph ph-radioactive"></i> Hạt Nhân & Môi Trường</button>
-          <button class="nav-btn" data-cat="edu"><i class="ph ph-desktop"></i> Giảng Dạy & Tính Toán</button>
-          
-          <div class="menu-label" style="margin-top: 30px;">CƠ SỞ VẬT CHẤT</div>
-          <button class="nav-btn" data-cat="ptn" style="color: var(--p); font-weight: 700;"><i class="ph ph-buildings" style="color: var(--p);"></i> Hệ thống 10 Phòng Lab</button>
+          <button class="nav-btn active" data-cat="analyze">
+            <i class="ph ph-microscope"></i> Phân Tích & Đo Lường
+          </button>
+          <button class="nav-btn" data-cat="nano">
+            <i class="ph ph-atom"></i> Cấu trúc Nano
+          </button>
+          <button class="nav-btn" data-cat="optics">
+            <i class="ph ph-binoculars"></i> Đo Quang Học
+          </button>
+          <button class="nav-btn" data-cat="ndt">
+            <i class="ph ph-radar"></i> Kiểm Tra NDT
+          </button>
+          <button class="nav-btn" data-cat="magnet">
+            <i class="ph ph-magnet"></i> Từ Tính & Điện
+          </button>
+          <button class="nav-btn" data-cat="nuclear">
+            <i class="ph ph-radioactive"></i> Hạt Nhân & Môi Trường
+          </button>
+          <button class="nav-btn" data-cat="edu">
+            <i class="ph ph-desktop"></i> Giảng Dạy & Tính Toán
+          </button>
 
-          <div class="menu-label" style="margin-top: 30px;">HỖ TRỢ</div>
-          <button class="nav-btn" onclick="document.getElementById('feedbackModal').classList.remove('hidden')"><i class="ph ph-chat-circle-dots"></i> Gửi Góp Ý / Báo Lỗi</button>
+          <div class="menu-label" style="margin-top: 30px">CƠ SỞ VẬT CHẤT</div>
+          <button
+            class="nav-btn"
+            data-cat="ptn"
+            style="color: var(--p); font-weight: 700"
+          >
+            <i class="ph ph-buildings" style="color: var(--p)"></i> Hệ thống 10
+            Phòng Lab
+          </button>
+
+          <div class="menu-label" style="margin-top: 30px">HỖ TRỢ</div>
+          <button
+            class="nav-btn"
+            onclick="
+              document
+                .getElementById('feedbackModal')
+                .classList.remove('hidden')
+            "
+          >
+            <i class="ph ph-chat-circle-dots"></i> Gửi Góp Ý / Báo Lỗi
+          </button>
 
           <div id="adminMenuSection" class="hidden">
-            <div class="menu-label" style="margin-top: 30px;">CÀI ĐẶT HỆ THỐNG</div>
-            <button id="tabAdminBroadcast" class="nav-btn" data-cat="broadcast"><i class="ph ph-megaphone"></i> Phát Thông báo</button>
-            <button id="tabAdminFeedbacks" class="nav-btn" data-cat="feedbacks"><i class="ph ph-envelope-open"></i> Hòm thư Góp ý</button>
-            <button id="tabAdminUsers" class="nav-btn" data-cat="users"><i class="ph ph-users"></i> Tài khoản & Phân quyền</button>
+            <div class="menu-label" style="margin-top: 30px">
+              CÀI ĐẶT HỆ THỐNG
+            </div>
+            <button id="tabAdminBroadcast" class="nav-btn" data-cat="broadcast">
+              <i class="ph ph-megaphone"></i> Phát Thông báo
+            </button>
+            <button id="tabAdminFeedbacks" class="nav-btn" data-cat="feedbacks">
+              <i class="ph ph-envelope-open"></i> Hòm thư Góp ý
+            </button>
+            <button id="tabAdminUsers" class="nav-btn" data-cat="users">
+              <i class="ph ph-users"></i> Tài khoản & Phân quyền
+            </button>
           </div>
         </div>
       </aside>
@@ -249,35 +909,135 @@
       <main class="main-panel">
         <header class="top-bar">
           <div class="hust-search-box">
-            <i class="ph ph-magnifying-glass" style="font-size: 18px; color: #9ca3af; margin-right: 10px;"></i>
-            <input type="text" id="searchDevice" placeholder="Tìm kiếm tên thiết bị hoặc thông số..." oninput="filterDevices()" />
+            <i
+              class="ph ph-magnifying-glass"
+              style="font-size: 18px; color: #9ca3af; margin-right: 10px"
+            ></i>
+            <input
+              type="text"
+              id="searchDevice"
+              placeholder="Tìm kiếm tên thiết bị hoặc thông số..."
+              oninput="filterDevices()"
+            />
           </div>
-          
+
           <div class="header-actions">
-            <button id="btnShowAddModal" class="btn hidden" onclick="document.getElementById('addDeviceModal').classList.remove('hidden')"><i class="ph ph-plus" style="margin-right: 6px; font-size: 16px; vertical-align: middle;"></i> THÊM THIẾT BỊ</button>
-            
-            <div class="user-menu-container" id="notiTrigger" style="padding: 8px 10px; position: relative;">
-              <i class="ph ph-bell" style="font-size: 22px; color: #4b5563;"></i>
+            <button
+              id="btnShowAddModal"
+              class="btn hidden"
+              onclick="
+                document
+                  .getElementById('addDeviceModal')
+                  .classList.remove('hidden')
+              "
+            >
+              <i
+                class="ph ph-plus"
+                style="
+                  margin-right: 6px;
+                  font-size: 16px;
+                  vertical-align: middle;
+                "
+              ></i>
+              THÊM DỮ LIỆU
+            </button>
+
+            <div
+              class="user-menu-container"
+              id="notiTrigger"
+              style="padding: 8px 10px; position: relative"
+            >
+              <i class="ph ph-bell" style="font-size: 22px; color: #4b5563"></i>
               <span class="noti-badge hidden" id="notiBadge">Mới</span>
-              <div class="dropdown-menu" id="notiDropdown" style="width: 320px; right: -20px; top: 48px; cursor: default;">
-                <div style="padding: 12px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
-                  <strong style="font-size: 14px; color: var(--text-main);"><i class="ph ph-bell-ringing" style="color: var(--p); margin-right: 5px;"></i> THÔNG BÁO</strong>
+              <div
+                class="dropdown-menu"
+                id="notiDropdown"
+                style="width: 320px; right: -20px; top: 48px; cursor: default"
+              >
+                <div
+                  style="
+                    padding: 12px 20px;
+                    border-bottom: 1px solid var(--border-color);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <strong style="font-size: 14px; color: var(--text-main)"
+                    ><i
+                      class="ph ph-bell-ringing"
+                      style="color: var(--p); margin-right: 5px"
+                    ></i>
+                    THÔNG BÁO</strong
+                  >
                 </div>
-                <div id="notiList" style="max-height: 350px; overflow-y: auto;"></div>
+                <div
+                  id="notiList"
+                  style="max-height: 350px; overflow-y: auto"
+                ></div>
               </div>
             </div>
 
             <div class="user-menu-container" id="userTrigger">
               <div class="user-avatar-small" id="userAvatarHeader">U</div>
-              <span id="userShortLabel" style="font-weight: 600;">Tài khoản</span>
-              <i class="ph ph-caret-down" style="color: #6b7280; font-size: 12px; margin-left: 5px;"></i>
+              <span id="userShortLabel" style="font-weight: 600"
+                >Tài khoản</span
+              >
+              <i
+                class="ph ph-caret-down"
+                style="color: #6b7280; font-size: 12px; margin-left: 5px"
+              ></i>
               <div class="dropdown-menu" id="userDropdown">
-                <div style="padding: 15px; border-bottom: 1px solid var(--border-color);">
-                  <strong id="userNameFull">Họ Tên</strong><br/>
-                  <small id="userRoleBadge" class="tag" style="margin-top: 8px; display: inline-block;">Vai trò</small>
+                <div
+                  style="
+                    padding: 15px;
+                    border-bottom: 1px solid var(--border-color);
+                  "
+                >
+                  <strong id="userNameFull">Họ Tên</strong><br />
+                  <small
+                    id="userRoleBadge"
+                    class="tag"
+                    style="margin-top: 8px; display: inline-block"
+                    >Vai trò</small
+                  >
                 </div>
-                <div class="dropdown-item" onclick="document.getElementById('changePassModal').classList.remove('hidden')"><i class="ph ph-key" style="margin-right: 8px; font-size: 16px; vertical-align: text-bottom;"></i> Đổi mật khẩu</div>
-                <div class="dropdown-item" id="btnLogOut" style="color: var(--p); border-top: 1px solid var(--border-color);"><i class="ph ph-sign-out" style="margin-right: 8px; font-size: 16px; vertical-align: text-bottom;"></i> Đăng xuất an toàn</div>
+                <div
+                  class="dropdown-item"
+                  onclick="
+                    document
+                      .getElementById('changePassModal')
+                      .classList.remove('hidden')
+                  "
+                >
+                  <i
+                    class="ph ph-key"
+                    style="
+                      margin-right: 8px;
+                      font-size: 16px;
+                      vertical-align: text-bottom;
+                    "
+                  ></i>
+                  Đổi mật khẩu
+                </div>
+                <div
+                  class="dropdown-item"
+                  id="btnLogOut"
+                  style="
+                    color: var(--p);
+                    border-top: 1px solid var(--border-color);
+                  "
+                >
+                  <i
+                    class="ph ph-sign-out"
+                    style="
+                      margin-right: 8px;
+                      font-size: 16px;
+                      vertical-align: text-bottom;
+                    "
+                  ></i>
+                  Đăng xuất an toàn
+                </div>
               </div>
             </div>
           </div>
@@ -286,118 +1046,70 @@
         <div class="content-area">
           <div class="device-grid" id="deviceGrid"></div>
 
-          <div id="ptnGrid" class="hidden" style="width: 100%; max-width: 1200px;">
-            <div class="ptn-hero">
-                <h1>Hệ thống Phòng thí nghiệm Viện Vật lý Kỹ thuật</h1>
-                <p>Nơi quy tụ cơ sở vật chất hiện đại, phục vụ đào tạo hàng chục ngàn sinh viên ĐHBK Hà Nội và triển khai các công trình nghiên cứu khoa học mũi nhọn cấp Quốc gia.</p>
-            </div>
-            
-            <div class="ptn-list">
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-books"></i></div>
-                    <div>
-                        <h3>PTN Vật lý Đại cương</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Tòa D3 & C10</div>
-                        <p>Hệ thống phòng thí nghiệm thực hành cơ bản lớn nhất, bao quát toàn diện các lĩnh vực Cơ học, Nhiệt học, Điện - Từ học, Quang học và Vật lý lượng tử.</p>
-                    </div>
-                </div>
-
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-desktop"></i></div>
-                    <div>
-                        <h3>PTN Vật lý Tin học</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Nhóm NCM Vật lý tin học và ứng dụng</div>
-                        <p>Sự giao thoa giữa Khoa học Máy tính và Vật lý. Xử lý tính toán mô phỏng số học, động lực học phân tử và ứng dụng AI/ML thiết kế vật liệu.</p>
-                    </div>
-                </div>
-
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-cpu"></i></div>
-                    <div>
-                        <h3>PTN Vật liệu và Linh kiện Nano</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Tòa C9 - Phòng 211</div>
-                        <p>Nghiên cứu ứng dụng công nghệ mũi nhọn trong Vi điện tử, Bán dẫn, MEMS và Cảm biến nano. Chuyên sâu chế tạo linh kiện kích thước siêu nhỏ.</p>
-                    </div>
-                </div>
-
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-graph"></i></div>
-                    <div>
-                        <h3>PTN Phân tích Cấu trúc</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Hệ thống PTN Trọng điểm SEP</div>
-                        <p>Cung cấp các phép đo phân tích chuyên sâu (XRD, XPS, Raman) về cấu trúc mạng tinh thể, định lượng pha và tính chất hóa lý bề mặt.</p>
-                    </div>
-                </div>
-
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-radioactive"></i></div>
-                    <div>
-                        <h3>PTN Kỹ thuật Hạt nhân</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Tòa nhà A</div>
-                        <p>Cơ sở đầu ngành về kỹ thuật bức xạ, đo lường đồng vị phóng xạ môi trường, an toàn bức xạ và phân tích phổ kế Gamma chuyên sâu.</p>
-                    </div>
-                </div>
-
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-atom"></i></div>
-                    <div>
-                        <h3>PTN Vật liệu Từ và Nano tinh thể</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Nhóm NCM Vật lý và Vật liệu điện tử</div>
-                        <p>Nghiên cứu và chế tạo các vật liệu từ tính tiên tiến, băng từ nguội nhanh, và hạt nano từ ứng dụng trong y sinh học, môi trường và công nghiệp.</p>
-                    </div>
-                </div>
-
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-sun"></i></div>
-                    <div>
-                        <h3>PTN Pin Mặt trời</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Nhóm NCM Quang học và Quang điện tử</div>
-                        <p>Nghiên cứu tổng hợp và chế tạo thế hệ pin mặt trời mới (Màng mỏng, Perovskite, DSSC). Đánh giá chuẩn xác hiệu năng quang điện với máy mô phỏng chuẩn.</p>
-                    </div>
-                </div>
-
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-radar"></i></div>
-                    <div>
-                        <h3>PTN Kiểm tra không phá mẫu (NDT)</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Trung tâm Thí nghiệm Thực hành</div>
-                        <p>Sử dụng phương pháp siêu âm, dòng điện xoáy, tia X công nghiệp để dò tìm, định vị khuyết tật ẩn sâu trong cấu kiện hàng không, cơ khí.</p>
-                    </div>
-                </div>
-
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-lightbulb"></i></div>
-                    <div>
-                        <h3>PTN Vật lý và Kỹ thuật Ánh sáng</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Chuyên ngành Kỹ thuật Chiếu sáng</div>
-                        <p>Đo lường các thông số kỹ thuật quang học, thiết kế chiếu sáng kiến trúc, và đánh giá chất lượng nguồn sáng tiết kiệm năng lượng LED/Laser.</p>
-                    </div>
-                </div>
-
-                <div class="ptn-card">
-                    <div class="ptn-icon"><i class="ph ph-magnet"></i></div>
-                    <div>
-                        <h3>PTN Vật liệu đa pha Sắt điện - Sắt từ</h3>
-                        <div class="ptn-meta"><i class="ph ph-map-pin"></i> Từ điện ghép (Multifunctional Ferroics)</div>
-                        <p>Nghiên cứu chế tạo vật liệu đa pha, ứng dụng vào công nghệ lưu trữ dữ liệu mật độ cao, cảm biến từ trường siêu nhạy và vi mạch tiên tiến.</p>
-                    </div>
-                </div>
-            </div>
-          </div>
-
-          <div id="usersGrid" class="hidden" style="width: 100%; max-width: 1200px;">
-            <h2 style="margin-top: 0; margin-bottom: 25px; font-weight: 800; font-size: 24px;">Hồ sơ người dùng</h2>
+          <div
+            id="usersGrid"
+            class="hidden"
+            style="width: 100%; max-width: 1200px"
+          >
+            <h2
+              style="
+                margin-top: 0;
+                margin-bottom: 25px;
+                font-weight: 800;
+                font-size: 24px;
+              "
+            >
+              Hồ sơ người dùng
+            </h2>
             <div class="admin-stats-container">
-              <div class="stat-card"><div>TỔNG TÀI KHOẢN</div><div class="stat-value" id="statTotal">0</div></div>
-              <div class="stat-card"><div>CÁN BỘ PHỤ TRÁCH</div><div class="stat-value" id="statInstructor">0</div></div>
-              <div class="stat-card" style="border-color: var(--p-light);"><div>QUẢN TRỊ VIÊN</div><div class="stat-value" id="statAdmin">0</div></div>
+              <div class="stat-card">
+                <div>TỔNG TÀI KHOẢN</div>
+                <div class="stat-value" id="statTotal">0</div>
+              </div>
+              <div class="stat-card">
+                <div>CÁN BỘ PHỤ TRÁCH</div>
+                <div class="stat-value" id="statInstructor">0</div>
+              </div>
+              <div class="stat-card" style="border-color: var(--p-light)">
+                <div>QUẢN TRỊ VIÊN</div>
+                <div class="stat-value" id="statAdmin">0</div>
+              </div>
             </div>
             <div class="admin-toolbar">
-              <div style="flex: 1; position: relative;">
-                <i class="ph ph-magnifying-glass" style="position: absolute; left: 15px; top: 12px; color: #9ca3af; font-size: 18px;"></i>
-                <input type="text" id="searchUser" placeholder="Tìm kiếm theo tên hoặc email..." oninput="filterUsers()" style="margin: 0; padding: 12px 20px 12px 42px; border-radius: 8px; width: 100%;" />
+              <div style="flex: 1; position: relative">
+                <i
+                  class="ph ph-magnifying-glass"
+                  style="
+                    position: absolute;
+                    left: 15px;
+                    top: 12px;
+                    color: #9ca3af;
+                    font-size: 18px;
+                  "
+                ></i>
+                <input
+                  type="text"
+                  id="searchUser"
+                  placeholder="Tìm kiếm theo tên hoặc email..."
+                  oninput="filterUsers()"
+                  style="
+                    margin: 0;
+                    padding: 12px 20px 12px 42px;
+                    border-radius: 8px;
+                    width: 100%;
+                  "
+                />
               </div>
-              <select id="filterRole" onchange="filterUsers()" style="width: 250px; margin: 0; border-radius: 8px; padding: 12px 20px;">
+              <select
+                id="filterRole"
+                onchange="filterUsers()"
+                style="
+                  width: 250px;
+                  margin: 0;
+                  border-radius: 8px;
+                  padding: 12px 20px;
+                "
+              >
                 <option value="all">Tất cả vai trò</option>
                 <option value="student">Sinh viên</option>
                 <option value="instructor">Cán bộ phụ trách</option>
@@ -407,29 +1119,93 @@
             <div id="adminUserList" class="admin-user-list"></div>
           </div>
 
-          <div id="feedbacksGrid" class="hidden" style="width: 100%; max-width: 1200px;">
-            <h2 style="margin-top: 0; margin-bottom: 25px; font-weight: 800; font-size: 24px;">Hòm thư Góp ý & Báo lỗi</h2>
-            <div id="feedbacksList" style="display: flex; flex-direction: column; gap: 15px;"></div>
+          <div
+            id="feedbacksGrid"
+            class="hidden"
+            style="width: 100%; max-width: 1200px"
+          >
+            <h2
+              style="
+                margin-top: 0;
+                margin-bottom: 25px;
+                font-weight: 800;
+                font-size: 24px;
+              "
+            >
+              Hòm thư Góp ý & Báo lỗi
+            </h2>
+            <div
+              id="feedbacksList"
+              style="display: flex; flex-direction: column; gap: 15px"
+            ></div>
           </div>
 
-          <div id="broadcastGrid" class="hidden" style="width: 100%; max-width: 900px;">
-            <h2 style="margin-top: 0; margin-bottom: 25px; font-weight: 800; font-size: 24px;"><i class="ph ph-megaphone" style="color: var(--p); margin-right: 10px;"></i>Phát thông báo toàn hệ thống</h2>
-            <div style="background: white; padding: 35px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 30px;">
-                <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">Thông báo này sẽ được gửi trực tiếp vào biểu tượng Chuông của tất cả sinh viên và cán bộ trên hệ thống.</p>
-                <label>Tiêu đề thông báo</label>
-                <input type="text" id="newNotiTitle" placeholder="Ví dụ: Lịch bảo trì định kỳ máy hiển vi SEM tháng 4..." />
-                
-                <label>Nội dung thông báo</label>
-                <textarea id="newNotiMsg" rows="4" placeholder="Nhập nội dung chi tiết cần truyền đạt..."></textarea>
-                
-                <button id="btnBroadcastNoti" class="btn" style="margin-top: 10px;"><i class="ph ph-paper-plane-tilt" style="margin-right: 6px;"></i> PHÁT TÍN HIỆU NGAY</button>
+          <div
+            id="broadcastGrid"
+            class="hidden"
+            style="width: 100%; max-width: 900px"
+          >
+            <h2
+              style="
+                margin-top: 0;
+                margin-bottom: 25px;
+                font-weight: 800;
+                font-size: 24px;
+              "
+            >
+              <i
+                class="ph ph-megaphone"
+                style="color: var(--p); margin-right: 10px"
+              ></i
+              >Phát thông báo toàn hệ thống
+            </h2>
+            <div
+              style="
+                background: white;
+                padding: 35px;
+                border-radius: var(--radius);
+                border: 1px solid var(--border-color);
+                margin-bottom: 30px;
+              "
+            >
+              <p
+                style="
+                  color: var(--text-muted);
+                  margin-bottom: 20px;
+                  font-size: 14px;
+                "
+              >
+                Thông báo này sẽ được gửi trực tiếp vào biểu tượng Chuông của
+                tất cả sinh viên và cán bộ trên hệ thống.
+              </p>
+              <label>Tiêu đề thông báo</label>
+              <input
+                type="text"
+                id="newNotiTitle"
+                placeholder="Ví dụ: Lịch bảo trì định kỳ máy hiển vi SEM tháng 4..."
+              />
+
+              <label>Nội dung thông báo</label>
+              <textarea
+                id="newNotiMsg"
+                rows="4"
+                placeholder="Nhập nội dung chi tiết cần truyền đạt..."
+              ></textarea>
+
+              <button
+                id="btnBroadcastNoti"
+                class="btn"
+                style="margin-top: 10px"
+              >
+                <i class="ph ph-paper-plane-tilt" style="margin-right: 6px"></i>
+                PHÁT TÍN HIỆU NGAY
+              </button>
             </div>
           </div>
-
         </div>
       </main>
     </div>
-    
-    <script type="module" src="app.js?v=14"></script> 
+
+    <script type="module" src="app.js?v=17"></script>
   </body>
 </html>
