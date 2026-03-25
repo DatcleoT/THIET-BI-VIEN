@@ -802,3 +802,22 @@ textarea:focus {
     padding-top: 15px !important;
   }
 }
+/* ========================================================= */
+/* SỬA LỖI KHÔNG CHẠM/BẤM ĐƯỢC THẺ TRÊN ĐIỆN THOẠI MOBILE      */
+/* ========================================================= */
+.device-card,
+.ptn-card {
+  /* Bỏ qua độ trễ 300ms của trình duyệt, nhận click ngay lập tức */
+  touch-action: manipulation;
+  /* Bỏ khung viền xanh/xám nhấp nháy mặc định của Android/iOS khi chạm */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Yêu cầu trình duyệt xuyên qua mọi chữ và ảnh bên trong thẻ */
+/* Truyền thẳng lệnh chạm (Tap) vào khung thẻ cha để gọi Modal */
+.device-card-body *,
+.ptn-card * {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
