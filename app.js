@@ -29,6 +29,7 @@ const cleanText = (str) => {
     )
     .trim();
 };
+
 const cleanStepLine = (str) => {
   let s = cleanText(str);
   s = s.replace(/^(Bước|BƯỚC|bước|step)\s*\d+[\s:\.\-\_]*\s*/i, "");
@@ -61,6 +62,7 @@ function updateStepBoxes(inputId, containerId, prefix) {
       container.lastChild.remove();
   }
 }
+
 document.getElementById("addSteps").oninput = () =>
   updateStepBoxes("addSteps", "dynamicAddSteps", "addStepImg");
 document.getElementById("insStepsInput").oninput = () =>
@@ -108,7 +110,6 @@ async function initApp() {
         document.getElementById("adminMenuSection").classList.remove("hidden");
 
       loadNotifications();
-
       nav("systemView");
       render("analyze");
     } catch (err) {
@@ -156,24 +157,27 @@ function displayDevices(list) {
 
     const div = document.createElement("div");
     div.className = "device-card";
+    div.style.cursor = "pointer"; // Bắt buộc để iOS Safari nhận diện Click
 
-    // TRÁI TIM CỦA VIỆC PHÂN LUỒNG: Bấm vào PTN thì mở Wiki, bấm vào máy thì mở Timeline
+    // ĐIỀU HƯỚNG CHUẨN XÁC
     div.onclick = () => {
       if (d.cat === "ptn") {
         openPtnWikiModal(d);
       } else {
-        openModal(d);
+        openDeviceModal(d);
       }
     };
 
     div.innerHTML = `
-          <img src="${img}" class="device-card-img" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'"/>
-          <div class="device-card-body">
-            <div style="margin-bottom: 12px;"><span class="tag">${stHtml}</span></div>
-            <h3 style="margin: 0 0 8px; font-size: 16px;">${d.name}</h3>
-            <p style="margin: 0 0 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${cleanText(d.description) || "Thông tin mô tả đang được cập nhật..."}</p>
-            <div class="hust-card-footer">Truy cập dữ liệu <i class="ph ph-arrow-right" style="margin-left: 4px;"></i></div>
-          </div>`;
+      <img src="${img}" class="device-card-img" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'"/>
+      <div class="device-card-body">
+        <div style="margin-bottom: 12px;"><span class="tag">${stHtml}</span></div>
+        <h3 style="margin: 0 0 8px; font-size: 16px;">${d.name}</h3>
+        <p style="margin: 0 0 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${cleanText(d.description) || "Thông tin đang cập nhật..."}</p>
+        <div style="margin-top: auto; background: var(--p-light); color: var(--p); padding: 10px; border-radius: 6px; text-align: center; font-weight: 700; font-size: 13px;">
+            TÌM HIỂU THÊM <i class="ph ph-arrow-right" style="margin-left: 4px; vertical-align: middle;"></i>
+        </div>
+      </div>`;
     grid.appendChild(div);
   });
 }
@@ -184,17 +188,16 @@ window.filterDevices = () => {
 };
 
 // ==============================================================
-// 1. HÀM MỞ BẢNG WIKI DÀNH CHO PHÒNG THÍ NGHIỆM (Y HỆT ẢNH WEB)
+// 1. HÀM MỞ BẢNG WIKI DÀNH CHO PHÒNG THÍ NGHIỆM
 // ==============================================================
 window.openPtnWikiModal = (d) => {
-  selectedDevice = d; // Lưu lại để Edit/Delete nếu có quyền Admin
+  selectedDevice = d;
   document.getElementById("wTitle").innerText = d.name;
 
   let descText = cleanText(d.description) || "";
   let infoHtml = "";
   let introHtml = "";
 
-  // Tách phần Vị trí và Giới thiệu dựa trên chữ GIỚI THIỆU CHUNG
   if (descText.includes("GIỚI THIỆU CHUNG:")) {
     let parts = descText.split("GIỚI THIỆU CHUNG:");
     let infoPart = parts[0].replace("VỊ TRÍ:", "").trim();
@@ -223,20 +226,17 @@ window.openPtnWikiModal = (d) => {
   document.getElementById("wInfo").innerHTML = infoHtml;
   document.getElementById("wIntro").innerHTML = introHtml;
 
-  // Đổ danh sách bộ thí nghiệm ra gạch đầu dòng
   let stepsArray = (d.steps || "").split("\n").filter((l) => l.trim() !== "");
   document.getElementById("wList").innerHTML = stepsArray
     .map((s) => `<li style="margin-bottom: 8px;">${cleanStepLine(s)}</li>`)
     .join("");
 
-  // Xử lý ảnh Cover cho PTN
   const safe = toSafe(d.name);
   const imgEl = document.getElementById("wImage");
   imgEl.src = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safe}.jpg?t=${Date.now()}`;
   imgEl.style.display = "inline-block";
   imgEl.onerror = () => (imgEl.style.display = "none");
 
-  // Mở đúng Modal của PTN, ẩn Modal máy móc
   document.getElementById("detailModal").classList.add("hidden");
   document.getElementById("ptnWikiModal").classList.remove("hidden");
 };
@@ -266,7 +266,7 @@ window.switchModalTab = (tabId) => {
   }
 };
 
-window.openModal = (d) => {
+window.openDeviceModal = (d) => {
   selectedDevice = d;
   document.getElementById("mTitle").innerText = d.name;
 
@@ -283,7 +283,6 @@ window.openModal = (d) => {
   else stHtml = '<span class="status-dot dot-red"></span> Tạm dừng do sự cố';
   document.getElementById("mStatusBadge").innerHTML = stHtml;
 
-  // Vẽ Timeline dọc cho Máy
   const stepsArray = (d.steps || "").split("\n").filter((l) => l.trim() !== "");
   const stepsContainer = document.getElementById("mStepsContainer");
   stepsContainer.innerHTML = "";
@@ -326,7 +325,6 @@ window.openModal = (d) => {
   }
 
   switchModalTab("info");
-  // Mở đúng Modal Máy, ẩn Modal PTN
   document.getElementById("ptnWikiModal").classList.add("hidden");
   document.getElementById("detailModal").classList.remove("hidden");
 };
@@ -335,9 +333,6 @@ window.closeModal = () => {
   document.getElementById("detailModal").classList.add("hidden");
 };
 
-// ==============================================================
-// CHỨC NĂNG NHẬT KÝ, CẨM NANG, XÓA ẢNH VÀ QUẢN LÝ (GIỮ NGUYÊN)
-// ==============================================================
 window.loadLogs = async () => {
   const container = document.getElementById("logListContainer");
   container.innerHTML =
@@ -384,17 +379,19 @@ document.getElementById("btnSubmitLog").onclick = async () => {
   const btn = document.getElementById("btnSubmitLog");
   btn.disabled = true;
   btn.innerText = "ĐANG LƯU DỮ LIỆU...";
-  const { error } = await supabase.from("device_logs").insert([
-    {
-      device_id: selectedDevice.id,
-      user_id: currentProfile.id,
-      user_name: currentProfile.full_name,
-      usage_date: date,
-      start_time: start,
-      end_time: end,
-      purpose: purpose,
-    },
-  ]);
+  const { error } = await supabase
+    .from("device_logs")
+    .insert([
+      {
+        device_id: selectedDevice.id,
+        user_id: currentProfile.id,
+        user_name: currentProfile.full_name,
+        usage_date: date,
+        start_time: start,
+        end_time: end,
+        purpose: purpose,
+      },
+    ]);
   btn.disabled = false;
   btn.innerText = "LƯU VÀO SỔ TAY";
   if (error) toast(error.message);
@@ -463,14 +460,16 @@ document.getElementById("btnSubmitFeedback").onclick = async () => {
   const btn = document.getElementById("btnSubmitFeedback");
   btn.disabled = true;
   btn.innerText = "ĐANG GỬI...";
-  const { error } = await supabase.from("feedbacks").insert([
-    {
-      user_id: currentProfile.id,
-      user_name: currentProfile.full_name,
-      subject: subject,
-      content: content,
-    },
-  ]);
+  const { error } = await supabase
+    .from("feedbacks")
+    .insert([
+      {
+        user_id: currentProfile.id,
+        user_name: currentProfile.full_name,
+        subject: subject,
+        content: content,
+      },
+    ]);
   btn.disabled = false;
   btn.innerHTML =
     '<i class="ph ph-paper-plane-right" style="margin-right: 6px;"></i> GỬI PHẢN HỒI';
@@ -539,6 +538,7 @@ window.loadAdminUsers = async () => {
   ).length;
   window.filterUsers();
 };
+
 window.filterUsers = () => {
   const s = document.getElementById("searchUser").value.toLowerCase(),
     r = document.getElementById("filterRole").value,
@@ -586,6 +586,7 @@ async function uploadFiles(namePrefix, textLines, filePrefix) {
         .upload(`${namePrefix}/step_${i}.jpg`, f, { upsert: true });
   }
 }
+
 document.getElementById("btnSubmitAdd").onclick = async () => {
   const name = document.getElementById("addName").value,
     cat = document.getElementById("addCat").value,
@@ -593,16 +594,18 @@ document.getElementById("btnSubmitAdd").onclick = async () => {
   if (!name) return toast("Vui lòng nhập tên thiết bị.");
   document.getElementById("btnSubmitAdd").disabled = true;
   document.getElementById("btnSubmitAdd").innerText = "ĐANG TẢI LÊN...";
-  await supabase.from("devices").insert([
-    {
-      name,
-      cat,
-      status: "normal",
-      description: document.getElementById("addDesc").value,
-      steps,
-      created_by: currentProfile.id,
-    },
-  ]);
+  await supabase
+    .from("devices")
+    .insert([
+      {
+        name,
+        cat,
+        status: "normal",
+        description: document.getElementById("addDesc").value,
+        steps,
+        created_by: currentProfile.id,
+      },
+    ]);
   const mainF = document.getElementById("addImgFile").files[0];
   if (mainF)
     await supabase.storage
@@ -654,7 +657,6 @@ document.getElementById("btnDeleteDevice").onclick = async () => {
   }
 };
 
-// HÀM XÓA ẢNH TRONG CHỈNH SỬA
 if (document.getElementById("btnDeleteMainImg")) {
   document.getElementById("btnDeleteMainImg").onclick = async () => {
     if (!selectedDevice) return;
@@ -694,6 +696,7 @@ document.getElementById("btnSignIn").onclick = async () => {
   if (error) toast("Thông tin đăng nhập không chính xác.");
   else initApp();
 };
+
 document.getElementById("btnSignUp").onclick = async () => {
   const role = rRole.value,
     code = rSecurityCode.value;
@@ -717,10 +720,12 @@ document.getElementById("btnSignUp").onclick = async () => {
     nav("loginView");
   }
 };
+
 document.getElementById("btnLogOut").onclick = async () => {
   await supabase.auth.signOut();
   location.reload();
 };
+
 document.getElementById("btnReset").onclick = async () => {
   await supabase.auth.resetPasswordForEmail(
     document.getElementById("fEmail").value,
@@ -728,6 +733,7 @@ document.getElementById("btnReset").onclick = async () => {
   );
   toast("Yêu cầu đã được gửi đến email.", true);
 };
+
 document.getElementById("btnSubmitSysPass").onclick = async () => {
   if (
     document.getElementById("sysNewPass").value !==
@@ -751,20 +757,19 @@ document.getElementById("userTrigger").onclick = (e) => {
   document.getElementById("notiDropdown").classList.remove("show");
   document.getElementById("userDropdown").classList.toggle("show");
 };
+
 document.getElementById("notiTrigger").onclick = (e) => {
   e.stopPropagation();
   document.getElementById("userDropdown").classList.remove("show");
   document.getElementById("notiDropdown").classList.toggle("show");
   document.getElementById("notiBadge").classList.add("hidden");
 };
+
 window.onclick = () => {
   document.getElementById("userDropdown").classList.remove("show");
   document.getElementById("notiDropdown").classList.remove("show");
 };
 
-// ==============================================================
-// KHẮC PHỤC LỖI TRẮNG MÀN HÌNH KHI BẤM "HỆ THỐNG 10 PHÒNG LAB"
-// ==============================================================
 document.querySelectorAll(".nav-btn").forEach((b) => {
   if (!b.dataset.cat) return;
   b.onclick = () => {
@@ -773,7 +778,6 @@ document.querySelectorAll(".nav-btn").forEach((b) => {
       .forEach((x) => x.classList.remove("active"));
     b.classList.add("active");
 
-    // Ẩn tất cả các Grid đi
     ["deviceGrid", "usersGrid", "feedbacksGrid", "broadcastGrid"].forEach(
       (id) => {
         const el = document.getElementById(id);
@@ -781,7 +785,6 @@ document.querySelectorAll(".nav-btn").forEach((b) => {
       },
     );
 
-    // Hiện lưới tương ứng
     if (b.dataset.cat === "users") {
       document.getElementById("usersGrid").classList.remove("hidden");
       loadAdminUsers();
@@ -790,9 +793,7 @@ document.querySelectorAll(".nav-btn").forEach((b) => {
       loadAdminFeedbacks();
     } else if (b.dataset.cat === "broadcast") {
       document.getElementById("broadcastGrid").classList.remove("hidden");
-    }
-    // Tất cả các Menu còn lại (Nano, Analyze, PTN...) đều gọi render() để lấy từ SQL hiển thị ra Grid!
-    else {
+    } else {
       document.getElementById("deviceGrid").classList.remove("hidden");
       render(b.dataset.cat);
     }
