@@ -12,6 +12,7 @@ let currentProfile = null,
 
 const toast = (m, s = false) =>
   alert(`${s ? "Thành công:" : "Thông báo:"} ${m}`);
+
 const toSafe = (s) =>
   s
     .normalize("NFD")
@@ -36,7 +37,8 @@ const cleanStepLine = (str) => {
   return s.trim();
 };
 
-function updateStepBoxes(inputId, containerId, prefix) {
+// ĐÃ NÂNG CẤP: Thêm cờ isEdit để hiển thị nút Xóa ảnh từng bước
+function updateStepBoxes(inputId, containerId, prefix, isEdit = false) {
   const text = document.getElementById(inputId).value;
   const lines = text.split("\n").filter((l) => l.trim() !== "");
   const container = document.getElementById(containerId);
@@ -53,8 +55,18 @@ function updateStepBoxes(inputId, containerId, prefix) {
     for (let i = currentCount + 1; i <= lines.length; i++) {
       const d = document.createElement("div");
       d.className = "step-up-box";
+
+      // Nếu đang ở Tab Cập nhật, chèn thêm nút Thùng rác vào từng bước
+      let deleteBtnHTML = "";
+      if (isEdit) {
+        deleteBtnHTML = `<button type="button" class="btn-outline" style="color: var(--a); border: 1px solid #fecaca; padding: 6px 12px; border-radius: 6px; cursor: pointer; background: white;" onclick="deleteSpecificImage(${i})" title="Xóa ảnh hiện tại của Bước này"><i class="ph ph-trash" style="font-size: 16px;"></i></button>`;
+      }
+
       d.innerHTML = `<label style="font-size:11px; font-weight:700; color:var(--p); text-transform:uppercase;">Ảnh Bước ${i}</label>
-                           <input type="file" id="${prefix}_${i}" accept="image/*" style="padding:6px; margin:4px 0 10px; font-size: 12px;"/>`;
+                     <div style="display: flex; gap: 8px; margin: 4px 0 10px;">
+                        <input type="file" id="${prefix}_${i}" accept="image/*" style="padding:6px; margin:0; font-size: 12px; flex: 1;"/>
+                        ${deleteBtnHTML}
+                     </div>`;
       container.appendChild(d);
     }
   } else if (lines.length < currentCount) {
@@ -64,9 +76,10 @@ function updateStepBoxes(inputId, containerId, prefix) {
 }
 
 document.getElementById("addSteps").oninput = () =>
-  updateStepBoxes("addSteps", "dynamicAddSteps", "addStepImg");
+  updateStepBoxes("addSteps", "dynamicAddSteps", "addStepImg", false);
+// Truyền cờ true để báo hiệu đây là form Chỉnh sửa
 document.getElementById("insStepsInput").oninput = () =>
-  updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg");
+  updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg", true);
 
 async function initApp() {
   const {
@@ -168,14 +181,19 @@ function displayDevices(list) {
         <div style="margin-top: auto; background: var(--p-light); color: var(--p); padding: 10px; border-radius: 6px; text-align: center; font-weight: 700; font-size: 13px;">
             TÌM HIỂU THÊM <i class="ph ph-arrow-right" style="margin-left: 4px; vertical-align: middle;"></i>
         </div>
-      </div>`;
+      </div>
+    `;
 
-    // GẮN SỰ KIỆN CLICK BẰNG HÀM CHUẨN (Không dùng thuộc tính HTML)
     div.addEventListener("click", () => {
-      if (d.cat === "ptn") {
-        openPtnWikiModal(d);
-      } else {
-        openDeviceModal(d);
+      try {
+        if (d.cat === "ptn") {
+          window.openPtnWikiModal(d);
+        } else {
+          window.openDeviceModal(d);
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Lỗi khi mở bảng: " + error.message);
       }
     });
 
@@ -237,6 +255,11 @@ window.openPtnWikiModal = (d) => {
   imgEl.src = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safe}.jpg?t=${Date.now()}`;
   imgEl.style.display = "inline-block";
   imgEl.onerror = () => (imgEl.style.display = "none");
+
+  // Xử lý nút Edit cho PTN
+  const canEdit = currentProfile && currentProfile.role !== "student";
+  // Nếu bạn muốn tích hợp sửa cho PTN thì bỏ cờ này, nếu không cứ ẩn nó
+  // Ở đây ta giữ chuẩn chỉ hiển thị thông tin
 
   document.getElementById("detailModal").classList.add("hidden");
   document.getElementById("ptnWikiModal").classList.remove("hidden");
@@ -315,14 +338,14 @@ window.openDeviceModal = (d) => {
     gallery.appendChild(img);
   }
 
-  const canEdit = currentProfile.role !== "student";
+  const canEdit = currentProfile && currentProfile.role !== "student";
   document.getElementById("btnTabEdit").classList.toggle("hidden", !canEdit);
 
   if (canEdit) {
     document.getElementById("insInput").value = d.description || "";
     document.getElementById("insStepsInput").value = d.steps || "";
     document.getElementById("insStatus").value = d.status || "normal";
-    updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg");
+    updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg", true); // Bật tính năng Xóa ảnh
   }
 
   switchModalTab("info");
@@ -380,19 +403,17 @@ document.getElementById("btnSubmitLog").onclick = async () => {
   const btn = document.getElementById("btnSubmitLog");
   btn.disabled = true;
   btn.innerText = "ĐANG LƯU DỮ LIỆU...";
-  const { error } = await supabase
-    .from("device_logs")
-    .insert([
-      {
-        device_id: selectedDevice.id,
-        user_id: currentProfile.id,
-        user_name: currentProfile.full_name,
-        usage_date: date,
-        start_time: start,
-        end_time: end,
-        purpose: purpose,
-      },
-    ]);
+  const { error } = await supabase.from("device_logs").insert([
+    {
+      device_id: selectedDevice.id,
+      user_id: currentProfile.id,
+      user_name: currentProfile.full_name,
+      usage_date: date,
+      start_time: start,
+      end_time: end,
+      purpose: purpose,
+    },
+  ]);
   btn.disabled = false;
   btn.innerText = "LƯU VÀO SỔ TAY";
   if (error) toast(error.message);
@@ -461,16 +482,14 @@ document.getElementById("btnSubmitFeedback").onclick = async () => {
   const btn = document.getElementById("btnSubmitFeedback");
   btn.disabled = true;
   btn.innerText = "ĐANG GỬI...";
-  const { error } = await supabase
-    .from("feedbacks")
-    .insert([
-      {
-        user_id: currentProfile.id,
-        user_name: currentProfile.full_name,
-        subject: subject,
-        content: content,
-      },
-    ]);
+  const { error } = await supabase.from("feedbacks").insert([
+    {
+      user_id: currentProfile.id,
+      user_name: currentProfile.full_name,
+      subject: subject,
+      content: content,
+    },
+  ]);
   btn.disabled = false;
   btn.innerHTML =
     '<i class="ph ph-paper-plane-right" style="margin-right: 6px;"></i> GỬI PHẢN HỒI';
@@ -595,18 +614,16 @@ document.getElementById("btnSubmitAdd").onclick = async () => {
   if (!name) return toast("Vui lòng nhập tên thiết bị.");
   document.getElementById("btnSubmitAdd").disabled = true;
   document.getElementById("btnSubmitAdd").innerText = "ĐANG TẢI LÊN...";
-  await supabase
-    .from("devices")
-    .insert([
-      {
-        name,
-        cat,
-        status: "normal",
-        description: document.getElementById("addDesc").value,
-        steps,
-        created_by: currentProfile.id,
-      },
-    ]);
+  await supabase.from("devices").insert([
+    {
+      name,
+      cat,
+      status: "normal",
+      description: document.getElementById("addDesc").value,
+      steps,
+      created_by: currentProfile.id,
+    },
+  ]);
   const mainF = document.getElementById("addImgFile").files[0];
   if (mainF)
     await supabase.storage
@@ -658,6 +675,7 @@ document.getElementById("btnDeleteDevice").onclick = async () => {
   }
 };
 
+// XÓA ẢNH ĐẠI DIỆN CHÍNH
 if (document.getElementById("btnDeleteMainImg")) {
   document.getElementById("btnDeleteMainImg").onclick = async () => {
     if (!selectedDevice) return;
@@ -683,11 +701,47 @@ if (document.getElementById("btnDeleteMainImg")) {
         document.getElementById("mImage").src =
           "https://via.placeholder.com/150?text=NO+IMAGE";
         document.getElementById("updateImgFile").value = "";
-        render(selectedDevice.cat);
+
+        // Tải lại bảng tùy theo loại
+        if (selectedDevice.cat === "ptn") openPtnWikiModal(selectedDevice);
+        else openDeviceModal(selectedDevice);
       }
     }
   };
 }
+
+// ==============================================================
+// HÀM MỚI: XÓA ẢNH TỪNG BƯỚC ĐỘC LẬP
+// ==============================================================
+window.deleteSpecificImage = async (stepIndex) => {
+  if (!selectedDevice) return;
+  if (
+    confirm(
+      `Bạn có chắc chắn muốn gỡ bỏ ảnh của Bước/Mục ${stepIndex} khỏi hệ thống?`,
+    )
+  ) {
+    const safeName = toSafe(selectedDevice.name);
+    const { error } = await supabase.storage
+      .from("device-photos")
+      .remove([`${safeName}/step_${stepIndex}.jpg`]);
+    if (error) {
+      toast("Lỗi: " + error.message);
+    } else {
+      toast(`Đã xóa ảnh Bước ${stepIndex} thành công!`, true);
+
+      // Xóa value của thẻ input file nếu có
+      const fileInput = document.getElementById(`editStepImg_${stepIndex}`);
+      if (fileInput) fileInput.value = "";
+
+      // Tải lại dữ liệu vào Bảng
+      if (selectedDevice.cat === "ptn") {
+        openPtnWikiModal(selectedDevice);
+      } else {
+        openDeviceModal(selectedDevice);
+      }
+    }
+  }
+};
 
 document.getElementById("btnSignIn").onclick = async () => {
   const { error } = await supabase.auth.signInWithPassword({
