@@ -33,8 +33,7 @@ const cleanText = (str) => {
 
 const cleanStepLine = (str) => {
   let s = cleanText(str);
-  s = s.replace(/^(Bước|BƯỚC|bước|step)\s*\d+[\s:\.\-\_]*\s*/i, "");
-  return s.trim();
+  return s.replace(/^(Bước|BƯỚC|bước|step)\s*\d+[\s:\.\-\_]*\s*/i, "").trim();
 };
 
 function updateStepBoxes(inputId, containerId, prefix, isEdit = false) {
@@ -54,12 +53,9 @@ function updateStepBoxes(inputId, containerId, prefix, isEdit = false) {
     for (let i = currentCount + 1; i <= lines.length; i++) {
       const d = document.createElement("div");
       d.className = "step-up-box";
-
-      let deleteBtnHTML = "";
-      if (isEdit) {
-        deleteBtnHTML = `<button type="button" class="btn-outline" style="color: var(--a); border: 1px solid #fecaca; padding: 6px 12px; border-radius: 6px; cursor: pointer; background: white;" onclick="deleteSpecificImage(${i})" title="Xóa ảnh hiện tại của Bước này"><i class="ph ph-trash" style="font-size: 16px;"></i></button>`;
-      }
-
+      let deleteBtnHTML = isEdit
+        ? `<button type="button" class="btn-outline" style="color: var(--a); border: 1px solid #fecaca; padding: 6px 12px; border-radius: 6px; cursor: pointer; background: white;" onclick="deleteSpecificImage(${i})" title="Xóa ảnh hiện tại của Bước này"><i class="ph ph-trash" style="font-size: 16px;"></i></button>`
+        : "";
       d.innerHTML = `<label style="font-size:11px; font-weight:700; color:var(--p); text-transform:uppercase;">Ảnh Bước ${i}</label>
                      <div style="display: flex; gap: 8px; margin: 4px 0 10px;">
                         <input type="file" id="${prefix}_${i}" accept="image/*" style="padding:6px; margin:0; font-size: 12px; flex: 1;"/>
@@ -121,7 +117,11 @@ async function initApp() {
 
       loadNotifications();
       nav("systemView");
-      render("vat-ly-tu");
+
+      // AUTO-OPEN DEVICE IF SCANNED FROM QR
+      const urlParams = new URLSearchParams(window.location.search);
+      const scanId = urlParams.get("device");
+      await render("vat-ly-tu", scanId);
     } catch (err) {
       await supabase.auth.signOut();
       nav("loginView");
@@ -135,14 +135,38 @@ supabase.auth.onAuthStateChange((event) => {
     document.getElementById("changePassModal").classList.remove("hidden");
 });
 
-// TRẢ LẠI HÀM RENDER NGUYÊN BẢN: Gọi đúng theo danh mục cat
-async function render(cat) {
+async function render(cat, forceOpenId = null) {
   document.getElementById("deviceGrid").innerHTML =
     "<p style='text-align:center; width:100%; grid-column:1/-1; padding:50px; color:var(--text-muted);'>Đang tải hệ thống dữ liệu...</p>";
 
-  const { data } = await supabase.from("devices").select("*").eq("cat", cat);
+  // Tải TOÀN BỘ thiết bị để hỗ trợ mở QR từ mọi tab
+  const { data } = await supabase.from("devices").select("*");
   allDevices = data || [];
-  displayDevices(allDevices);
+
+  if (forceOpenId) {
+    const scannedDevice = allDevices.find((x) => x.id === forceOpenId);
+    if (scannedDevice) {
+      if (scannedDevice.name.toLowerCase().includes("ptn"))
+        window.openPtnWikiModal(scannedDevice);
+      else window.openDeviceModal(scannedDevice);
+    }
+    // Clean URL so it doesn't reopen on refresh
+    window.history.pushState({}, document.title, window.location.pathname);
+  }
+
+  filterAndDisplayByCat(cat);
+}
+
+function filterAndDisplayByCat(cat) {
+  let list = [];
+  if (cat === "ptn")
+    list = allDevices.filter((d) => d.name.toLowerCase().includes("ptn"));
+  else
+    list = allDevices.filter(
+      (d) => d.cat === cat && !d.name.toLowerCase().includes("ptn"),
+    );
+
+  displayDevices(list);
 }
 
 function displayDevices(list) {
@@ -154,23 +178,21 @@ function displayDevices(list) {
   window.triggerModal = (deviceId) => {
     const d = allDevices.find((x) => x.id == deviceId);
     if (!d) return;
-
-    if (d.cat === "ptn") {
-      window.openPtnWikiModal(d);
-    } else {
-      window.openDeviceModal(d);
-    }
+    const isLab = d.name.toLowerCase().includes("ptn");
+    if (isLab) window.openPtnWikiModal(d);
+    else window.openDeviceModal(d);
   };
 
   list.forEach((d) => {
     const safe = toSafe(d.name);
     const img = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safe}.jpg?t=${Date.now()}`;
+    const isLab = d.name.toLowerCase().includes("ptn");
 
     let stHtml = "";
-    if (d.cat === "ptn") {
+    if (isLab)
       stHtml =
         '<i class="ph ph-buildings" style="margin-right:4px;"></i> Cơ sở vật chất';
-    } else {
+    else {
       if (d.status === "normal")
         stHtml = '<span class="status-dot dot-green"></span> Sẵn sàng';
       else if (d.status === "maintenance")
@@ -196,19 +218,26 @@ function displayDevices(list) {
       </div>
       <div style="position: absolute; inset: 0; z-index: 10;"></div>
     `;
-
     grid.appendChild(div);
   });
 }
 
 window.filterDevices = () => {
   const term = document.getElementById("searchDevice").value.toLowerCase();
-  displayDevices(allDevices.filter((d) => d.name.toLowerCase().includes(term)));
+  const currentCat = document.querySelector(".nav-btn.active").dataset.cat;
+
+  let baseList = [];
+  if (currentCat === "ptn")
+    baseList = allDevices.filter((d) => d.name.toLowerCase().includes("ptn"));
+  else
+    baseList = allDevices.filter(
+      (d) => d.cat === currentCat && !d.name.toLowerCase().includes("ptn"),
+    );
+
+  displayDevices(baseList.filter((d) => d.name.toLowerCase().includes(term)));
 };
 
-// ==============================================================
-// 1. HÀM MỞ BẢNG WIKI DÀNH CHO PHÒNG THÍ NGHIỆM
-// ==============================================================
+// MỞ WIKI PTN
 window.openPtnWikiModal = (d) => {
   selectedDevice = d;
   document.getElementById("wTitle").innerText = d.name;
@@ -220,7 +249,6 @@ window.openPtnWikiModal = (d) => {
   if (descText.includes("GIỚI THIỆU CHUNG:")) {
     let parts = descText.split("GIỚI THIỆU CHUNG:");
     let infoPart = parts[0].replace("VỊ TRÍ:", "").trim();
-
     let infoLines = infoPart.split("\n").filter((l) => l.trim() !== "");
     infoHtml = infoLines
       .map((l) => {
@@ -235,7 +263,6 @@ window.openPtnWikiModal = (d) => {
         }
       })
       .join("");
-
     introHtml = parts[1].trim().replace(/\n/g, "<br/><br/>");
   } else {
     infoHtml = `<li><span style="color: var(--text-muted); margin-right: 5px;">•</span> <strong style="color: var(--text-main);">Tên phòng:</strong> ${d.name}</li>`;
@@ -244,7 +271,6 @@ window.openPtnWikiModal = (d) => {
 
   document.getElementById("wInfo").innerHTML = infoHtml;
   document.getElementById("wIntro").innerHTML = introHtml;
-
   let stepsArray = (d.steps || "").split("\n").filter((l) => l.trim() !== "");
   document.getElementById("wList").innerHTML = stepsArray
     .map((s) => `<li style="margin-bottom: 8px;">${cleanStepLine(s)}</li>`)
@@ -260,20 +286,23 @@ window.openPtnWikiModal = (d) => {
   document.getElementById("ptnWikiModal").classList.remove("hidden");
 };
 
-// ==============================================================
-// 2. HÀM MỞ BẢNG TIMELINE DÀNH CHO MÁY MÓC THIẾT BỊ
-// ==============================================================
+// CÁC TAB CỦA MÁY MÓC
 window.switchModalTab = (tabId) => {
-  ["btnTabInfo", "btnTabLog", "btnTabEdit"].forEach((id) =>
+  ["btnTabInfo", "btnTabBooking", "btnTabLog", "btnTabEdit"].forEach((id) =>
     document.getElementById(id).classList.remove("active"),
   );
-  ["mTabInfo", "mTabLog", "mTabEdit"].forEach((id) =>
+  ["mTabInfo", "mTabBooking", "mTabLog", "mTabEdit"].forEach((id) =>
     document.getElementById(id).classList.add("hidden"),
   );
 
   if (tabId === "info") {
     document.getElementById("btnTabInfo").classList.add("active");
     document.getElementById("mTabInfo").classList.remove("hidden");
+  } else if (tabId === "booking") {
+    document.getElementById("btnTabBooking").classList.add("active");
+    document.getElementById("mTabBooking").classList.remove("hidden");
+    loadBookings();
+    document.getElementById("bookDate").valueAsDate = new Date();
   } else if (tabId === "log") {
     document.getElementById("btnTabLog").classList.add("active");
     document.getElementById("mTabLog").classList.remove("hidden");
@@ -288,6 +317,12 @@ window.switchModalTab = (tabId) => {
 window.openDeviceModal = (d) => {
   selectedDevice = d;
   document.getElementById("mTitle").innerText = d.name;
+
+  // TẠO QR CODE
+  const qrBaseUrl = window.location.origin + window.location.pathname;
+  const qrTarget = `${qrBaseUrl}?device=${d.id}`;
+  document.getElementById("qrCodeImg").src =
+    `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrTarget)}`;
 
   const formatDesc = cleanText(d.description).replace(/\n/g, "<br/>");
   document.getElementById("mDesc").innerHTML =
@@ -340,10 +375,8 @@ window.openDeviceModal = (d) => {
     document.getElementById("insInput").value = d.description || "";
     document.getElementById("insStepsInput").value = d.steps || "";
     document.getElementById("insStatus").value = d.status || "normal";
-    // Nếu bạn đã làm cách thêm Option Cập nhật Nhóm ở file index thì thêm dòng này:
     const catInput = document.getElementById("insCat");
     if (catInput) catInput.value = d.cat || "vat-ly-tu";
-
     updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg", true);
   }
 
@@ -352,10 +385,83 @@ window.openDeviceModal = (d) => {
   document.getElementById("detailModal").classList.remove("hidden");
 };
 
-window.closeModal = () => {
+window.closeModal = () =>
   document.getElementById("detailModal").classList.add("hidden");
+
+// ================= LỊCH ĐẶT MÁY (BOOKING) ===================
+window.loadBookings = async () => {
+  const container = document.getElementById("bookingListContainer");
+  container.innerHTML =
+    "<p style='text-align:center; color:var(--text-muted); padding: 20px 0;'><i class='ph ph-spinner-gap ph-spin'></i> Đang tải lịch đăng ký...</p>";
+
+  const today = new Date().toISOString().split("T")[0];
+  const { data, error } = await supabase
+    .from("device_bookings")
+    .select("*")
+    .eq("device_id", selectedDevice.id)
+    .gte("booking_date", today) // Chỉ lấy các lịch từ hôm nay trở đi
+    .order("booking_date", { ascending: true })
+    .order("start_time", { ascending: true });
+
+  if (error || !data || !data.length)
+    return (container.innerHTML =
+      "<div style='text-align:center; padding: 30px; color:var(--text-muted); font-size: 13px;'><i class='ph ph-calendar-blank' style='font-size: 24px; display: block; margin-bottom: 10px;'></i> Chưa có ai đặt lịch sắp tới. Máy đang rảnh!</div>");
+
+  container.innerHTML = "";
+  data.forEach((b) => {
+    const div = document.createElement("div");
+    div.className = "log-item";
+    div.style.borderLeft = "3px solid var(--p)";
+    const dateStr = new Date(b.booking_date).toLocaleDateString("vi-VN");
+    const timeStr = `${b.start_time ? b.start_time.substring(0, 5) : "--"} đến ${b.end_time ? b.end_time.substring(0, 5) : "--"}`;
+    div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <strong style="color: var(--p); font-size: 14px;"><i class="ph ph-calendar-check" style="margin-right: 4px; vertical-align: middle;"></i> Ngày: ${dateStr} | ${timeStr}</strong>
+                    <div style="font-size: 13px; color: var(--text-main); margin-top: 6px; font-weight: 600;"><i class="ph ph-user" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> Người đặt: ${b.user_name}</div>
+                </div>
+            </div>
+            <div style="font-size: 13px; color: #4b5563; margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px dashed var(--border-color);">
+                <span style="color: #9ca3af; font-size: 11px; text-transform: uppercase;">Mục đích: </span> ${b.purpose || "Nghiên cứu"}
+            </div>`;
+    container.appendChild(div);
+  });
 };
 
+document.getElementById("btnSubmitBooking").onclick = async () => {
+  const date = document.getElementById("bookDate").value,
+    start = document.getElementById("bookStart").value,
+    end = document.getElementById("bookEnd").value,
+    purpose = document.getElementById("bookPurpose").value;
+  if (!date || !start || !end || !purpose)
+    return toast("Vui lòng điền đủ thông tin đặt lịch!");
+
+  const btn = document.getElementById("btnSubmitBooking");
+  btn.disabled = true;
+  btn.innerText = "ĐANG ĐĂNG KÝ...";
+  const { error } = await supabase.from("device_bookings").insert([
+    {
+      device_id: selectedDevice.id,
+      user_id: currentProfile.id,
+      user_name: currentProfile.full_name,
+      booking_date: date,
+      start_time: start,
+      end_time: end,
+      purpose: purpose,
+    },
+  ]);
+  btn.disabled = false;
+  btn.innerText = "XÁC NHẬN ĐẶT LỊCH";
+
+  if (error) toast(error.message);
+  else {
+    toast("Đăng ký giữ chỗ thành công!", true);
+    document.getElementById("bookPurpose").value = "";
+    loadBookings();
+  }
+};
+
+// ================= SỔ TAY NHẬT KÝ ===================
 window.loadLogs = async () => {
   const container = document.getElementById("logListContainer");
   container.innerHTML =
@@ -414,7 +520,7 @@ document.getElementById("btnSubmitLog").onclick = async () => {
     },
   ]);
   btn.disabled = false;
-  btn.innerText = "LƯU VÀO SỔ TAY";
+  btn.innerText = "GHI SỔ TAY";
   if (error) toast(error.message);
   else {
     toast("Ghi nhận thành công!", true);
@@ -434,7 +540,6 @@ document.getElementById("btnViewSOP").onclick = () => {
   if (lines.length === 0)
     return (content.innerHTML =
       "<div style='text-align:center; padding: 50px 20px; color: var(--text-muted);'>Cẩm nang đang được soạn thảo.</div>");
-
   const safeName = toSafe(selectedDevice.name);
   lines.forEach((t, i) => {
     const step = i + 1,
@@ -453,23 +558,16 @@ window.loadNotifications = async () => {
     .limit(10);
   const container = document.getElementById("notiList");
   container.innerHTML = "";
-
   if (!data || data.length === 0) {
     document.getElementById("notiBadge").classList.add("hidden");
-    container.innerHTML =
-      "<div style='padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px;'>Bạn đã đọc hết thông báo.</div>";
-    return;
+    return (container.innerHTML =
+      "<div style='padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px;'>Bạn đã đọc hết thông báo.</div>");
   }
-
   document.getElementById("notiBadge").classList.remove("hidden");
   data.forEach((n) => {
     const div = document.createElement("div");
     div.className = "noti-item";
-    div.innerHTML = `
-            <div style="font-weight: 700; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">${n.title}</div>
-            <div style="font-size: 12px; color: #4b5563; line-height: 1.4;">${n.message}</div>
-            <div style="font-size: 10px; color: #9ca3af; margin-top: 6px;"><i class="ph ph-clock"></i> ${new Date(n.created_at).toLocaleDateString("vi-VN")}</div>
-        `;
+    div.innerHTML = `<div style="font-weight: 700; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">${n.title}</div><div style="font-size: 12px; color: #4b5563; line-height: 1.4;">${n.message}</div><div style="font-size: 10px; color: #9ca3af; margin-top: 6px;"><i class="ph ph-clock"></i> ${new Date(n.created_at).toLocaleDateString("vi-VN")}</div>`;
     container.appendChild(div);
   });
 };
@@ -572,26 +670,7 @@ window.filterUsers = () => {
       const isMe = u.id === currentProfile.id,
         div = document.createElement("div");
       div.className = "user-card";
-
-      div.innerHTML = `
-            <div style="display: flex; gap:15px; align-items:center; justify-content: space-between;">
-                <div style="display: flex; gap:15px; align-items:center;">
-                    <div class="user-avatar">${u.full_name.trim().charAt(0).toUpperCase()}</div>
-                    <div>
-                        <b style="font-size: 15px; color: var(--text-main);">${u.full_name}</b><br/>
-                        <small style="color:var(--text-muted); font-family: monospace;">ID: ${u.id.substring(0, 8)}</small>
-                    </div>
-                </div>
-                ${!isMe ? `<button onclick="deleteUserProfile('${u.id}')" title="Xóa người dùng" style="background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;"><i class="ph ph-trash" style="font-size: 16px;"></i></button>` : ""}
-            </div>
-            <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
-                <label style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Cấp quyền hệ thống</label>
-                <select onchange="updateRole('${u.id}', this.value)" ${isMe ? "disabled" : ""} style="margin: 5px 0 0 0; background: #f9fafb;">
-                    <option value="student" ${u.role === "student" ? "selected" : ""}>Sinh viên</option>
-                    <option value="instructor" ${u.role === "instructor" ? "selected" : ""}>Phụ trách Lab</option>
-                    <option value="admin" ${u.role === "admin" ? "selected" : ""}>Quản trị viên</option>
-                </select>
-            </div>`;
+      div.innerHTML = `<div style="display: flex; gap:15px; align-items:center; justify-content: space-between;"><div style="display: flex; gap:15px; align-items:center;"><div class="user-avatar">${u.full_name.trim().charAt(0).toUpperCase()}</div><div><b style="font-size: 15px; color: var(--text-main);">${u.full_name}</b><br/><small style="color:var(--text-muted); font-family: monospace;">ID: ${u.id.substring(0, 8)}</small></div></div>${!isMe ? `<button onclick="deleteUserProfile('${u.id}')" title="Xóa người dùng" style="background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;"><i class="ph ph-trash" style="font-size: 16px;"></i></button>` : ""}</div><div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;"><label style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Cấp quyền hệ thống</label><select onchange="updateRole('${u.id}', this.value)" ${isMe ? "disabled" : ""} style="margin: 5px 0 0 0; background: #f9fafb;"><option value="student" ${u.role === "student" ? "selected" : ""}>Sinh viên</option><option value="instructor" ${u.role === "instructor" ? "selected" : ""}>Phụ trách Lab</option><option value="admin" ${u.role === "admin" ? "selected" : ""}>Quản trị viên</option></select></div>`;
       container.appendChild(div);
     });
 };
@@ -603,14 +682,11 @@ window.updateRole = async (uid, r) => {
 
 window.deleteUserProfile = async (uid) => {
   if (
-    confirm(
-      "Bạn có chắc chắn muốn xóa hồ sơ người dùng này khỏi hệ thống? (Họ sẽ mất toàn quyền truy cập)",
-    )
+    confirm("Bạn có chắc chắn muốn xóa hồ sơ người dùng này khỏi hệ thống?")
   ) {
     const { error } = await supabase.from("profiles").delete().eq("id", uid);
-    if (error) {
-      toast(error.message);
-    } else {
+    if (error) toast(error.message);
+    else {
       toast("Đã xóa người dùng thành công!", true);
       loadAdminUsers();
     }
@@ -662,8 +738,6 @@ document.getElementById("btnSaveUpdate").onclick = async () => {
   document.getElementById("btnSaveUpdate").disabled = true;
   document.getElementById("btnSaveUpdate").innerText = "ĐANG XỬ LÝ...";
   const newSteps = document.getElementById("insStepsInput").value;
-
-  // NẾU BẠN CÓ DÙNG CHỨC NĂNG CHUYỂN NHÓM TRONG BẢNG SỬA:
   const catInput = document.getElementById("insCat");
   const updateData = {
     description: document.getElementById("insInput").value,
@@ -671,9 +745,7 @@ document.getElementById("btnSaveUpdate").onclick = async () => {
     status: document.getElementById("insStatus").value,
   };
   if (catInput) updateData.cat = catInput.value;
-
   await supabase.from("devices").update(updateData).eq("id", selectedDevice.id);
-
   const mainF = document.getElementById("updateImgFile").files[0];
   if (mainF)
     await supabase.storage
@@ -689,11 +761,7 @@ document.getElementById("btnSaveUpdate").onclick = async () => {
 };
 
 document.getElementById("btnDeleteDevice").onclick = async () => {
-  if (
-    confirm(
-      "Hành động này sẽ xóa vĩnh viễn thiết bị khỏi cơ sở dữ liệu. Bạn xác nhận?",
-    )
-  ) {
+  if (confirm("Xóa vĩnh viễn thiết bị khỏi cơ sở dữ liệu?")) {
     await supabase.from("devices").delete().eq("id", selectedDevice.id);
     location.reload();
   }
@@ -702,30 +770,24 @@ document.getElementById("btnDeleteDevice").onclick = async () => {
 if (document.getElementById("btnDeleteMainImg")) {
   document.getElementById("btnDeleteMainImg").onclick = async () => {
     if (!selectedDevice) return;
-    if (
-      confirm(
-        "Bạn có chắc chắn muốn gỡ bỏ ảnh đại diện của thiết bị/phòng lab này khỏi hệ thống?",
-      )
-    ) {
+    if (confirm("Gỡ bỏ ảnh đại diện này?")) {
       const btn = document.getElementById("btnDeleteMainImg");
       btn.disabled = true;
       btn.innerText = "ĐANG XÓA...";
-      const safeName = toSafe(selectedDevice.name);
       const { error } = await supabase.storage
         .from("device-photos")
-        .remove([`${safeName}.jpg`]);
+        .remove([`${toSafe(selectedDevice.name)}.jpg`]);
       btn.disabled = false;
       btn.innerHTML =
         '<i class="ph ph-trash" style="margin-right: 6px; vertical-align: middle;"></i> Gỡ ảnh hiện tại';
-      if (error) {
-        toast(error.message);
-      } else {
-        toast("Đã xóa ảnh thành công!", true);
+      if (error) toast(error.message);
+      else {
+        toast("Đã xóa ảnh!", true);
         document.getElementById("mImage").src =
           "https://via.placeholder.com/150?text=NO+IMAGE";
         document.getElementById("updateImgFile").value = "";
-
-        if (selectedDevice.cat === "ptn") openPtnWikiModal(selectedDevice);
+        const isLab = selectedDevice.name.toLowerCase().includes("ptn");
+        if (isLab) openPtnWikiModal(selectedDevice);
         else openDeviceModal(selectedDevice);
       }
     }
@@ -734,28 +796,18 @@ if (document.getElementById("btnDeleteMainImg")) {
 
 window.deleteSpecificImage = async (stepIndex) => {
   if (!selectedDevice) return;
-  if (
-    confirm(
-      `Bạn có chắc chắn muốn gỡ bỏ ảnh của Bước/Mục ${stepIndex} khỏi hệ thống?`,
-    )
-  ) {
-    const safeName = toSafe(selectedDevice.name);
+  if (confirm(`Gỡ bỏ ảnh Bước ${stepIndex}?`)) {
     const { error } = await supabase.storage
       .from("device-photos")
-      .remove([`${safeName}/step_${stepIndex}.jpg`]);
-    if (error) {
-      toast("Lỗi: " + error.message);
-    } else {
-      toast(`Đã xóa ảnh Bước ${stepIndex} thành công!`, true);
-
+      .remove([`${toSafe(selectedDevice.name)}/step_${stepIndex}.jpg`]);
+    if (error) toast("Lỗi: " + error.message);
+    else {
+      toast(`Đã xóa ảnh Bước ${stepIndex}!`, true);
       const fileInput = document.getElementById(`editStepImg_${stepIndex}`);
       if (fileInput) fileInput.value = "";
-
-      if (selectedDevice.cat === "ptn") {
-        openPtnWikiModal(selectedDevice);
-      } else {
-        openDeviceModal(selectedDevice);
-      }
+      const isLab = selectedDevice.name.toLowerCase().includes("ptn");
+      if (isLab) openPtnWikiModal(selectedDevice);
+      else openDeviceModal(selectedDevice);
     }
   }
 };
@@ -849,14 +901,12 @@ document.querySelectorAll(".nav-btn").forEach((b) => {
       .querySelectorAll(".nav-btn[data-cat]")
       .forEach((x) => x.classList.remove("active"));
     b.classList.add("active");
-
     ["deviceGrid", "usersGrid", "feedbacksGrid", "broadcastGrid"].forEach(
       (id) => {
         const el = document.getElementById(id);
         if (el) el.classList.add("hidden");
       },
     );
-
     if (b.dataset.cat === "users") {
       document.getElementById("usersGrid").classList.remove("hidden");
       loadAdminUsers();
@@ -867,7 +917,7 @@ document.querySelectorAll(".nav-btn").forEach((b) => {
       document.getElementById("broadcastGrid").classList.remove("hidden");
     } else {
       document.getElementById("deviceGrid").classList.remove("hidden");
-      render(b.dataset.cat);
+      filterAndDisplayByCat(b.dataset.cat);
     }
   };
 });

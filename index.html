@@ -89,8 +89,8 @@
           <i
             class="ph ph-chat-teardrop-text"
             style="color: var(--p); margin-right: 8px"
-          ></i>
-          Gửi Góp ý & Báo lỗi
+          ></i
+          >Gửi Góp ý & Báo lỗi
         </h2>
         <p
           style="font-size: 14px; color: var(--text-muted); margin-bottom: 25px"
@@ -98,7 +98,6 @@
           Mọi ý kiến đóng góp của bạn sẽ được gửi trực tiếp đến Ban quản trị hệ
           thống để xem xét và cải thiện.
         </p>
-
         <label>Chủ đề</label>
         <select id="fbSubject">
           <option value="Báo lỗi phần mềm">Báo lỗi phần mềm / Chức năng</option>
@@ -108,14 +107,12 @@
           </option>
           <option value="Khác">Vấn đề khác</option>
         </select>
-
         <label>Nội dung chi tiết</label>
         <textarea
           id="fbContent"
           rows="5"
           placeholder="Mô tả chi tiết vấn đề bạn gặp phải hoặc ý kiến đóng góp..."
         ></textarea>
-
         <button
           id="btnSubmitFeedback"
           class="btn"
@@ -142,8 +139,8 @@
               margin-bottom: 12px;
             "
           >
-            <span id="mTag" class="tag"></span
-            ><span
+            <span id="mTag" class="tag"></span>
+            <span
               id="mStatusBadge"
               class="tag"
               style="background: white; border: 1px solid var(--border-color)"
@@ -169,6 +166,21 @@
               "
             ></i>
             THÔNG TIN & SOP
+          </button>
+          <button
+            class="mini-tab-btn"
+            id="btnTabBooking"
+            onclick="switchModalTab('booking')"
+          >
+            <i
+              class="ph ph-calendar-plus"
+              style="
+                margin-right: 6px;
+                font-size: 16px;
+                vertical-align: text-bottom;
+              "
+            ></i>
+            ĐẶT LỊCH MÁY
           </button>
           <button
             class="mini-tab-btn"
@@ -255,8 +267,115 @@
                   ></i>
                   MỞ CẨM NANG VẬN HÀNH
                 </button>
+
+                <div
+                  style="
+                    margin-top: 30px;
+                    text-align: center;
+                    padding: 20px;
+                    background: #f9fafb;
+                    border-radius: 8px;
+                    border: 1px dashed var(--border-color);
+                  "
+                >
+                  <p
+                    style="
+                      font-size: 12px;
+                      color: var(--text-muted);
+                      font-weight: 700;
+                      text-transform: uppercase;
+                      letter-spacing: 1px;
+                      margin: 0 0 15px 0;
+                    "
+                  >
+                    <i
+                      class="ph ph-qr-code"
+                      style="font-size: 16px; vertical-align: text-bottom"
+                    ></i>
+                    Mã QR Nhận Diện
+                  </p>
+                  <img
+                    id="qrCodeImg"
+                    src=""
+                    alt="QR Code"
+                    style="
+                      width: 120px;
+                      height: 120px;
+                      border-radius: 8px;
+                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                    "
+                  />
+                  <p
+                    style="font-size: 12px; color: #6b7280; margin: 10px 0 0 0"
+                  >
+                    Quét để truy cập nhanh máy này
+                  </p>
+                </div>
               </div>
             </div>
+          </div>
+
+          <div id="mTabBooking" class="modal-tab-content hidden">
+            <div class="log-form-container">
+              <h4
+                style="
+                  margin: 0 0 15px 0;
+                  font-size: 14px;
+                  text-transform: uppercase;
+                  color: var(--text-muted);
+                "
+              >
+                <i
+                  class="ph ph-calendar-plus"
+                  style="
+                    margin-right: 6px;
+                    font-size: 16px;
+                    vertical-align: text-bottom;
+                  "
+                ></i>
+                Đăng ký khung giờ
+              </h4>
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                  gap: 15px;
+                "
+              >
+                <div>
+                  <label>Ngày dùng</label><input type="date" id="bookDate" />
+                </div>
+                <div>
+                  <label>Từ giờ</label><input type="time" id="bookStart" />
+                </div>
+                <div>
+                  <label>Đến giờ</label><input type="time" id="bookEnd" />
+                </div>
+              </div>
+              <label>Mục đích sử dụng (Đồ án / Luận văn / Đề tài...)</label>
+              <input
+                type="text"
+                id="bookPurpose"
+                placeholder="Ví dụ: Đo nhiễu xạ XRD cho mẫu màng mỏng ZnO..."
+                style="margin-bottom: 15px"
+              />
+              <button id="btnSubmitBooking" class="btn" style="width: 100%">
+                XÁC NHẬN ĐẶT LỊCH
+              </button>
+            </div>
+            <h4
+              style="
+                margin: 35px 0 15px 0;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 10px;
+                font-size: 14px;
+                text-transform: uppercase;
+                color: var(--text-muted);
+              "
+            >
+              Danh sách đã đăng ký sắp tới
+            </h4>
+            <div id="bookingListContainer"></div>
           </div>
 
           <div id="mTabLog" class="modal-tab-content hidden">
@@ -383,10 +502,12 @@
                   </select>
                 </div>
               </div>
+
               <label>Mô tả thiết bị</label>
               <textarea id="insInput" rows="4"></textarea>
               <label>Quy trình vận hành</label>
               <textarea id="insStepsInput" rows="4"></textarea>
+
               <div
                 style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px"
               >
@@ -534,7 +655,6 @@
               margin-bottom: 35px;
             "
           ></ul>
-
           <h3
             style="
               color: var(--text-main);
@@ -560,7 +680,6 @@
               text-align: justify;
             "
           ></div>
-
           <h3
             style="
               color: var(--text-main);
@@ -589,6 +708,7 @@
         </div>
       </div>
     </div>
+
     <div id="sopModal" class="modal-overlay hidden" style="z-index: 10005">
       <div
         class="modal-content"
@@ -768,7 +888,7 @@
           src="logovien.png"
           alt="Logo"
           class="logo"
-          style="width: 110px; margin-bottom: 25px"
+          style="width: 200px; margin-bottom: 30px"
         />
         <h2 style="font-weight: 800; letter-spacing: -0.5px">
           HỆ THỐNG SEP HUST
@@ -776,7 +896,7 @@
         <p
           style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px"
         >
-          Khoa VLKT - Đại học Bách khoa Hà Nội
+          Khoa Vật lý Kỹ thuật - Đại học Bách khoa Hà Nội
         </p>
         <div style="text-align: left">
           <label>Email đăng nhập</label>
@@ -851,8 +971,12 @@
       <div id="forgotView" class="hidden">
         <h2 style="font-weight: 800">Khôi phục mật khẩu</h2>
         <div style="text-align: left; margin-top: 20px">
-          <label>Email đăng ký</label>
-          <input type="email" id="fEmail" placeholder="Nhập email của bạn..." />
+          <label>Email đăng ký</label
+          ><input
+            type="email"
+            id="fEmail"
+            placeholder="Nhập email của bạn..."
+          />
         </div>
         <button class="btn" id="btnReset" style="width: 100%; margin-top: 10px">
           GỬI YÊU CẦU
@@ -867,7 +991,17 @@
 
     <div id="systemView" class="hidden dashboard-layout">
       <aside class="sidebar">
-        <div class="sidebar-header">
+        <div
+          class="sidebar-header"
+          style="
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 35px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 20px;
+          "
+        >
           <img src="logovien.png" alt="Logo" style="width: 100px" />
           <div>
             <h1
@@ -887,7 +1021,7 @@
                 font-size: 13px;
                 font-weight: 600;
               "
-              >Khoa VLKT</small
+              >Khoa Vật lý Kỹ thuật</small
             >
           </div>
         </div>
@@ -921,8 +1055,8 @@
             data-cat="ptn"
             style="color: var(--p); font-weight: 700"
           >
-            <i class="ph ph-buildings" style="color: var(--p)"></i> Hệ thống 10
-            Phòng Lab
+            <i class="ph ph-buildings" style="color: var(--p)"></i> Hệ Thống
+            Phòng Thí Nghiệm
           </button>
 
           <div class="menu-label" style="margin-top: 30px">HỖ TRỢ</div>
@@ -1084,7 +1218,7 @@
                       vertical-align: text-bottom;
                     "
                   ></i>
-                  Đăng xuất
+                  Đăng xuất an toàn
                 </div>
               </div>
             </div>
@@ -1232,14 +1366,12 @@
                 id="newNotiTitle"
                 placeholder="Ví dụ: Lịch bảo trì định kỳ máy hiển vi SEM tháng 4..."
               />
-
               <label>Nội dung thông báo</label>
               <textarea
                 id="newNotiMsg"
                 rows="4"
                 placeholder="Nhập nội dung chi tiết cần truyền đạt..."
               ></textarea>
-
               <button
                 id="btnBroadcastNoti"
                 class="btn"
@@ -1254,6 +1386,6 @@
       </main>
     </div>
 
-    <script type="module" src="app.js?v=1005"></script>
+    <script type="module" src="app.js?v=1006"></script>
   </body>
 </html>
