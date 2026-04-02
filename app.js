@@ -37,7 +37,6 @@ const cleanStepLine = (str) => {
   return s.trim();
 };
 
-// ĐÃ NÂNG CẤP: Thêm cờ isEdit để hiển thị nút Xóa ảnh từng bước
 function updateStepBoxes(inputId, containerId, prefix, isEdit = false) {
   const text = document.getElementById(inputId).value;
   const lines = text.split("\n").filter((l) => l.trim() !== "");
@@ -56,7 +55,6 @@ function updateStepBoxes(inputId, containerId, prefix, isEdit = false) {
       const d = document.createElement("div");
       d.className = "step-up-box";
 
-      // Nếu đang ở Tab Cập nhật, chèn thêm nút Thùng rác vào từng bước
       let deleteBtnHTML = "";
       if (isEdit) {
         deleteBtnHTML = `<button type="button" class="btn-outline" style="color: var(--a); border: 1px solid #fecaca; padding: 6px 12px; border-radius: 6px; cursor: pointer; background: white;" onclick="deleteSpecificImage(${i})" title="Xóa ảnh hiện tại của Bước này"><i class="ph ph-trash" style="font-size: 16px;"></i></button>`;
@@ -77,7 +75,6 @@ function updateStepBoxes(inputId, containerId, prefix, isEdit = false) {
 
 document.getElementById("addSteps").oninput = () =>
   updateStepBoxes("addSteps", "dynamicAddSteps", "addStepImg", false);
-// Truyền cờ true để báo hiệu đây là form Chỉnh sửa
 document.getElementById("insStepsInput").oninput = () =>
   updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg", true);
 
@@ -124,7 +121,7 @@ async function initApp() {
 
       loadNotifications();
       nav("systemView");
-      render("analyze");
+      render("vat-ly-tu");
     } catch (err) {
       await supabase.auth.signOut();
       nav("loginView");
@@ -138,9 +135,11 @@ supabase.auth.onAuthStateChange((event) => {
     document.getElementById("changePassModal").classList.remove("hidden");
 });
 
+// TRẢ LẠI HÀM RENDER NGUYÊN BẢN: Gọi đúng theo danh mục cat
 async function render(cat) {
   document.getElementById("deviceGrid").innerHTML =
     "<p style='text-align:center; width:100%; grid-column:1/-1; padding:50px; color:var(--text-muted);'>Đang tải hệ thống dữ liệu...</p>";
+
   const { data } = await supabase.from("devices").select("*").eq("cat", cat);
   allDevices = data || [];
   displayDevices(allDevices);
@@ -151,6 +150,17 @@ function displayDevices(list) {
   grid.innerHTML = list.length
     ? ""
     : "<p style='grid-column:1/-1; text-align:center; color: var(--text-muted); padding:50px;'>Chưa có dữ liệu thiết bị/phòng lab trong nhóm này.</p>";
+
+  window.triggerModal = (deviceId) => {
+    const d = allDevices.find((x) => x.id == deviceId);
+    if (!d) return;
+
+    if (d.cat === "ptn") {
+      window.openPtnWikiModal(d);
+    } else {
+      window.openDeviceModal(d);
+    }
+  };
 
   list.forEach((d) => {
     const safe = toSafe(d.name);
@@ -170,11 +180,13 @@ function displayDevices(list) {
 
     const div = document.createElement("div");
     div.className = "device-card";
+    div.style.position = "relative";
     div.style.cursor = "pointer";
+    div.setAttribute("onclick", `triggerModal('${d.id}')`);
 
     div.innerHTML = `
-      <img src="${img}" class="device-card-img" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'"/>
-      <div class="device-card-body">
+      <img src="${img}" class="device-card-img" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'" style="pointer-events:none;"/>
+      <div class="device-card-body" style="pointer-events:none;">
         <div style="margin-bottom: 12px;"><span class="tag">${stHtml}</span></div>
         <h3 style="margin: 0 0 8px; font-size: 16px;">${d.name}</h3>
         <p style="margin: 0 0 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${cleanText(d.description) || "Thông tin đang cập nhật..."}</p>
@@ -182,20 +194,8 @@ function displayDevices(list) {
             TÌM HIỂU THÊM <i class="ph ph-arrow-right" style="margin-left: 4px; vertical-align: middle;"></i>
         </div>
       </div>
+      <div style="position: absolute; inset: 0; z-index: 10;"></div>
     `;
-
-    div.addEventListener("click", () => {
-      try {
-        if (d.cat === "ptn") {
-          window.openPtnWikiModal(d);
-        } else {
-          window.openDeviceModal(d);
-        }
-      } catch (error) {
-        console.error(error);
-        alert("Lỗi khi mở bảng: " + error.message);
-      }
-    });
 
     grid.appendChild(div);
   });
@@ -255,11 +255,6 @@ window.openPtnWikiModal = (d) => {
   imgEl.src = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safe}.jpg?t=${Date.now()}`;
   imgEl.style.display = "inline-block";
   imgEl.onerror = () => (imgEl.style.display = "none");
-
-  // Xử lý nút Edit cho PTN
-  const canEdit = currentProfile && currentProfile.role !== "student";
-  // Nếu bạn muốn tích hợp sửa cho PTN thì bỏ cờ này, nếu không cứ ẩn nó
-  // Ở đây ta giữ chuẩn chỉ hiển thị thông tin
 
   document.getElementById("detailModal").classList.add("hidden");
   document.getElementById("ptnWikiModal").classList.remove("hidden");
@@ -345,7 +340,11 @@ window.openDeviceModal = (d) => {
     document.getElementById("insInput").value = d.description || "";
     document.getElementById("insStepsInput").value = d.steps || "";
     document.getElementById("insStatus").value = d.status || "normal";
-    updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg", true); // Bật tính năng Xóa ảnh
+    // Nếu bạn đã làm cách thêm Option Cập nhật Nhóm ở file index thì thêm dòng này:
+    const catInput = document.getElementById("insCat");
+    if (catInput) catInput.value = d.cat || "vat-ly-tu";
+
+    updateStepBoxes("insStepsInput", "dynamicEditSteps", "editStepImg", true);
   }
 
   switchModalTab("info");
@@ -573,15 +572,19 @@ window.filterUsers = () => {
       const isMe = u.id === currentProfile.id,
         div = document.createElement("div");
       div.className = "user-card";
+
       div.innerHTML = `
-            <div style="display: flex; gap:15px; align-items:center;">
-                <div class="user-avatar">${u.full_name.trim().charAt(0).toUpperCase()}</div>
-                <div style="flex:1;">
-                    <b style="font-size: 15px; color: var(--text-main);">${u.full_name}</b><br/>
-                    <small style="color:var(--text-muted); font-family: monospace;">ID: ${u.id.substring(0, 8)}</small>
+            <div style="display: flex; gap:15px; align-items:center; justify-content: space-between;">
+                <div style="display: flex; gap:15px; align-items:center;">
+                    <div class="user-avatar">${u.full_name.trim().charAt(0).toUpperCase()}</div>
+                    <div>
+                        <b style="font-size: 15px; color: var(--text-main);">${u.full_name}</b><br/>
+                        <small style="color:var(--text-muted); font-family: monospace;">ID: ${u.id.substring(0, 8)}</small>
+                    </div>
                 </div>
+                ${!isMe ? `<button onclick="deleteUserProfile('${u.id}')" title="Xóa người dùng" style="background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;"><i class="ph ph-trash" style="font-size: 16px;"></i></button>` : ""}
             </div>
-            <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
+            <div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;">
                 <label style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Cấp quyền hệ thống</label>
                 <select onchange="updateRole('${u.id}', this.value)" ${isMe ? "disabled" : ""} style="margin: 5px 0 0 0; background: #f9fafb;">
                     <option value="student" ${u.role === "student" ? "selected" : ""}>Sinh viên</option>
@@ -592,9 +595,26 @@ window.filterUsers = () => {
       container.appendChild(div);
     });
 };
+
 window.updateRole = async (uid, r) => {
   await supabase.from("profiles").update({ role: r }).eq("id", uid);
   toast("Cập nhật quyền thành công", true);
+};
+
+window.deleteUserProfile = async (uid) => {
+  if (
+    confirm(
+      "Bạn có chắc chắn muốn xóa hồ sơ người dùng này khỏi hệ thống? (Họ sẽ mất toàn quyền truy cập)",
+    )
+  ) {
+    const { error } = await supabase.from("profiles").delete().eq("id", uid);
+    if (error) {
+      toast(error.message);
+    } else {
+      toast("Đã xóa người dùng thành công!", true);
+      loadAdminUsers();
+    }
+  }
 };
 
 async function uploadFiles(namePrefix, textLines, filePrefix) {
@@ -642,14 +662,18 @@ document.getElementById("btnSaveUpdate").onclick = async () => {
   document.getElementById("btnSaveUpdate").disabled = true;
   document.getElementById("btnSaveUpdate").innerText = "ĐANG XỬ LÝ...";
   const newSteps = document.getElementById("insStepsInput").value;
-  await supabase
-    .from("devices")
-    .update({
-      description: document.getElementById("insInput").value,
-      steps: newSteps,
-      status: document.getElementById("insStatus").value,
-    })
-    .eq("id", selectedDevice.id);
+
+  // NẾU BẠN CÓ DÙNG CHỨC NĂNG CHUYỂN NHÓM TRONG BẢNG SỬA:
+  const catInput = document.getElementById("insCat");
+  const updateData = {
+    description: document.getElementById("insInput").value,
+    steps: newSteps,
+    status: document.getElementById("insStatus").value,
+  };
+  if (catInput) updateData.cat = catInput.value;
+
+  await supabase.from("devices").update(updateData).eq("id", selectedDevice.id);
+
   const mainF = document.getElementById("updateImgFile").files[0];
   if (mainF)
     await supabase.storage
@@ -675,7 +699,6 @@ document.getElementById("btnDeleteDevice").onclick = async () => {
   }
 };
 
-// XÓA ẢNH ĐẠI DIỆN CHÍNH
 if (document.getElementById("btnDeleteMainImg")) {
   document.getElementById("btnDeleteMainImg").onclick = async () => {
     if (!selectedDevice) return;
@@ -702,7 +725,6 @@ if (document.getElementById("btnDeleteMainImg")) {
           "https://via.placeholder.com/150?text=NO+IMAGE";
         document.getElementById("updateImgFile").value = "";
 
-        // Tải lại bảng tùy theo loại
         if (selectedDevice.cat === "ptn") openPtnWikiModal(selectedDevice);
         else openDeviceModal(selectedDevice);
       }
@@ -710,9 +732,6 @@ if (document.getElementById("btnDeleteMainImg")) {
   };
 }
 
-// ==============================================================
-// HÀM MỚI: XÓA ẢNH TỪNG BƯỚC ĐỘC LẬP
-// ==============================================================
 window.deleteSpecificImage = async (stepIndex) => {
   if (!selectedDevice) return;
   if (
@@ -729,11 +748,9 @@ window.deleteSpecificImage = async (stepIndex) => {
     } else {
       toast(`Đã xóa ảnh Bước ${stepIndex} thành công!`, true);
 
-      // Xóa value của thẻ input file nếu có
       const fileInput = document.getElementById(`editStepImg_${stepIndex}`);
       if (fileInput) fileInput.value = "";
 
-      // Tải lại dữ liệu vào Bảng
       if (selectedDevice.cat === "ptn") {
         openPtnWikiModal(selectedDevice);
       } else {

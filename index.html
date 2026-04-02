@@ -645,13 +645,16 @@
             ><input type="text" id="addName" />
             <label>Phân loại nhóm</label>
             <select id="addCat">
-              <option value="analyze">Phân tích & Đo lường</option>
-              <option value="nano">Cấu trúc Nano</option>
-              <option value="optics">Đo Quang Học</option>
-              <option value="ndt">Kiểm tra NDT</option>
-              <option value="magnet">Từ tính & Điện</option>
-              <option value="nuclear">Hạt nhân & Môi trường</option>
-              <option value="edu">Giảng dạy & Tính toán</option>
+              <option value="vat-ly-tu">Bộ môn Vật lý & Vật liệu từ</option>
+              <option value="quang-hoc">
+                Bộ môn Quang học & Quang điện tử
+              </option>
+              <option value="ly-thuyet">Bộ môn Vật lý lý thuyết</option>
+              <option value="tin-hoc">Bộ môn Vật lý tin học</option>
+              <option value="hat-nhan">
+                BM Kỹ thuật Hạt nhân & Vật lý môi trường
+              </option>
+              <option value="dai-cuong">Bộ môn Vật lý đại cương</option>
               <option value="ptn">
                 Phòng Thí Nghiệm (Chỉ xem - Không log)
               </option>
@@ -745,7 +748,7 @@
         <p
           style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px"
         >
-          Trường Vật liệu - Đại học Bách khoa Hà Nội
+          Khoa VLKT - Đại học Bách khoa Hà Nội
         </p>
         <div style="text-align: left">
           <label>Email đăng nhập</label>
@@ -856,42 +859,42 @@
                 font-size: 13px;
                 font-weight: 600;
               "
-              >Trường Vật liệu</small
+              >Khoa VLKT</small
             >
           </div>
         </div>
 
         <div class="sidebar-menu">
-          <div class="menu-label">QUẢN LÝ THIẾT BỊ</div>
-          <button class="nav-btn active" data-cat="analyze">
-            <i class="ph ph-microscope"></i> Phân Tích & Đo Lường
+          <div class="menu-label">CÁC BỘ MÔN QUẢN LÝ THIẾT BỊ</div>
+          <button class="nav-btn active" data-cat="vat-ly-tu">
+            <i class="ph ph-magnet"></i> Vật Lý & Vật Liệu Từ
           </button>
-          <button class="nav-btn" data-cat="nano">
-            <i class="ph ph-atom"></i> Cấu trúc Nano
+          <button class="nav-btn" data-cat="quang-hoc">
+            <i class="ph ph-binoculars"></i> Quang Học & Quang Điện Tử
           </button>
-          <button class="nav-btn" data-cat="optics">
-            <i class="ph ph-binoculars"></i> Đo Quang Học
+          <button class="nav-btn" data-cat="ly-thuyet">
+            <i class="ph ph-math-operations"></i> Vật Lý Lý Thuyết
           </button>
-          <button class="nav-btn" data-cat="ndt">
-            <i class="ph ph-radar"></i> Kiểm Tra NDT
+          <button class="nav-btn" data-cat="tin-hoc">
+            <i class="ph ph-desktop"></i> Vật Lý Tin Học
           </button>
-          <button class="nav-btn" data-cat="magnet">
-            <i class="ph ph-magnet"></i> Từ Tính & Điện
+          <button class="nav-btn" data-cat="hat-nhan">
+            <i class="ph ph-radioactive"></i> Kỹ Thuật Hạt Nhân & Môi Trường
           </button>
-          <button class="nav-btn" data-cat="nuclear">
-            <i class="ph ph-radioactive"></i> Hạt Nhân & Môi Trường
-          </button>
-          <button class="nav-btn" data-cat="edu">
-            <i class="ph ph-desktop"></i> Giảng Dạy & Tính Toán
+          <button class="nav-btn" data-cat="dai-cuong">
+            <i class="ph ph-atom"></i> Vật Lý Đại Cương
           </button>
 
-          <div class="menu-label" style="margin-top: 30px">CƠ SỞ VẬT CHẤT</div>
+          <div class="menu-label" style="margin-top: 30px">
+            CƠ SỞ VẬT CHẤT CẤP VIỆN
+          </div>
           <button
             class="nav-btn"
             data-cat="ptn"
             style="color: var(--p); font-weight: 700"
           >
-            <i class="ph ph-buildings" style="color: var(--p)"></i> Hệ Thống Phòng Thí Nghiệm
+            <i class="ph ph-buildings" style="color: var(--p)"></i> Hệ thống 10
+            Phòng Lab
           </button>
 
           <div class="menu-label" style="margin-top: 30px">HỖ TRỢ</div>
@@ -1053,7 +1056,7 @@
                       vertical-align: text-bottom;
                     "
                   ></i>
-                  Đăng xuất an toàn
+                  Đăng xuất
                 </div>
               </div>
             </div>
@@ -1223,6 +1226,6 @@
       </main>
     </div>
 
-    <script type="module" src="app.js?v=1001"></script>
+    <script type="module" src="app.js?v=1003"></script>
   </body>
 </html>
