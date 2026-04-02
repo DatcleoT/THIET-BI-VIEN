@@ -756,129 +756,150 @@
     <div id="addDeviceModal" class="modal-overlay hidden">
       <div
         class="modal-content"
-        style="max-width: 900px; padding: 40px; display: block; height: auto"
+        style="
+          max-width: 900px;
+          width: 100%;
+          max-height: 90vh;
+          display: flex;
+          flex-direction: column;
+          padding: 0;
+        "
       >
-        <button
-          class="btn-close-modal"
-          onclick="
-            document.getElementById('addDeviceModal').classList.add('hidden')
-          "
-        >
-          <i class="ph ph-x"></i>
-        </button>
-        <h2
-          style="
-            margin-top: 0;
-            font-size: 22px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 15px;
-          "
-        >
-          <i
-            class="ph ph-plus-circle"
-            style="
-              color: var(--p);
-              margin-right: 8px;
-              vertical-align: text-bottom;
-            "
-          ></i>
-          THÊM DỮ LIỆU MỚI
-        </h2>
         <div
-          class="form-grid"
-          style="grid-template-columns: 1fr 1fr; gap: 35px; margin-top: 25px"
+          style="
+            padding: 25px 35px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #ffffff;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+          "
         >
-          <div>
-            <label>Tên thiết bị / Phòng Lab</label
-            ><input type="text" id="addName" />
-            <label>Phân loại nhóm</label>
-            <select id="addCat">
-              <option value="vat-ly-tu">Bộ môn Vật lý & Vật liệu từ</option>
-              <option value="quang-hoc">
-                Bộ môn Quang học & Quang điện tử
-              </option>
-              <option value="ly-thuyet">Bộ môn Vật lý lý thuyết</option>
-              <option value="tin-hoc">Bộ môn Vật lý tin học</option>
-              <option value="hat-nhan">
-                BM Kỹ thuật Hạt nhân & Vật lý môi trường
-              </option>
-              <option value="dai-cuong">Bộ môn Vật lý đại cương</option>
-              <option value="ptn">
-                Phòng Thí Nghiệm (Chỉ xem - Không log)
-              </option>
-            </select>
-            <label
-              >Mô tả kỹ thuật (Với Lab, chia bằng dấu | giữa Vị trí và Giới
-              thiệu)</label
-            ><textarea id="addDesc" rows="5"></textarea>
-          </div>
-          <div>
-            <label>Quy trình vận hành (Với Lab là Danh sách Thiết bị)</label
-            ><textarea
-              id="addSteps"
-              rows="5"
-              placeholder="Mỗi lần xuống dòng (Enter) sẽ tự tạo ô tải ảnh..."
-            ></textarea>
-            <div class="upload-box">
+          <h2 style="margin: 0; font-size: 22px; font-weight: 800">
+            <i
+              class="ph ph-plus-circle"
+              style="
+                color: var(--p);
+                margin-right: 8px;
+                vertical-align: text-bottom;
+              "
+            ></i>
+            KIẾN TẠO DỮ LIỆU
+          </h2>
+          <button
+            class="btn-close-modal"
+            style="position: static"
+            onclick="
+              document.getElementById('addDeviceModal').classList.add('hidden')
+            "
+          >
+            <i class="ph ph-x"></i>
+          </button>
+        </div>
+
+        <div
+          style="padding: 35px; overflow-y: auto; flex: 1"
+          class="custom-scrollbar"
+        >
+          <div
+            class="form-grid"
+            style="display: grid; grid-template-columns: 1fr 1fr; gap: 35px"
+          >
+            <div>
+              <label>Tên thiết bị / Phòng Lab</label
+              ><input type="text" id="addName" />
+              <label>Phân loại nhóm</label>
+              <select id="addCat">
+                <option value="vat-ly-tu">Bộ môn Vật lý & Vật liệu từ</option>
+                <option value="quang-hoc">
+                  Bộ môn Quang học & Quang điện tử
+                </option>
+                <option value="ly-thuyet">Bộ môn Vật lý lý thuyết</option>
+                <option value="tin-hoc">Bộ môn Vật lý tin học</option>
+                <option value="hat-nhan">
+                  BM Kỹ thuật Hạt nhân & Vật lý môi trường
+                </option>
+                <option value="dai-cuong">Bộ môn Vật lý đại cương</option>
+                <option value="ptn">
+                  Phòng Thí Nghiệm (Chỉ xem - Không log)
+                </option>
+              </select>
               <label
-                ><i
-                  class="ph ph-image"
-                  style="
-                    margin-right: 6px;
-                    font-size: 16px;
-                    vertical-align: text-bottom;
-                  "
-                ></i>
-                Tải lên ảnh đại diện</label
-              ><input type="file" id="addImgFile" accept="image/*" />
-              <div
-                style="
-                  margin-top: 15px;
-                  border-top: 1px solid var(--border-color);
-                  padding-top: 15px;
-                "
-              >
+                >Mô tả kỹ thuật (Với Lab, chia bằng dấu | giữa Vị trí và Giới
+                thiệu)</label
+              ><textarea id="addDesc" rows="5"></textarea>
+            </div>
+            <div>
+              <label>Quy trình vận hành (Với Lab là Danh sách Thiết bị)</label
+              ><textarea
+                id="addSteps"
+                rows="5"
+                placeholder="Mỗi lần xuống dòng (Enter) sẽ tự tạo ô tải ảnh..."
+              ></textarea>
+              <div class="upload-box">
                 <label
                   ><i
-                    class="ph ph-images"
+                    class="ph ph-image"
                     style="
                       margin-right: 6px;
                       font-size: 16px;
                       vertical-align: text-bottom;
                     "
                   ></i>
-                  Tải lên ảnh từng bước</label
+                  Tải lên ảnh đại diện</label
+                ><input type="file" id="addImgFile" accept="image/*" />
+                <div
+                  style="
+                    margin-top: 15px;
+                    border-top: 1px solid var(--border-color);
+                    padding-top: 15px;
+                  "
                 >
-                <div id="dynamicAddSteps">
-                  <p
-                    style="
-                      font-size: 12px;
-                      color: var(--text-muted);
-                      font-style: italic;
-                    "
+                  <label
+                    ><i
+                      class="ph ph-images"
+                      style="
+                        margin-right: 6px;
+                        font-size: 16px;
+                        vertical-align: text-bottom;
+                      "
+                    ></i>
+                    Tải lên ảnh từng bước</label
                   >
-                    * Nhập quy trình để tự tạo ô tải ảnh.
-                  </p>
+                  <div id="dynamicAddSteps">
+                    <p
+                      style="
+                        font-size: 12px;
+                        color: var(--text-muted);
+                        font-style: italic;
+                      "
+                    >
+                      * Nhập quy trình để tự tạo ô tải ảnh.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+          <button
+            id="btnSubmitAdd"
+            class="btn"
+            style="width: 100%; margin-top: 30px"
+          >
+            <i
+              class="ph ph-check-circle"
+              style="
+                margin-right: 6px;
+                font-size: 16px;
+                vertical-align: text-bottom;
+              "
+            ></i>
+            LƯU VÀO HỆ THỐNG
+          </button>
         </div>
-        <button
-          id="btnSubmitAdd"
-          class="btn"
-          style="width: 100%; margin-top: 30px"
-        >
-          <i
-            class="ph ph-check-circle"
-            style="
-              margin-right: 6px;
-              font-size: 16px;
-              vertical-align: text-bottom;
-            "
-          ></i>
-          LƯU VÀO HỆ THỐNG
-        </button>
       </div>
     </div>
 
@@ -888,7 +909,7 @@
           src="logovien.png"
           alt="Logo"
           class="logo"
-          style="width: 200px; margin-bottom: 30px"
+          style="width: 110px; margin-bottom: 25px"
         />
         <h2 style="font-weight: 800; letter-spacing: -0.5px">
           HỆ THỐNG SEP HUST
@@ -1055,9 +1076,18 @@
             data-cat="ptn"
             style="color: var(--p); font-weight: 700"
           >
-            <i class="ph ph-buildings" style="color: var(--p)"></i> Hệ Thống
-            Phòng Thí Nghiệm
+            <i class="ph ph-buildings" style="color: var(--p)"></i> Hệ thống Cơ
+            sở vật chất
           </button>
+
+          <div id="managerMenuSection" class="hidden">
+            <div class="menu-label" style="margin-top: 30px">
+              Quản lý Vận hành
+            </div>
+            <button class="nav-btn" data-cat="bookings">
+              <i class="ph ph-calendar-check"></i> Lịch sử & Đặt chỗ
+            </button>
+          </div>
 
           <div class="menu-label" style="margin-top: 30px">HỖ TRỢ</div>
           <button
@@ -1229,6 +1259,59 @@
           <div class="device-grid" id="deviceGrid"></div>
 
           <div
+            id="bookingsGrid"
+            class="hidden"
+            style="width: 100%; max-width: 1000px"
+          >
+            <h2
+              style="
+                margin-top: 0;
+                margin-bottom: 25px;
+                font-weight: 800;
+                font-size: 24px;
+              "
+            >
+              Quản lý Lịch Đặt Máy
+            </h2>
+            <div
+              style="
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                margin-bottom: 20px;
+                display: flex;
+                gap: 15px;
+                align-items: center;
+              "
+            >
+              <strong style="color: var(--text-muted); font-size: 14px"
+                >Lọc theo ngày:</strong
+              >
+              <input
+                type="date"
+                id="filterBookingDate"
+                onchange="loadAllBookings()"
+                style="margin: 0; width: 200px"
+              />
+              <button
+                class="btn btn-outline"
+                style="padding: 12px 20px"
+                onclick="
+                  document.getElementById('filterBookingDate').value = '';
+                  loadAllBookings();
+                "
+              >
+                Xem tất cả sắp tới
+              </button>
+            </div>
+            <div
+              id="allBookingsList"
+              style="display: flex; flex-direction: column; gap: 15px"
+            ></div>
+          </div>
+
+          <div
             id="usersGrid"
             class="hidden"
             style="width: 100%; max-width: 1200px"
@@ -1386,6 +1469,6 @@
       </main>
     </div>
 
-    <script type="module" src="app.js?v=1006"></script>
+    <script type="module" src="app.js?v=9000"></script>
   </body>
 </html>

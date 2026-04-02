@@ -110,15 +110,18 @@ async function initApp() {
       if (p.role === "admin") roleText = "Quản trị viên";
       document.getElementById("userRoleBadge").innerText = roleText;
 
-      if (p.role !== "student")
+      if (p.role !== "student") {
         document.getElementById("btnShowAddModal").classList.remove("hidden");
+        document
+          .getElementById("managerMenuSection")
+          .classList.remove("hidden");
+      }
       if (p.role === "admin")
         document.getElementById("adminMenuSection").classList.remove("hidden");
 
       loadNotifications();
       nav("systemView");
 
-      // AUTO-OPEN DEVICE IF SCANNED FROM QR
       const urlParams = new URLSearchParams(window.location.search);
       const scanId = urlParams.get("device");
       await render("vat-ly-tu", scanId);
@@ -139,7 +142,6 @@ async function render(cat, forceOpenId = null) {
   document.getElementById("deviceGrid").innerHTML =
     "<p style='text-align:center; width:100%; grid-column:1/-1; padding:50px; color:var(--text-muted);'>Đang tải hệ thống dữ liệu...</p>";
 
-  // Tải TOÀN BỘ thiết bị để hỗ trợ mở QR từ mọi tab
   const { data } = await supabase.from("devices").select("*");
   allDevices = data || [];
 
@@ -150,10 +152,8 @@ async function render(cat, forceOpenId = null) {
         window.openPtnWikiModal(scannedDevice);
       else window.openDeviceModal(scannedDevice);
     }
-    // Clean URL so it doesn't reopen on refresh
     window.history.pushState({}, document.title, window.location.pathname);
   }
-
   filterAndDisplayByCat(cat);
 }
 
@@ -165,7 +165,6 @@ function filterAndDisplayByCat(cat) {
     list = allDevices.filter(
       (d) => d.cat === cat && !d.name.toLowerCase().includes("ptn"),
     );
-
   displayDevices(list);
 }
 
@@ -205,19 +204,7 @@ function displayDevices(list) {
     div.style.position = "relative";
     div.style.cursor = "pointer";
     div.setAttribute("onclick", `triggerModal('${d.id}')`);
-
-    div.innerHTML = `
-      <img src="${img}" class="device-card-img" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'" style="pointer-events:none;"/>
-      <div class="device-card-body" style="pointer-events:none;">
-        <div style="margin-bottom: 12px;"><span class="tag">${stHtml}</span></div>
-        <h3 style="margin: 0 0 8px; font-size: 16px;">${d.name}</h3>
-        <p style="margin: 0 0 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${cleanText(d.description) || "Thông tin đang cập nhật..."}</p>
-        <div style="margin-top: auto; background: var(--p-light); color: var(--p); padding: 10px; border-radius: 6px; text-align: center; font-weight: 700; font-size: 13px;">
-            TÌM HIỂU THÊM <i class="ph ph-arrow-right" style="margin-left: 4px; vertical-align: middle;"></i>
-        </div>
-      </div>
-      <div style="position: absolute; inset: 0; z-index: 10;"></div>
-    `;
+    div.innerHTML = `<img src="${img}" class="device-card-img" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'" style="pointer-events:none;"/><div class="device-card-body" style="pointer-events:none;"><div style="margin-bottom: 12px;"><span class="tag">${stHtml}</span></div><h3 style="margin: 0 0 8px; font-size: 16px;">${d.name}</h3><p style="margin: 0 0 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${cleanText(d.description) || "Thông tin đang cập nhật..."}</p><div style="margin-top: auto; background: var(--p-light); color: var(--p); padding: 10px; border-radius: 6px; text-align: center; font-weight: 700; font-size: 13px;">TÌM HIỂU THÊM <i class="ph ph-arrow-right" style="margin-left: 4px; vertical-align: middle;"></i></div></div><div style="position: absolute; inset: 0; z-index: 10;"></div>`;
     grid.appendChild(div);
   });
 }
@@ -225,7 +212,6 @@ function displayDevices(list) {
 window.filterDevices = () => {
   const term = document.getElementById("searchDevice").value.toLowerCase();
   const currentCat = document.querySelector(".nav-btn.active").dataset.cat;
-
   let baseList = [];
   if (currentCat === "ptn")
     baseList = allDevices.filter((d) => d.name.toLowerCase().includes("ptn"));
@@ -233,7 +219,6 @@ window.filterDevices = () => {
     baseList = allDevices.filter(
       (d) => d.cat === currentCat && !d.name.toLowerCase().includes("ptn"),
     );
-
   displayDevices(baseList.filter((d) => d.name.toLowerCase().includes(term)));
 };
 
@@ -241,7 +226,6 @@ window.filterDevices = () => {
 window.openPtnWikiModal = (d) => {
   selectedDevice = d;
   document.getElementById("wTitle").innerText = d.name;
-
   let descText = cleanText(d.description) || "";
   let infoHtml = "";
   let introHtml = "";
@@ -258,9 +242,8 @@ window.openPtnWikiModal = (d) => {
           let label = cleanL.substring(0, splitIdx + 1);
           let val = cleanL.substring(splitIdx + 1);
           return `<li><span style="color: var(--text-muted); margin-right: 5px;">•</span> <strong style="color: var(--text-main);">${label}</strong>${val}</li>`;
-        } else {
+        } else
           return `<li><span style="color: var(--text-muted); margin-right: 5px;">•</span> ${cleanL}</li>`;
-        }
       })
       .join("");
     introHtml = parts[1].trim().replace(/\n/g, "<br/><br/>");
@@ -281,7 +264,6 @@ window.openPtnWikiModal = (d) => {
   imgEl.src = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safe}.jpg?t=${Date.now()}`;
   imgEl.style.display = "inline-block";
   imgEl.onerror = () => (imgEl.style.display = "none");
-
   document.getElementById("detailModal").classList.add("hidden");
   document.getElementById("ptnWikiModal").classList.remove("hidden");
 };
@@ -318,15 +300,13 @@ window.openDeviceModal = (d) => {
   selectedDevice = d;
   document.getElementById("mTitle").innerText = d.name;
 
-  // TẠO QR CODE
   const qrBaseUrl = window.location.origin + window.location.pathname;
   const qrTarget = `${qrBaseUrl}?device=${d.id}`;
   document.getElementById("qrCodeImg").src =
     `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrTarget)}`;
-
-  const formatDesc = cleanText(d.description).replace(/\n/g, "<br/>");
   document.getElementById("mDesc").innerHTML =
-    formatDesc || "Dữ liệu đang được cập nhật...";
+    cleanText(d.description).replace(/\n/g, "<br/>") ||
+    "Dữ liệu đang được cập nhật...";
 
   let stHtml = "";
   if (d.status === "normal")
@@ -388,7 +368,7 @@ window.openDeviceModal = (d) => {
 window.closeModal = () =>
   document.getElementById("detailModal").classList.add("hidden");
 
-// ================= LỊCH ĐẶT MÁY (BOOKING) ===================
+// ================= LỊCH ĐẶT MÁY (CÁ NHÂN) ===================
 window.loadBookings = async () => {
   const container = document.getElementById("bookingListContainer");
   container.innerHTML =
@@ -399,7 +379,7 @@ window.loadBookings = async () => {
     .from("device_bookings")
     .select("*")
     .eq("device_id", selectedDevice.id)
-    .gte("booking_date", today) // Chỉ lấy các lịch từ hôm nay trở đi
+    .gte("booking_date", today)
     .order("booking_date", { ascending: true })
     .order("start_time", { ascending: true });
 
@@ -414,16 +394,7 @@ window.loadBookings = async () => {
     div.style.borderLeft = "3px solid var(--p)";
     const dateStr = new Date(b.booking_date).toLocaleDateString("vi-VN");
     const timeStr = `${b.start_time ? b.start_time.substring(0, 5) : "--"} đến ${b.end_time ? b.end_time.substring(0, 5) : "--"}`;
-    div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div>
-                    <strong style="color: var(--p); font-size: 14px;"><i class="ph ph-calendar-check" style="margin-right: 4px; vertical-align: middle;"></i> Ngày: ${dateStr} | ${timeStr}</strong>
-                    <div style="font-size: 13px; color: var(--text-main); margin-top: 6px; font-weight: 600;"><i class="ph ph-user" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> Người đặt: ${b.user_name}</div>
-                </div>
-            </div>
-            <div style="font-size: 13px; color: #4b5563; margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px dashed var(--border-color);">
-                <span style="color: #9ca3af; font-size: 11px; text-transform: uppercase;">Mục đích: </span> ${b.purpose || "Nghiên cứu"}
-            </div>`;
+    div.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><strong style="color: var(--p); font-size: 14px;"><i class="ph ph-calendar-check" style="margin-right: 4px; vertical-align: middle;"></i> Ngày: ${dateStr} | ${timeStr}</strong><div style="font-size: 13px; color: var(--text-main); margin-top: 6px; font-weight: 600;"><i class="ph ph-user" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> Người đặt: ${b.user_name}</div></div></div><div style="font-size: 13px; color: #4b5563; margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px dashed var(--border-color);"><span style="color: #9ca3af; font-size: 11px; text-transform: uppercase;">Mục đích: </span> ${b.purpose || "Nghiên cứu"}</div>`;
     container.appendChild(div);
   });
 };
@@ -435,29 +406,94 @@ document.getElementById("btnSubmitBooking").onclick = async () => {
     purpose = document.getElementById("bookPurpose").value;
   if (!date || !start || !end || !purpose)
     return toast("Vui lòng điền đủ thông tin đặt lịch!");
-
   const btn = document.getElementById("btnSubmitBooking");
   btn.disabled = true;
   btn.innerText = "ĐANG ĐĂNG KÝ...";
-  const { error } = await supabase.from("device_bookings").insert([
-    {
-      device_id: selectedDevice.id,
-      user_id: currentProfile.id,
-      user_name: currentProfile.full_name,
-      booking_date: date,
-      start_time: start,
-      end_time: end,
-      purpose: purpose,
-    },
-  ]);
+  const { error } = await supabase
+    .from("device_bookings")
+    .insert([
+      {
+        device_id: selectedDevice.id,
+        user_id: currentProfile.id,
+        user_name: currentProfile.full_name,
+        booking_date: date,
+        start_time: start,
+        end_time: end,
+        purpose: purpose,
+      },
+    ]);
   btn.disabled = false;
   btn.innerText = "XÁC NHẬN ĐẶT LỊCH";
-
   if (error) toast(error.message);
   else {
     toast("Đăng ký giữ chỗ thành công!", true);
     document.getElementById("bookPurpose").value = "";
     loadBookings();
+  }
+};
+
+// ================= BẢNG QUẢN LÝ LỊCH (ADMIN/CÁN BỘ) ===================
+window.loadAllBookings = async () => {
+  const container = document.getElementById("allBookingsList");
+  container.innerHTML =
+    "<p style='color:var(--text-muted);'>Đang tải dữ liệu lịch đặt...</p>";
+
+  const filterDate = document.getElementById("filterBookingDate").value;
+  let query = supabase
+    .from("device_bookings")
+    .select("*, devices(name)")
+    .order("booking_date", { ascending: true })
+    .order("start_time", { ascending: true });
+
+  if (filterDate) query = query.eq("booking_date", filterDate);
+  else {
+    const today = new Date().toISOString().split("T")[0];
+    query = query.gte("booking_date", today);
+  }
+
+  const { data, error } = await query;
+  if (error || !data || data.length === 0)
+    return (container.innerHTML =
+      "<div style='background: white; padding: 30px; text-align: center; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-muted);'><p>Hệ thống hiện không có lịch đặt chỗ nào sắp tới.</p></div>");
+
+  container.innerHTML = "";
+  const todayStr = new Date().toISOString().split("T")[0];
+
+  data.forEach((b) => {
+    const isPast = new Date(b.booking_date) < new Date(todayStr);
+    const div = document.createElement("div");
+    div.style = `background: white; padding: 20px; border-radius: 8px; border: 1px solid ${isPast ? "var(--border-color)" : "var(--p-light)"}; opacity: ${isPast ? "0.7" : "1"}; display: flex; justify-content: space-between; align-items: flex-start;`;
+    const deviceName = b.devices ? b.devices.name : "Thiết bị đã gỡ bỏ";
+    const dateStr = new Date(b.booking_date).toLocaleDateString("vi-VN");
+
+    div.innerHTML = `
+          <div>
+              <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
+                  <span class="tag" style="background: var(--p-light); color: var(--p);">${deviceName}</span>
+                  <span style="font-size: 13px; font-weight: bold; color: ${isPast ? "var(--text-muted)" : "#059669"};">${dateStr} | ${b.start_time.substring(0, 5)} - ${b.end_time.substring(0, 5)}</span>
+              </div>
+              <h5 style="margin: 0 0 5px 0; font-size: 15px; color: var(--text-main);"><i class="ph ph-user" style="color: var(--text-muted); margin-right: 5px;"></i>${b.user_name}</h5>
+              <p style="margin: 0; font-size: 13px; color: var(--text-muted);"><strong style="text-transform: uppercase; font-size: 11px;">Mục đích:</strong> ${b.purpose}</p>
+          </div>
+          <button onclick="cancelBooking('${b.id}')" class="btn-outline" style="color: #ef4444; border-color: #fecaca; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: bold;">
+              <i class="ph ph-x-circle" style="font-size: 16px;"></i> HỦY LỊCH
+          </button>
+      `;
+    container.appendChild(div);
+  });
+};
+
+window.cancelBooking = async (id) => {
+  if (confirm("Xác nhận hủy lịch đăng ký này khỏi hệ thống?")) {
+    const { error } = await supabase
+      .from("device_bookings")
+      .delete()
+      .eq("id", id);
+    if (error) toast(error.message);
+    else {
+      toast("Đã hủy lịch thành công!", true);
+      loadAllBookings();
+    }
   }
 };
 
@@ -484,16 +520,7 @@ window.loadLogs = async () => {
       ? new Date(log.usage_date).toLocaleDateString("vi-VN")
       : "N/A";
     const timeStr = `${log.start_time ? log.start_time.substring(0, 5) : "--"} đến ${log.end_time ? log.end_time.substring(0, 5) : "--"}`;
-    div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div>
-                    <strong style="color: var(--text-main); font-size: 14px;"><i class="ph ph-user" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> ${log.user_name || "Học viên"}</strong>
-                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><i class="ph ph-clock" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> Thời gian: ${dateStr} (${timeStr})</div>
-                </div>
-            </div>
-            <div style="font-size: 13px; color: #374151; margin-top: 10px; background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6;">
-                <span style="font-weight: 700; color: #6b7280; font-size: 11px; text-transform: uppercase; margin-right: 5px;">Nội dung: </span> ${log.purpose || "Không có ghi chú bổ sung"}
-            </div>`;
+    div.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><strong style="color: var(--text-main); font-size: 14px;"><i class="ph ph-user" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> ${log.user_name || "Học viên"}</strong><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><i class="ph ph-clock" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> Thời gian: ${dateStr} (${timeStr})</div></div></div><div style="font-size: 13px; color: #374151; margin-top: 10px; background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6;"><span style="font-weight: 700; color: #6b7280; font-size: 11px; text-transform: uppercase; margin-right: 5px;">Nội dung: </span> ${log.purpose || "Không có ghi chú bổ sung"}</div>`;
     container.appendChild(div);
   });
 };
@@ -508,17 +535,19 @@ document.getElementById("btnSubmitLog").onclick = async () => {
   const btn = document.getElementById("btnSubmitLog");
   btn.disabled = true;
   btn.innerText = "ĐANG LƯU DỮ LIỆU...";
-  const { error } = await supabase.from("device_logs").insert([
-    {
-      device_id: selectedDevice.id,
-      user_id: currentProfile.id,
-      user_name: currentProfile.full_name,
-      usage_date: date,
-      start_time: start,
-      end_time: end,
-      purpose: purpose,
-    },
-  ]);
+  const { error } = await supabase
+    .from("device_logs")
+    .insert([
+      {
+        device_id: selectedDevice.id,
+        user_id: currentProfile.id,
+        user_name: currentProfile.full_name,
+        usage_date: date,
+        start_time: start,
+        end_time: end,
+        purpose: purpose,
+      },
+    ]);
   btn.disabled = false;
   btn.innerText = "GHI SỔ TAY";
   if (error) toast(error.message);
@@ -579,14 +608,16 @@ document.getElementById("btnSubmitFeedback").onclick = async () => {
   const btn = document.getElementById("btnSubmitFeedback");
   btn.disabled = true;
   btn.innerText = "ĐANG GỬI...";
-  const { error } = await supabase.from("feedbacks").insert([
-    {
-      user_id: currentProfile.id,
-      user_name: currentProfile.full_name,
-      subject: subject,
-      content: content,
-    },
-  ]);
+  const { error } = await supabase
+    .from("feedbacks")
+    .insert([
+      {
+        user_id: currentProfile.id,
+        user_name: currentProfile.full_name,
+        subject: subject,
+        content: content,
+      },
+    ]);
   btn.disabled = false;
   btn.innerHTML =
     '<i class="ph ph-paper-plane-right" style="margin-right: 6px;"></i> GỬI PHẢN HỒI';
@@ -710,16 +741,18 @@ document.getElementById("btnSubmitAdd").onclick = async () => {
   if (!name) return toast("Vui lòng nhập tên thiết bị.");
   document.getElementById("btnSubmitAdd").disabled = true;
   document.getElementById("btnSubmitAdd").innerText = "ĐANG TẢI LÊN...";
-  await supabase.from("devices").insert([
-    {
-      name,
-      cat,
-      status: "normal",
-      description: document.getElementById("addDesc").value,
-      steps,
-      created_by: currentProfile.id,
-    },
-  ]);
+  await supabase
+    .from("devices")
+    .insert([
+      {
+        name,
+        cat,
+        status: "normal",
+        description: document.getElementById("addDesc").value,
+        steps,
+        created_by: currentProfile.id,
+      },
+    ]);
   const mainF = document.getElementById("addImgFile").files[0];
   if (mainF)
     await supabase.storage
@@ -813,33 +846,49 @@ window.deleteSpecificImage = async (stepIndex) => {
 };
 
 document.getElementById("btnSignIn").onclick = async () => {
+  const emailVal = document.getElementById("lEmail").value;
+  const passVal = document.getElementById("lPass").value;
+  if (!emailVal || !passVal) return toast("Vui lòng nhập Email và Mật khẩu!");
+  const btn = document.getElementById("btnSignIn");
+  const originalText = btn.innerHTML;
+  btn.innerHTML = "ĐANG XỬ LÝ...";
+  btn.disabled = true;
   const { error } = await supabase.auth.signInWithPassword({
-    email: lEmail.value,
-    password: lPass.value,
+    email: emailVal,
+    password: passVal,
   });
+  btn.innerHTML = originalText;
+  btn.disabled = false;
   if (error) toast("Thông tin đăng nhập không chính xác.");
   else initApp();
 };
 
 document.getElementById("btnSignUp").onclick = async () => {
-  const role = rRole.value,
-    code = rSecurityCode.value;
-  if (role !== "student" && code !== "SEP2026")
+  const roleVal = document.getElementById("rRole").value,
+    codeVal = document.getElementById("rSecurityCode").value;
+  const emailVal = document.getElementById("rEmail").value,
+    passVal = document.getElementById("rPass").value,
+    nameVal = document.getElementById("rName").value;
+  if (roleVal !== "student" && codeVal !== "SEP2026")
     return toast("Mã xác thực nội bộ không hợp lệ.");
-  document.getElementById("btnSignUp").innerText = "ĐANG KIẾN TẠO...";
+  if (!emailVal || !passVal || !nameVal)
+    return toast("Vui lòng điền đầy đủ thông tin!");
+  const btn = document.getElementById("btnSignUp");
+  btn.innerText = "ĐANG KIẾN TẠO...";
+  btn.disabled = true;
   const { data, error } = await supabase.auth.signUp({
-    email: rEmail.value,
-    password: rPass.value,
-    options: { data: { full_name: rName.value, role: role } },
+    email: emailVal,
+    password: passVal,
+    options: { data: { full_name: nameVal, role: roleVal } },
   });
-  if (error) {
-    toast(error.message);
-    document.getElementById("btnSignUp").innerText = "ĐĂNG KÝ NGAY";
-  } else {
+  btn.disabled = false;
+  btn.innerText = "XÁC NHẬN ĐĂNG KÝ";
+  if (error) toast(error.message);
+  else {
     if (data?.user)
       await supabase
         .from("profiles")
-        .upsert([{ id: data.user.id, full_name: rName.value, role: role }]);
+        .upsert([{ id: data.user.id, full_name: nameVal, role: roleVal }]);
     alert("Khởi tạo tài khoản thành công. Vui lòng đăng nhập.");
     nav("loginView");
   }
@@ -849,7 +898,6 @@ document.getElementById("btnLogOut").onclick = async () => {
   await supabase.auth.signOut();
   location.reload();
 };
-
 document.getElementById("btnReset").onclick = async () => {
   await supabase.auth.resetPasswordForEmail(
     document.getElementById("fEmail").value,
@@ -857,7 +905,6 @@ document.getElementById("btnReset").onclick = async () => {
   );
   toast("Yêu cầu đã được gửi đến email.", true);
 };
-
 document.getElementById("btnSubmitSysPass").onclick = async () => {
   if (
     document.getElementById("sysNewPass").value !==
@@ -875,20 +922,17 @@ document.getElementById("rRole").onchange = (e) =>
   document
     .getElementById("securityCodeWrapper")
     .classList.toggle("hidden", e.target.value === "student");
-
 document.getElementById("userTrigger").onclick = (e) => {
   e.stopPropagation();
   document.getElementById("notiDropdown").classList.remove("show");
   document.getElementById("userDropdown").classList.toggle("show");
 };
-
 document.getElementById("notiTrigger").onclick = (e) => {
   e.stopPropagation();
   document.getElementById("userDropdown").classList.remove("show");
   document.getElementById("notiDropdown").classList.toggle("show");
   document.getElementById("notiBadge").classList.add("hidden");
 };
-
 window.onclick = () => {
   document.getElementById("userDropdown").classList.remove("show");
   document.getElementById("notiDropdown").classList.remove("show");
@@ -901,12 +945,16 @@ document.querySelectorAll(".nav-btn").forEach((b) => {
       .querySelectorAll(".nav-btn[data-cat]")
       .forEach((x) => x.classList.remove("active"));
     b.classList.add("active");
-    ["deviceGrid", "usersGrid", "feedbacksGrid", "broadcastGrid"].forEach(
-      (id) => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add("hidden");
-      },
-    );
+    [
+      "deviceGrid",
+      "usersGrid",
+      "feedbacksGrid",
+      "broadcastGrid",
+      "bookingsGrid",
+    ].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add("hidden");
+    });
     if (b.dataset.cat === "users") {
       document.getElementById("usersGrid").classList.remove("hidden");
       loadAdminUsers();
@@ -915,6 +963,9 @@ document.querySelectorAll(".nav-btn").forEach((b) => {
       loadAdminFeedbacks();
     } else if (b.dataset.cat === "broadcast") {
       document.getElementById("broadcastGrid").classList.remove("hidden");
+    } else if (b.dataset.cat === "bookings") {
+      document.getElementById("bookingsGrid").classList.remove("hidden");
+      loadAllBookings();
     } else {
       document.getElementById("deviceGrid").classList.remove("hidden");
       filterAndDisplayByCat(b.dataset.cat);
@@ -932,7 +983,5 @@ window.nav = (id) => {
   if (id === "loginView" || id === "regView" || id === "forgotView") {
     document.getElementById("authWrapper").classList.remove("hidden");
     document.getElementById(id).classList.remove("hidden");
-  } else {
-    document.getElementById(id).classList.remove("hidden");
-  }
+  } else document.getElementById(id).classList.remove("hidden");
 };
