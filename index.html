@@ -349,12 +349,40 @@
                   THIẾT BỊ
                 </button>
               </div>
-              <label>Trạng thái máy</label>
-              <select id="insStatus">
-                <option value="normal">Hoạt động tốt</option>
-                <option value="maintenance">Đang bảo trì</option>
-                <option value="broken">Báo lỗi sự cố</option>
-              </select>
+
+              <div
+                style="
+                  display: grid;
+                  grid-template-columns: 1fr 1fr;
+                  gap: 20px;
+                  margin-bottom: 15px;
+                "
+              >
+                <div>
+                  <label>Trạng thái máy</label>
+                  <select id="insStatus">
+                    <option value="normal">Hoạt động tốt</option>
+                    <option value="maintenance">Đang bảo trì</option>
+                    <option value="broken">Báo lỗi sự cố</option>
+                  </select>
+                </div>
+                <div>
+                  <label>Thuộc Bộ môn</label>
+                  <select
+                    id="insCat"
+                    style="border-color: var(--p); background-color: #f0fdf4"
+                  >
+                    <option value="vat-ly-tu">Vật lý & Vật liệu từ</option>
+                    <option value="quang-hoc">Quang học & Quang điện tử</option>
+                    <option value="ly-thuyet">Vật lý lý thuyết</option>
+                    <option value="tin-hoc">Vật lý tin học</option>
+                    <option value="hat-nhan">
+                      Kỹ thuật Hạt nhân & Môi trường
+                    </option>
+                    <option value="dai-cuong">Vật lý đại cương</option>
+                  </select>
+                </div>
+              </div>
               <label>Mô tả thiết bị</label>
               <textarea id="insInput" rows="4"></textarea>
               <label>Quy trình vận hành</label>
@@ -1226,6 +1254,6 @@
       </main>
     </div>
 
-    <script type="module" src="app.js?v=1003"></script>
+    <script type="module" src="app.js?v=1005"></script>
   </body>
 </html>
