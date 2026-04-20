@@ -54,9 +54,9 @@ function updateStepBoxes(inputId, containerId, prefix, isEdit = false) {
       const d = document.createElement("div");
       d.className = "step-up-box";
       let deleteBtnHTML = isEdit
-        ? `<button type="button" class="btn-outline" style="color: var(--a); border: 1px solid #fecaca; padding: 6px 12px; border-radius: 6px; cursor: pointer; background: white;" onclick="deleteSpecificImage(${i})" title="Xóa ảnh hiện tại của Bước này"><i class="ph ph-trash" style="font-size: 16px;"></i></button>`
+        ? `<button type="button" class="btn-outline" style="color: var(--danger); border: 1px solid var(--danger-light); padding: 6px 12px; border-radius: 6px; cursor: pointer; background: white;" onclick="deleteSpecificImage(${i})" title="Xóa ảnh hiện tại của Bước này"><i class="ph ph-trash" style="font-size: 16px;"></i></button>`
         : "";
-      d.innerHTML = `<label style="font-size:11px; font-weight:700; color:var(--p); text-transform:uppercase;">Ảnh Bước ${i}</label>
+      d.innerHTML = `<label style="font-size:11px; font-weight:700; color:var(--primary); text-transform:uppercase;">Ảnh Bước ${i}</label>
                      <div style="display: flex; gap: 8px; margin: 4px 0 10px;">
                         <input type="file" id="${prefix}_${i}" accept="image/*" style="padding:6px; margin:0; font-size: 12px; flex: 1;"/>
                         ${deleteBtnHTML}
@@ -122,6 +122,7 @@ async function initApp() {
       loadNotifications();
       nav("systemView");
 
+      // AUTO-OPEN DEVICE IF SCANNED FROM QR
       const urlParams = new URLSearchParams(window.location.search);
       const scanId = urlParams.get("device");
       await render("vat-ly-tu", scanId);
@@ -165,6 +166,7 @@ function filterAndDisplayByCat(cat) {
     list = allDevices.filter(
       (d) => d.cat === cat && !d.name.toLowerCase().includes("ptn"),
     );
+
   displayDevices(list);
 }
 
@@ -188,23 +190,46 @@ function displayDevices(list) {
     const isLab = d.name.toLowerCase().includes("ptn");
 
     let stHtml = "";
-    if (isLab)
+    let tagClass = "tag-normal";
+
+    if (isLab) {
       stHtml =
         '<i class="ph ph-buildings" style="margin-right:4px;"></i> Cơ sở vật chất';
-    else {
-      if (d.status === "normal")
-        stHtml = '<span class="status-dot dot-green"></span> Sẵn sàng';
-      else if (d.status === "maintenance")
-        stHtml = '<span class="status-dot dot-yellow"></span> Đang bảo trì';
-      else stHtml = '<span class="status-dot dot-red"></span> Sự cố kỹ thuật';
+      tagClass = "tag-lab";
+    } else {
+      if (d.status === "normal") {
+        stHtml =
+          '<i class="ph ph-check-circle" style="margin-right:4px;"></i> Sẵn sàng';
+        tagClass = "tag-normal";
+      } else if (d.status === "maintenance") {
+        stHtml =
+          '<i class="ph ph-wrench" style="margin-right:4px;"></i> Đang bảo trì';
+        tagClass = "tag-maintenance";
+      } else {
+        stHtml =
+          '<i class="ph ph-warning-circle" style="margin-right:4px;"></i> Sự cố kỹ thuật';
+        tagClass = "tag-broken";
+      }
     }
 
     const div = document.createElement("div");
     div.className = "device-card";
-    div.style.position = "relative";
-    div.style.cursor = "pointer";
     div.setAttribute("onclick", `triggerModal('${d.id}')`);
-    div.innerHTML = `<img src="${img}" class="device-card-img" onerror="this.src='https://via.placeholder.com/150?text=NO+IMAGE'" style="pointer-events:none;"/><div class="device-card-body" style="pointer-events:none;"><div style="margin-bottom: 12px;"><span class="tag">${stHtml}</span></div><h3 style="margin: 0 0 8px; font-size: 16px;">${d.name}</h3><p style="margin: 0 0 10px; font-size: 13px; color: var(--text-muted); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${cleanText(d.description) || "Thông tin đang cập nhật..."}</p><div style="margin-top: auto; background: var(--p-light); color: var(--p); padding: 10px; border-radius: 6px; text-align: center; font-weight: 700; font-size: 13px;">TÌM HIỂU THÊM <i class="ph ph-arrow-right" style="margin-left: 4px; vertical-align: middle;"></i></div></div><div style="position: absolute; inset: 0; z-index: 10;"></div>`;
+
+    div.innerHTML = `
+  <img src="${img}" class="device-card-img" onerror="this.onerror=null; this.src='https://placehold.co/400x200/e2e8f0/64748b?text=Chua+co+anh'"/>
+  <div class="device-card-body">
+        <div>
+          <div style="margin-bottom: 12px;">
+             <span class="tag ${tagClass}">${stHtml}</span>
+          </div>
+          <h3 style="margin: 0 0 8px; font-size: 16px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${d.name}</h3>
+        </div>
+        <div class="card-action-text">
+            TÌM HIỂU THÊM <i class="ph ph-arrow-right"></i>
+        </div>
+      </div>
+    `;
     grid.appendChild(div);
   });
 }
@@ -212,6 +237,7 @@ function displayDevices(list) {
 window.filterDevices = () => {
   const term = document.getElementById("searchDevice").value.toLowerCase();
   const currentCat = document.querySelector(".nav-btn.active").dataset.cat;
+
   let baseList = [];
   if (currentCat === "ptn")
     baseList = allDevices.filter((d) => d.name.toLowerCase().includes("ptn"));
@@ -219,6 +245,7 @@ window.filterDevices = () => {
     baseList = allDevices.filter(
       (d) => d.cat === currentCat && !d.name.toLowerCase().includes("ptn"),
     );
+
   displayDevices(baseList.filter((d) => d.name.toLowerCase().includes(term)));
 };
 
@@ -226,6 +253,7 @@ window.filterDevices = () => {
 window.openPtnWikiModal = (d) => {
   selectedDevice = d;
   document.getElementById("wTitle").innerText = d.name;
+
   let descText = cleanText(d.description) || "";
   let infoHtml = "";
   let introHtml = "";
@@ -242,8 +270,9 @@ window.openPtnWikiModal = (d) => {
           let label = cleanL.substring(0, splitIdx + 1);
           let val = cleanL.substring(splitIdx + 1);
           return `<li><span style="color: var(--text-muted); margin-right: 5px;">•</span> <strong style="color: var(--text-main);">${label}</strong>${val}</li>`;
-        } else
+        } else {
           return `<li><span style="color: var(--text-muted); margin-right: 5px;">•</span> ${cleanL}</li>`;
+        }
       })
       .join("");
     introHtml = parts[1].trim().replace(/\n/g, "<br/><br/>");
@@ -264,6 +293,7 @@ window.openPtnWikiModal = (d) => {
   imgEl.src = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safe}.jpg?t=${Date.now()}`;
   imgEl.style.display = "inline-block";
   imgEl.onerror = () => (imgEl.style.display = "none");
+
   document.getElementById("detailModal").classList.add("hidden");
   document.getElementById("ptnWikiModal").classList.remove("hidden");
 };
@@ -304,17 +334,28 @@ window.openDeviceModal = (d) => {
   const qrTarget = `${qrBaseUrl}?device=${d.id}`;
   document.getElementById("qrCodeImg").src =
     `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrTarget)}`;
+
+  const formatDesc = cleanText(d.description).replace(/\n/g, "<br/>");
   document.getElementById("mDesc").innerHTML =
-    cleanText(d.description).replace(/\n/g, "<br/>") ||
-    "Dữ liệu đang được cập nhật...";
+    formatDesc || "Dữ liệu đang được cập nhật...";
 
   let stHtml = "";
-  if (d.status === "normal")
-    stHtml = '<span class="status-dot dot-green"></span> Sẵn sàng hoạt động';
-  else if (d.status === "maintenance")
+  let tagClass = "tag-normal";
+  if (d.status === "normal") {
     stHtml =
-      '<span class="status-dot dot-yellow"></span> Đang bảo trì / Kiểm định';
-  else stHtml = '<span class="status-dot dot-red"></span> Tạm dừng do sự cố';
+      '<i class="ph ph-check-circle" style="margin-right:4px;"></i> Sẵn sàng hoạt động';
+    tagClass = "tag-normal";
+  } else if (d.status === "maintenance") {
+    stHtml =
+      '<i class="ph ph-wrench" style="margin-right:4px;"></i> Đang bảo trì / Kiểm định';
+    tagClass = "tag-maintenance";
+  } else {
+    stHtml =
+      '<i class="ph ph-warning-circle" style="margin-right:4px;"></i> Tạm dừng do sự cố';
+    tagClass = "tag-broken";
+  }
+
+  document.getElementById("mStatusBadge").className = `tag ${tagClass}`;
   document.getElementById("mStatusBadge").innerHTML = stHtml;
 
   const stepsArray = (d.steps || "").split("\n").filter((l) => l.trim() !== "");
@@ -341,10 +382,9 @@ window.openDeviceModal = (d) => {
     img.src = `https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safe}/step_${i}.jpg?t=${Date.now()}`;
     img.style.height = "60px";
     img.style.borderRadius = "6px";
-    img.style.cursor = "pointer";
-    img.style.border = "1px solid #e5e5e5";
+    img.style.cursor = "zoom-in";
+    img.style.border = "1px solid var(--border-color)";
     img.onerror = () => img.remove();
-    img.onclick = () => window.open(img.src);
     gallery.appendChild(img);
   }
 
@@ -391,10 +431,19 @@ window.loadBookings = async () => {
   data.forEach((b) => {
     const div = document.createElement("div");
     div.className = "log-item";
-    div.style.borderLeft = "3px solid var(--p)";
+    div.style.borderLeft = "3px solid var(--primary)";
     const dateStr = new Date(b.booking_date).toLocaleDateString("vi-VN");
     const timeStr = `${b.start_time ? b.start_time.substring(0, 5) : "--"} đến ${b.end_time ? b.end_time.substring(0, 5) : "--"}`;
-    div.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><strong style="color: var(--p); font-size: 14px;"><i class="ph ph-calendar-check" style="margin-right: 4px; vertical-align: middle;"></i> Ngày: ${dateStr} | ${timeStr}</strong><div style="font-size: 13px; color: var(--text-main); margin-top: 6px; font-weight: 600;"><i class="ph ph-user" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> Người đặt: ${b.user_name}</div></div></div><div style="font-size: 13px; color: #4b5563; margin-top: 10px; background: #fff; padding: 10px; border-radius: 6px; border: 1px dashed var(--border-color);"><span style="color: #9ca3af; font-size: 11px; text-transform: uppercase;">Mục đích: </span> ${b.purpose || "Nghiên cứu"}</div>`;
+    div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                <div>
+                    <strong style="color: var(--primary); font-size: 14px;"><i class="ph ph-calendar-check" style="margin-right: 4px; vertical-align: middle;"></i> Ngày: ${dateStr} | ${timeStr}</strong>
+                    <div style="font-size: 13px; color: var(--text-main); margin-top: 6px; font-weight: 600;"><i class="ph ph-user" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> Người đặt: ${b.user_name}</div>
+                </div>
+            </div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 10px; background: var(--bg-body); padding: 10px; border-radius: 6px; border: 1px dashed var(--border-color);">
+                <span style="color: #9ca3af; font-size: 11px; text-transform: uppercase;">Mục đích: </span> ${b.purpose || "Nghiên cứu"}
+            </div>`;
     container.appendChild(div);
   });
 };
@@ -406,24 +455,24 @@ document.getElementById("btnSubmitBooking").onclick = async () => {
     purpose = document.getElementById("bookPurpose").value;
   if (!date || !start || !end || !purpose)
     return toast("Vui lòng điền đủ thông tin đặt lịch!");
+
   const btn = document.getElementById("btnSubmitBooking");
   btn.disabled = true;
-  btn.innerText = "ĐANG ĐĂNG KÝ...";
-  const { error } = await supabase
-    .from("device_bookings")
-    .insert([
-      {
-        device_id: selectedDevice.id,
-        user_id: currentProfile.id,
-        user_name: currentProfile.full_name,
-        booking_date: date,
-        start_time: start,
-        end_time: end,
-        purpose: purpose,
-      },
-    ]);
+  btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG ĐĂNG KÝ...';
+  const { error } = await supabase.from("device_bookings").insert([
+    {
+      device_id: selectedDevice.id,
+      user_id: currentProfile.id,
+      user_name: currentProfile.full_name,
+      booking_date: date,
+      start_time: start,
+      end_time: end,
+      purpose: purpose,
+    },
+  ]);
   btn.disabled = false;
   btn.innerText = "XÁC NHẬN ĐẶT LỊCH";
+
   if (error) toast(error.message);
   else {
     toast("Đăng ký giữ chỗ thành công!", true);
@@ -432,7 +481,6 @@ document.getElementById("btnSubmitBooking").onclick = async () => {
   }
 };
 
-// ================= BẢNG QUẢN LÝ LỊCH (ADMIN/CÁN BỘ) ===================
 window.loadAllBookings = async () => {
   const container = document.getElementById("allBookingsList");
   container.innerHTML =
@@ -454,7 +502,7 @@ window.loadAllBookings = async () => {
   const { data, error } = await query;
   if (error || !data || data.length === 0)
     return (container.innerHTML =
-      "<div style='background: white; padding: 30px; text-align: center; border-radius: 8px; border: 1px solid var(--border-color); color: var(--text-muted);'><p>Hệ thống hiện không có lịch đặt chỗ nào sắp tới.</p></div>");
+      "<div style='background: var(--bg-surface); padding: 30px; text-align: center; border-radius: var(--radius-lg); border: 1px solid var(--border-color); color: var(--text-muted);'><p>Hệ thống hiện không có lịch đặt chỗ nào sắp tới.</p></div>");
 
   container.innerHTML = "";
   const todayStr = new Date().toISOString().split("T")[0];
@@ -462,20 +510,20 @@ window.loadAllBookings = async () => {
   data.forEach((b) => {
     const isPast = new Date(b.booking_date) < new Date(todayStr);
     const div = document.createElement("div");
-    div.style = `background: white; padding: 20px; border-radius: 8px; border: 1px solid ${isPast ? "var(--border-color)" : "var(--p-light)"}; opacity: ${isPast ? "0.7" : "1"}; display: flex; justify-content: space-between; align-items: flex-start;`;
+    div.style = `background: var(--bg-surface); padding: 20px; border-radius: var(--radius-sm); border: 1px solid ${isPast ? "var(--border-color)" : "var(--primary-light)"}; opacity: ${isPast ? "0.7" : "1"}; display: flex; justify-content: space-between; align-items: flex-start; transition: var(--transition);`;
     const deviceName = b.devices ? b.devices.name : "Thiết bị đã gỡ bỏ";
     const dateStr = new Date(b.booking_date).toLocaleDateString("vi-VN");
 
     div.innerHTML = `
           <div>
               <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 8px;">
-                  <span class="tag" style="background: var(--p-light); color: var(--p);">${deviceName}</span>
-                  <span style="font-size: 13px; font-weight: bold; color: ${isPast ? "var(--text-muted)" : "#059669"};">${dateStr} | ${b.start_time.substring(0, 5)} - ${b.end_time.substring(0, 5)}</span>
+                  <span class="tag tag-lab">${deviceName}</span>
+                  <span style="font-size: 13px; font-weight: bold; color: ${isPast ? "var(--text-muted)" : "var(--success)"};">${dateStr} | ${b.start_time.substring(0, 5)} - ${b.end_time.substring(0, 5)}</span>
               </div>
               <h5 style="margin: 0 0 5px 0; font-size: 15px; color: var(--text-main);"><i class="ph ph-user" style="color: var(--text-muted); margin-right: 5px;"></i>${b.user_name}</h5>
               <p style="margin: 0; font-size: 13px; color: var(--text-muted);"><strong style="text-transform: uppercase; font-size: 11px;">Mục đích:</strong> ${b.purpose}</p>
           </div>
-          <button onclick="cancelBooking('${b.id}')" class="btn-outline" style="color: #ef4444; border-color: #fecaca; padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: bold;">
+          <button onclick="cancelBooking('${b.id}')" class="btn-outline" style="color: var(--danger); border-color: var(--danger-light); padding: 8px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: bold;">
               <i class="ph ph-x-circle" style="font-size: 16px;"></i> HỦY LỊCH
           </button>
       `;
@@ -497,7 +545,6 @@ window.cancelBooking = async (id) => {
   }
 };
 
-// ================= SỔ TAY NHẬT KÝ ===================
 window.loadLogs = async () => {
   const container = document.getElementById("logListContainer");
   container.innerHTML =
@@ -520,7 +567,7 @@ window.loadLogs = async () => {
       ? new Date(log.usage_date).toLocaleDateString("vi-VN")
       : "N/A";
     const timeStr = `${log.start_time ? log.start_time.substring(0, 5) : "--"} đến ${log.end_time ? log.end_time.substring(0, 5) : "--"}`;
-    div.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><strong style="color: var(--text-main); font-size: 14px;"><i class="ph ph-user" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> ${log.user_name || "Học viên"}</strong><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><i class="ph ph-clock" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> Thời gian: ${dateStr} (${timeStr})</div></div></div><div style="font-size: 13px; color: #374151; margin-top: 10px; background: #f9fafb; padding: 12px; border-radius: 6px; border: 1px solid #f3f4f6;"><span style="font-weight: 700; color: #6b7280; font-size: 11px; text-transform: uppercase; margin-right: 5px;">Nội dung: </span> ${log.purpose || "Không có ghi chú bổ sung"}</div>`;
+    div.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: flex-start;"><div><strong style="color: var(--text-main); font-size: 14px;"><i class="ph ph-user" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> ${log.user_name || "Học viên"}</strong><div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><i class="ph ph-clock" style="color: #9ca3af; margin-right: 4px; vertical-align: middle;"></i> Thời gian: ${dateStr} (${timeStr})</div></div></div><div style="font-size: 13px; color: var(--text-muted); margin-top: 10px; background: var(--bg-body); padding: 12px; border-radius: 6px; border: 1px solid var(--border-color);"><span style="font-weight: 700; color: #6b7280; font-size: 11px; text-transform: uppercase; margin-right: 5px;">Nội dung: </span> ${log.purpose || "Không có ghi chú bổ sung"}</div>`;
     container.appendChild(div);
   });
 };
@@ -534,20 +581,18 @@ document.getElementById("btnSubmitLog").onclick = async () => {
     return toast("Vui lòng hoàn thiện biểu mẫu!");
   const btn = document.getElementById("btnSubmitLog");
   btn.disabled = true;
-  btn.innerText = "ĐANG LƯU DỮ LIỆU...";
-  const { error } = await supabase
-    .from("device_logs")
-    .insert([
-      {
-        device_id: selectedDevice.id,
-        user_id: currentProfile.id,
-        user_name: currentProfile.full_name,
-        usage_date: date,
-        start_time: start,
-        end_time: end,
-        purpose: purpose,
-      },
-    ]);
+  btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG LƯU...';
+  const { error } = await supabase.from("device_logs").insert([
+    {
+      device_id: selectedDevice.id,
+      user_id: currentProfile.id,
+      user_name: currentProfile.full_name,
+      usage_date: date,
+      start_time: start,
+      end_time: end,
+      purpose: purpose,
+    },
+  ]);
   btn.disabled = false;
   btn.innerText = "GHI SỔ TAY";
   if (error) toast(error.message);
@@ -574,7 +619,9 @@ document.getElementById("btnViewSOP").onclick = () => {
     const step = i + 1,
       div = document.createElement("div");
     div.className = "sop-step";
-    div.innerHTML = `<div class="sop-step-num">${step}</div><div style="flex:1;"><b style="font-size: 15px;">Thao tác ${step}</b><p style="margin-top: 6px; line-height: 1.6; color: #374151;">${cleanStepLine(t)}</p></div><img src="https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safeName}/step_${step}.jpg?t=${Date.now()}" class="sop-step-img" onerror="this.style.display='none'"/>`;
+    div.style =
+      "margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);";
+    div.innerHTML = `<div style="font-weight: 800; color: var(--primary); font-size: 14px; text-transform: uppercase; margin-bottom: 8px;">BƯỚC ${step}</div><p style="margin-bottom: 15px; line-height: 1.6; color: var(--text-main); font-size: 15px;">${cleanStepLine(t)}</p><img src="https://iddadoxyxtgutjhaxloc.supabase.co/storage/v1/object/public/device-photos/${safeName}/step_${step}.jpg?t=${Date.now()}" style="max-width: 100%; border-radius: 8px; cursor: zoom-in; box-shadow: var(--shadow-sm);" onerror="this.style.display='none'"/>`;
     content.appendChild(div);
   });
 };
@@ -596,7 +643,9 @@ window.loadNotifications = async () => {
   data.forEach((n) => {
     const div = document.createElement("div");
     div.className = "noti-item";
-    div.innerHTML = `<div style="font-weight: 700; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">${n.title}</div><div style="font-size: 12px; color: #4b5563; line-height: 1.4;">${n.message}</div><div style="font-size: 10px; color: #9ca3af; margin-top: 6px;"><i class="ph ph-clock"></i> ${new Date(n.created_at).toLocaleDateString("vi-VN")}</div>`;
+    div.style =
+      "padding: 12px 20px; border-bottom: 1px solid var(--border-color);";
+    div.innerHTML = `<div style="font-weight: 700; color: var(--text-main); font-size: 13px; margin-bottom: 4px;">${n.title}</div><div style="font-size: 12px; color: var(--text-muted); line-height: 1.4;">${n.message}</div><div style="font-size: 10px; color: #9ca3af; margin-top: 6px;"><i class="ph ph-clock"></i> ${new Date(n.created_at).toLocaleDateString("vi-VN")}</div>`;
     container.appendChild(div);
   });
 };
@@ -607,17 +656,15 @@ document.getElementById("btnSubmitFeedback").onclick = async () => {
   if (!content.trim()) return toast("Vui lòng nhập nội dung chi tiết!");
   const btn = document.getElementById("btnSubmitFeedback");
   btn.disabled = true;
-  btn.innerText = "ĐANG GỬI...";
-  const { error } = await supabase
-    .from("feedbacks")
-    .insert([
-      {
-        user_id: currentProfile.id,
-        user_name: currentProfile.full_name,
-        subject: subject,
-        content: content,
-      },
-    ]);
+  btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG GỬI...';
+  const { error } = await supabase.from("feedbacks").insert([
+    {
+      user_id: currentProfile.id,
+      user_name: currentProfile.full_name,
+      subject: subject,
+      content: content,
+    },
+  ]);
   btn.disabled = false;
   btn.innerHTML =
     '<i class="ph ph-paper-plane-right" style="margin-right: 6px;"></i> GỬI PHẢN HỒI';
@@ -639,12 +686,12 @@ window.loadAdminFeedbacks = async () => {
     .order("created_at", { ascending: false });
   if (error || !data || data.length === 0)
     return (container.innerHTML =
-      "<div style='padding: 40px; text-align: center; background: white; border: 1px solid var(--border-color); border-radius: var(--radius); color: var(--text-muted);'><i class='ph ph-check-circle' style='font-size: 30px; color: #10b981; margin-bottom: 10px; display: block;'></i> Hòm thư hiện tại không có tin nhắn mới.</div>");
+      "<div style='padding: 40px; text-align: center; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-lg); color: var(--text-muted);'><i class='ph ph-check-circle' style='font-size: 30px; color: var(--success); margin-bottom: 10px; display: block;'></i> Hòm thư hiện tại không có tin nhắn mới.</div>");
   container.innerHTML = "";
   data.forEach((fb) => {
     const div = document.createElement("div");
     div.className = "feedback-card";
-    div.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f3f4f6; padding-bottom: 10px; margin-bottom: 5px;"><div><span class="tag" style="background: var(--p-light); color: var(--p); margin-bottom: 8px; display: inline-block;">${fb.subject}</span><strong style="display: block; color: var(--text-main); font-size: 15px;">${fb.user_name}</strong></div><div style="font-size: 12px; color: var(--text-muted);"><i class="ph ph-clock"></i> ${new Date(fb.created_at).toLocaleString("vi-VN")}</div></div><p style="margin: 0; font-size: 14px; color: #4b5563; line-height: 1.6; white-space: pre-wrap;">${fb.content}</p>`;
+    div.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 5px;"><div><span class="tag tag-normal" style="margin-bottom: 8px;">${fb.subject}</span><strong style="display: block; color: var(--text-main); font-size: 15px;">${fb.user_name}</strong></div><div style="font-size: 12px; color: var(--text-muted);"><i class="ph ph-clock"></i> ${new Date(fb.created_at).toLocaleString("vi-VN")}</div></div><p style="margin: 0; font-size: 14px; color: var(--text-muted); line-height: 1.6; white-space: pre-wrap; margin-top: 10px;">${fb.content}</p>`;
     container.appendChild(div);
   });
 };
@@ -655,7 +702,7 @@ document.getElementById("btnBroadcastNoti").onclick = async () => {
   if (!title || !msg) return toast("Vui lòng điền đủ Tiêu đề và Nội dung!");
   const btn = document.getElementById("btnBroadcastNoti");
   btn.disabled = true;
-  btn.innerText = "ĐANG PHÁT...";
+  btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG PHÁT...';
   const { error } = await supabase
     .from("notifications")
     .insert([{ title: title, message: msg }]);
@@ -701,7 +748,7 @@ window.filterUsers = () => {
       const isMe = u.id === currentProfile.id,
         div = document.createElement("div");
       div.className = "user-card";
-      div.innerHTML = `<div style="display: flex; gap:15px; align-items:center; justify-content: space-between;"><div style="display: flex; gap:15px; align-items:center;"><div class="user-avatar">${u.full_name.trim().charAt(0).toUpperCase()}</div><div><b style="font-size: 15px; color: var(--text-main);">${u.full_name}</b><br/><small style="color:var(--text-muted); font-family: monospace;">ID: ${u.id.substring(0, 8)}</small></div></div>${!isMe ? `<button onclick="deleteUserProfile('${u.id}')" title="Xóa người dùng" style="background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer;"><i class="ph ph-trash" style="font-size: 16px;"></i></button>` : ""}</div><div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;"><label style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Cấp quyền hệ thống</label><select onchange="updateRole('${u.id}', this.value)" ${isMe ? "disabled" : ""} style="margin: 5px 0 0 0; background: #f9fafb;"><option value="student" ${u.role === "student" ? "selected" : ""}>Sinh viên</option><option value="instructor" ${u.role === "instructor" ? "selected" : ""}>Phụ trách Lab</option><option value="admin" ${u.role === "admin" ? "selected" : ""}>Quản trị viên</option></select></div>`;
+      div.innerHTML = `<div style="display: flex; gap:15px; align-items:center; justify-content: space-between;"><div style="display: flex; gap:15px; align-items:center;"><div class="user-avatar">${u.full_name.trim().charAt(0).toUpperCase()}</div><div><b style="font-size: 15px; color: var(--text-main);">${u.full_name}</b><br/><small style="color:var(--text-muted); font-family: monospace;">ID: ${u.id.substring(0, 8)}</small></div></div>${!isMe ? `<button onclick="deleteUserProfile('${u.id}')" title="Xóa người dùng" class="btn-outline" style="color: var(--danger); border-color: var(--danger-light); padding: 8px 12px; border-radius: 6px;"><i class="ph ph-trash" style="font-size: 16px;"></i></button>` : ""}</div><div style="border-top: 1px solid var(--border-color); padding-top: 15px; margin-top: 15px;"><label style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Cấp quyền hệ thống</label><select onchange="updateRole('${u.id}', this.value)" ${isMe ? "disabled" : ""} style="margin: 5px 0 0 0; background: var(--bg-body);"><option value="student" ${u.role === "student" ? "selected" : ""}>Sinh viên</option><option value="instructor" ${u.role === "instructor" ? "selected" : ""}>Phụ trách Lab</option><option value="admin" ${u.role === "admin" ? "selected" : ""}>Quản trị viên</option></select></div>`;
       container.appendChild(div);
     });
 };
@@ -740,19 +787,18 @@ document.getElementById("btnSubmitAdd").onclick = async () => {
     steps = document.getElementById("addSteps").value;
   if (!name) return toast("Vui lòng nhập tên thiết bị.");
   document.getElementById("btnSubmitAdd").disabled = true;
-  document.getElementById("btnSubmitAdd").innerText = "ĐANG TẢI LÊN...";
-  await supabase
-    .from("devices")
-    .insert([
-      {
-        name,
-        cat,
-        status: "normal",
-        description: document.getElementById("addDesc").value,
-        steps,
-        created_by: currentProfile.id,
-      },
-    ]);
+  document.getElementById("btnSubmitAdd").innerHTML =
+    '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG TẢI LÊN...';
+  await supabase.from("devices").insert([
+    {
+      name,
+      cat,
+      status: "normal",
+      description: document.getElementById("addDesc").value,
+      steps,
+      created_by: currentProfile.id,
+    },
+  ]);
   const mainF = document.getElementById("addImgFile").files[0];
   if (mainF)
     await supabase.storage
@@ -769,7 +815,8 @@ document.getElementById("btnSubmitAdd").onclick = async () => {
 
 document.getElementById("btnSaveUpdate").onclick = async () => {
   document.getElementById("btnSaveUpdate").disabled = true;
-  document.getElementById("btnSaveUpdate").innerText = "ĐANG XỬ LÝ...";
+  document.getElementById("btnSaveUpdate").innerHTML =
+    '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG XỬ LÝ...';
   const newSteps = document.getElementById("insStepsInput").value;
   const catInput = document.getElementById("insCat");
   const updateData = {
@@ -806,7 +853,7 @@ if (document.getElementById("btnDeleteMainImg")) {
     if (confirm("Gỡ bỏ ảnh đại diện này?")) {
       const btn = document.getElementById("btnDeleteMainImg");
       btn.disabled = true;
-      btn.innerText = "ĐANG XÓA...";
+      btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG XÓA...';
       const { error } = await supabase.storage
         .from("device-photos")
         .remove([`${toSafe(selectedDevice.name)}.jpg`]);
@@ -851,7 +898,7 @@ document.getElementById("btnSignIn").onclick = async () => {
   if (!emailVal || !passVal) return toast("Vui lòng nhập Email và Mật khẩu!");
   const btn = document.getElementById("btnSignIn");
   const originalText = btn.innerHTML;
-  btn.innerHTML = "ĐANG XỬ LÝ...";
+  btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG XỬ LÝ...';
   btn.disabled = true;
   const { error } = await supabase.auth.signInWithPassword({
     email: emailVal,
@@ -874,7 +921,7 @@ document.getElementById("btnSignUp").onclick = async () => {
   if (!emailVal || !passVal || !nameVal)
     return toast("Vui lòng điền đầy đủ thông tin!");
   const btn = document.getElementById("btnSignUp");
-  btn.innerText = "ĐANG KIẾN TẠO...";
+  btn.innerHTML = '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG KIẾN TẠO...';
   btn.disabled = true;
   const { data, error } = await supabase.auth.signUp({
     email: emailVal,
@@ -985,3 +1032,62 @@ window.nav = (id) => {
     document.getElementById(id).classList.remove("hidden");
   } else document.getElementById(id).classList.remove("hidden");
 };
+
+// ================= LIGHTBOX (PHÓNG TO ẢNH TOÀN CỤC) ===================
+document.addEventListener("click", function (e) {
+  if (e.target.tagName === "IMG") {
+    // Không phóng to ảnh logo, qr code hoặc ảnh bìa của thẻ thiết bị
+    if (
+      e.target.classList.contains("logo") ||
+      e.target.id === "qrCodeImg" ||
+      e.target.classList.contains("device-card-img")
+    )
+      return;
+
+    const lightbox = document.getElementById("imageLightbox");
+    const lightboxImg = document.getElementById("lightboxImg");
+
+    if (lightbox && lightboxImg) {
+      lightboxImg.src = e.target.src;
+      lightbox.classList.remove("hidden");
+    }
+  }
+});
+
+const lb = document.getElementById("imageLightbox");
+if (lb) {
+  lb.addEventListener("click", function (e) {
+    if (e.target.id === "imageLightbox") {
+      this.classList.add("hidden");
+    }
+  });
+}
+
+// ================= ĐIỀU KHIỂN MENU TRÊN ĐIỆN THOẠI ===================
+const mobileMenuBtnEl = document.getElementById("mobileMenuBtn");
+const sidebarEl = document.querySelector(".sidebar");
+const contentAreaEl = document.querySelector(".content-area");
+
+if (mobileMenuBtnEl && sidebarEl) {
+  // Bấm nút để trượt Sidebar ra
+  mobileMenuBtnEl.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sidebarEl.classList.toggle("show-mobile");
+  });
+
+  // Bấm ra vùng nội dung sẽ tự động đóng Sidebar
+  contentAreaEl.addEventListener("click", () => {
+    if (window.innerWidth <= 768) {
+      sidebarEl.classList.remove("show-mobile");
+    }
+  });
+
+  // Bấm chọn một bộ môn xong cũng tự động đóng Sidebar
+  document.querySelectorAll(".nav-btn[data-cat]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (window.innerWidth <= 768) {
+        sidebarEl.classList.remove("show-mobile");
+      }
+    });
+  });
+}

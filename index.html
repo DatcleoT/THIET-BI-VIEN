@@ -1,61 +1,121 @@
 <!doctype html>
 <html lang="vi">
   <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hệ thống SEP HUST - Quản lý Thiết bị</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div id="toast-container"></div>
 
+    <div
+      id="imageLightbox"
+      class="modal-overlay hidden"
+      style="
+        z-index: 100150;
+        flex-direction: column;
+        padding: 20px;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(8px);
+      "
+    >
+      <button
+        class="btn-close-modal"
+        onclick="
+          document.getElementById('imageLightbox').classList.add('hidden')
+        "
+        style="
+          position: absolute;
+          top: 25px;
+          right: 25px;
+          background: white;
+          z-index: 2;
+          width: 44px;
+          height: 44px;
+        "
+      >
+        <i class="ph ph-x" style="font-size: 24px; color: var(--text-main)"></i>
+      </button>
+      <img
+        id="lightboxImg"
+        src=""
+        style="
+          max-width: 100%;
+          max-height: 90vh;
+          object-fit: contain;
+          border-radius: 12px;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+          cursor: zoom-out;
+        "
+      />
+    </div>
+
     <div id="changePassModal" class="modal-overlay hidden">
       <div
         class="modal-content"
         style="
-          width: 400px;
+          width: 440px;
           max-width: 90vw;
           height: auto;
-          padding: 35px;
+          padding: 40px;
           display: block;
+          border-radius: var(--radius-lg);
         "
       >
-        <h2 style="margin-top: 0; font-size: 20px; font-weight: 800">
+        <h2
+          style="
+            margin-top: 0;
+            margin-bottom: 25px;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+          "
+        >
           Thiết lập mật khẩu mới
         </h2>
+        <label>Mật khẩu mới (Tối thiểu 6 ký tự)</label>
         <input
           type="password"
           id="sysNewPass"
-          placeholder="Mật khẩu mới (6+ ký tự)"
+          placeholder="Nhập mật khẩu mới..."
         />
+
+        <label>Xác nhận lại mật khẩu</label>
         <input
           type="password"
           id="sysConfirmPass"
-          placeholder="Xác nhận mật khẩu"
+          placeholder="Nhập lại mật khẩu..."
         />
-        <button
-          id="btnSubmitSysPass"
-          class="btn"
-          style="width: 100%; margin-bottom: 10px"
-        >
-          CẬP NHẬT MẬT KHẨU
-        </button>
-        <button
-          class="btn btn-outline"
-          onclick="
-            document.getElementById('changePassModal').classList.add('hidden')
-          "
-          style="width: 100%"
-        >
-          HỦY BỎ
-        </button>
+
+        <div style="display: flex; gap: 15px; margin-top: 15px">
+          <button
+            class="btn btn-outline"
+            onclick="
+              document.getElementById('changePassModal').classList.add('hidden')
+            "
+            style="flex: 1"
+          >
+            HỦY BỎ
+          </button>
+          <button id="btnSubmitSysPass" class="btn" style="flex: 1">
+            CẬP NHẬT
+          </button>
+        </div>
       </div>
     </div>
 
@@ -63,10 +123,10 @@
       <div
         class="modal-content"
         style="
-          width: 500px;
+          width: 550px;
           max-width: 90vw;
           height: auto;
-          padding: 35px;
+          padding: 40px;
           display: block;
         "
       >
@@ -81,77 +141,97 @@
         <h2
           style="
             margin-top: 0;
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 800;
-            color: var(--text-main);
+            color: var(--primary);
           "
         >
           <i
             class="ph ph-chat-teardrop-text"
-            style="color: var(--p); margin-right: 8px"
-          ></i
-          >Gửi Góp ý & Báo lỗi
+            style="margin-right: 8px; vertical-align: bottom"
+          ></i>
+          Gửi Góp ý & Báo lỗi
         </h2>
         <p
-          style="font-size: 14px; color: var(--text-muted); margin-bottom: 25px"
+          style="
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            line-height: 1.5;
+          "
         >
-          Mọi ý kiến đóng góp của bạn sẽ được gửi trực tiếp đến Ban quản trị hệ
-          thống để xem xét và cải thiện.
+          Mọi ý kiến đóng góp hoặc báo cáo sự cố máy móc của bạn sẽ được gửi
+          trực tiếp đến Ban quản trị hệ thống để xem xét và xử lý kịp thời.
         </p>
-        <label>Chủ đề</label>
+
+        <label>Chủ đề phản hồi</label>
         <select id="fbSubject">
-          <option value="Báo lỗi phần mềm">Báo lỗi phần mềm / Chức năng</option>
+          <option value="Báo lỗi phần mềm">
+            Báo lỗi phần mềm / Chức năng Web
+          </option>
           <option value="Đề xuất cải tiến">Đề xuất tính năng mới</option>
           <option value="Báo cáo thiết bị hỏng">
             Báo cáo thiết bị thực tế bị hỏng
           </option>
           <option value="Khác">Vấn đề khác</option>
         </select>
+
         <label>Nội dung chi tiết</label>
         <textarea
           id="fbContent"
-          rows="5"
+          rows="6"
           placeholder="Mô tả chi tiết vấn đề bạn gặp phải hoặc ý kiến đóng góp..."
         ></textarea>
+
         <button
           id="btnSubmitFeedback"
           class="btn"
-          style="width: 100%; margin-top: 15px"
+          style="width: 100%; margin-top: 10px"
         >
-          <i class="ph ph-paper-plane-right" style="margin-right: 6px"></i> GỬI
-          PHẢN HỒI
+          <i
+            class="ph ph-paper-plane-right"
+            style="margin-right: 6px; font-size: 18px"
+          ></i>
+          GỬI PHẢN HỒI
         </button>
       </div>
     </div>
 
     <div id="detailModal" class="modal-overlay hidden">
-      <div class="modal-content" style="flex-direction: column">
+      <div
+        class="modal-content"
+        style="flex-direction: column; max-width: 1000px"
+      >
         <button class="btn-close-modal" onclick="closeModal()">
           <i class="ph ph-x"></i>
         </button>
 
-        <div class="modal-header-info" style="padding: 30px 35px 0">
+        <div style="padding: 35px 40px 0">
           <div
             style="
               display: flex;
               gap: 10px;
               align-items: center;
-              margin-bottom: 12px;
+              margin-bottom: 15px;
             "
           >
-            <span id="mTag" class="tag"></span>
-            <span
-              id="mStatusBadge"
-              class="tag"
-              style="background: white; border: 1px solid var(--border-color)"
-            ></span>
+            <span id="mStatusBadge" class="tag"></span>
           </div>
-          <h2 id="mTitle" style="margin: 0; font-size: 24px; font-weight: 800">
+          <h2
+            id="mTitle"
+            style="
+              margin: 0;
+              font-size: 26px;
+              font-weight: 800;
+              color: var(--text-main);
+              letter-spacing: -0.5px;
+            "
+          >
             Tên thiết bị
           </h2>
         </div>
 
-        <div class="mini-tabs" style="padding: 0 35px">
+        <div class="mini-tabs" style="margin-top: 25px">
           <button
             class="mini-tab-btn active"
             id="btnTabInfo"
@@ -161,7 +241,7 @@
               class="ph ph-info"
               style="
                 margin-right: 6px;
-                font-size: 16px;
+                font-size: 18px;
                 vertical-align: text-bottom;
               "
             ></i>
@@ -176,7 +256,7 @@
               class="ph ph-calendar-plus"
               style="
                 margin-right: 6px;
-                font-size: 16px;
+                font-size: 18px;
                 vertical-align: text-bottom;
               "
             ></i>
@@ -191,7 +271,7 @@
               class="ph ph-notebook"
               style="
                 margin-right: 6px;
-                font-size: 16px;
+                font-size: 18px;
                 vertical-align: text-bottom;
               "
             ></i>
@@ -206,7 +286,7 @@
               class="ph ph-sliders-horizontal"
               style="
                 margin-right: 6px;
-                font-size: 16px;
+                font-size: 18px;
                 vertical-align: text-bottom;
               "
             ></i>
@@ -214,99 +294,136 @@
           </button>
         </div>
 
-        <div style="flex: 1; overflow-y: auto; padding: 25px 35px 35px">
-          <div id="mTabInfo" class="modal-tab-content">
+        <div style="flex: 1; overflow-y: auto; padding: 30px 40px 40px">
+          <div id="mTabInfo" class="modal-tab-content" style="padding: 0">
             <div style="display: flex; gap: 40px; flex-wrap: wrap">
-              <div style="flex: 1; min-width: 300px">
+              <div style="flex: 1; min-width: 320px">
                 <img
                   id="mImage"
                   src=""
                   alt="Thiết bị"
                   style="
                     width: 100%;
-                    height: 320px;
+                    height: 350px;
                     object-fit: cover;
-                    border-radius: 8px;
+                    border-radius: var(--radius-md);
                     border: 1px solid var(--border-color);
+                    cursor: zoom-in;
+                    box-shadow: var(--shadow-sm);
                   "
                 />
                 <div
                   id="mStepGallery"
                   style="
                     display: flex;
-                    gap: 10px;
-                    margin-top: 15px;
+                    gap: 12px;
+                    margin-top: 20px;
                     overflow-x: auto;
                     padding-bottom: 10px;
                   "
                 ></div>
               </div>
-              <div style="flex: 1; min-width: 320px">
-                <h4 class="section-title">Mô tả kỹ thuật</h4>
+
+              <div style="flex: 1; min-width: 340px">
+                <h4
+                  style="
+                    margin: 0 0 15px 0;
+                    font-size: 16px;
+                    color: var(--text-main);
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                  "
+                >
+                  Mô tả kỹ thuật / Nguyên lý
+                </h4>
                 <div
                   id="mDesc"
-                  class="content-text"
-                  style="margin-bottom: 35px"
+                  style="
+                    margin-bottom: 35px;
+                    color: var(--text-muted);
+                    line-height: 1.7;
+                    font-size: 14px;
+                  "
                 ></div>
 
-                <h4 class="section-title">Quy trình vận hành</h4>
+                <h4
+                  style="
+                    margin: 0 0 20px 0;
+                    font-size: 16px;
+                    color: var(--text-main);
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                  "
+                >
+                  Quy trình vận hành tóm tắt
+                </h4>
                 <div id="mStepsContainer"></div>
 
                 <button
                   id="btnViewSOP"
                   class="btn btn-outline"
-                  style="margin-top: 35px; width: 100%; padding: 14px"
+                  style="margin-top: 35px; width: 100%; padding: 16px"
                 >
                   <i
                     class="ph ph-book-open-text"
                     style="
                       margin-right: 8px;
-                      font-size: 18px;
+                      font-size: 20px;
                       vertical-align: middle;
                     "
                   ></i>
-                  MỞ CẨM NANG VẬN HÀNH
+                  MỞ CẨM NANG VẬN HÀNH CHI TIẾT
                 </button>
 
                 <div
                   style="
-                    margin-top: 30px;
+                    margin-top: 35px;
                     text-align: center;
-                    padding: 20px;
-                    background: #f9fafb;
-                    border-radius: 8px;
-                    border: 1px dashed var(--border-color);
+                    padding: 25px;
+                    background: var(--bg-body);
+                    border-radius: var(--radius-md);
+                    border: 1px dashed #cbd5e1;
                   "
                 >
                   <p
                     style="
                       font-size: 12px;
-                      color: var(--text-muted);
-                      font-weight: 700;
+                      color: var(--primary);
+                      font-weight: 800;
                       text-transform: uppercase;
-                      letter-spacing: 1px;
+                      letter-spacing: 1.5px;
                       margin: 0 0 15px 0;
                     "
                   >
                     <i
                       class="ph ph-qr-code"
-                      style="font-size: 16px; vertical-align: text-bottom"
+                      style="
+                        font-size: 18px;
+                        vertical-align: bottom;
+                        margin-right: 4px;
+                      "
                     ></i>
-                    Mã QR Nhận Diện
+                    MÃ QR ĐỊNH DANH
                   </p>
                   <img
                     id="qrCodeImg"
                     src=""
                     alt="QR Code"
                     style="
-                      width: 120px;
-                      height: 120px;
-                      border-radius: 8px;
-                      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                      width: 140px;
+                      height: 140px;
+                      border-radius: var(--radius-sm);
+                      box-shadow: var(--shadow-md);
+                      border: 4px solid white;
                     "
                   />
                   <p
-                    style="font-size: 12px; color: #6b7280; margin: 10px 0 0 0"
+                    style="
+                      font-size: 13px;
+                      color: var(--text-muted);
+                      margin: 15px 0 0 0;
+                      font-weight: 500;
+                    "
                   >
                     Quét để truy cập nhanh máy này
                   </p>
@@ -315,35 +432,48 @@
             </div>
           </div>
 
-          <div id="mTabBooking" class="modal-tab-content hidden">
-            <div class="log-form-container">
+          <div
+            id="mTabBooking"
+            class="modal-tab-content hidden"
+            style="padding: 0"
+          >
+            <div
+              style="
+                background: var(--bg-body);
+                padding: 30px;
+                border-radius: var(--radius-md);
+                border: 1px solid var(--border-color);
+              "
+            >
               <h4
                 style="
-                  margin: 0 0 15px 0;
-                  font-size: 14px;
+                  margin: 0 0 20px 0;
+                  font-size: 15px;
                   text-transform: uppercase;
-                  color: var(--text-muted);
+                  color: var(--primary);
+                  font-weight: 800;
+                  letter-spacing: 0.5px;
                 "
               >
                 <i
                   class="ph ph-calendar-plus"
                   style="
-                    margin-right: 6px;
-                    font-size: 16px;
-                    vertical-align: text-bottom;
+                    margin-right: 8px;
+                    font-size: 18px;
+                    vertical-align: bottom;
                   "
                 ></i>
-                Đăng ký khung giờ
+                Đăng ký giữ chỗ
               </h4>
               <div
                 style="
                   display: grid;
-                  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                  gap: 15px;
+                  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                  gap: 20px;
                 "
               >
                 <div>
-                  <label>Ngày dùng</label><input type="date" id="bookDate" />
+                  <label>Ngày sử dụng</label><input type="date" id="bookDate" />
                 </div>
                 <div>
                   <label>Từ giờ</label><input type="time" id="bookStart" />
@@ -352,60 +482,78 @@
                   <label>Đến giờ</label><input type="time" id="bookEnd" />
                 </div>
               </div>
-              <label>Mục đích sử dụng (Đồ án / Luận văn / Đề tài...)</label>
+              <label>Mục đích nghiên cứu (Đồ án / Luận văn / Đề tài...)</label>
               <input
                 type="text"
                 id="bookPurpose"
                 placeholder="Ví dụ: Đo nhiễu xạ XRD cho mẫu màng mỏng ZnO..."
-                style="margin-bottom: 15px"
+                style="margin-bottom: 20px"
               />
               <button id="btnSubmitBooking" class="btn" style="width: 100%">
                 XÁC NHẬN ĐẶT LỊCH
               </button>
             </div>
+
             <h4
               style="
-                margin: 35px 0 15px 0;
-                border-bottom: 1px solid var(--border-color);
-                padding-bottom: 10px;
-                font-size: 14px;
+                margin: 40px 0 20px 0;
+                border-bottom: 2px solid var(--border-color);
+                padding-bottom: 15px;
+                font-size: 15px;
                 text-transform: uppercase;
-                color: var(--text-muted);
+                color: var(--text-main);
+                font-weight: 800;
+                letter-spacing: 0.5px;
               "
             >
-              Danh sách đã đăng ký sắp tới
+              Danh sách đăng ký sắp tới
             </h4>
-            <div id="bookingListContainer"></div>
+            <div
+              id="bookingListContainer"
+              style="display: flex; flex-direction: column; gap: 15px"
+            ></div>
           </div>
 
-          <div id="mTabLog" class="modal-tab-content hidden">
-            <div class="log-form-container">
+          <div id="mTabLog" class="modal-tab-content hidden" style="padding: 0">
+            <div
+              style="
+                background: var(--bg-body);
+                padding: 30px;
+                border-radius: var(--radius-md);
+                border: 1px solid var(--border-color);
+              "
+            >
               <h4
                 style="
-                  margin: 0 0 15px 0;
-                  font-size: 14px;
+                  margin: 0 0 20px 0;
+                  font-size: 15px;
                   text-transform: uppercase;
-                  color: var(--text-muted);
+                  color: var(--primary);
+                  font-weight: 800;
+                  letter-spacing: 0.5px;
                 "
               >
                 <i
                   class="ph ph-pencil-simple-line"
                   style="
-                    margin-right: 6px;
-                    font-size: 16px;
-                    vertical-align: text-bottom;
+                    margin-right: 8px;
+                    font-size: 18px;
+                    vertical-align: bottom;
                   "
                 ></i>
-                Thêm lượt sử dụng mới
+                Ghi chép sổ tay mới
               </h4>
               <div
                 style="
                   display: grid;
-                  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                  gap: 15px;
+                  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+                  gap: 20px;
                 "
               >
-                <div><label>Ngày</label><input type="date" id="logDate" /></div>
+                <div>
+                  <label>Ngày thực hiện</label
+                  ><input type="date" id="logDate" />
+                </div>
                 <div>
                   <label>Từ giờ</label><input type="time" id="logStart" />
                 </div>
@@ -413,38 +561,48 @@
                   <label>Đến giờ</label><input type="time" id="logEnd" />
                 </div>
               </div>
-              <label>Mục đích nghiên cứu / Ghi chú sự cố</label>
+              <label>Nội dung thực hiện / Ghi chú sự cố (nếu có)</label>
               <input
                 type="text"
                 id="logPurpose"
-                placeholder="Nhập nội dung thực hiện..."
-                style="margin-bottom: 15px"
+                placeholder="Nhập nội dung chi tiết công việc đã thực hiện..."
+                style="margin-bottom: 20px"
               />
               <button id="btnSubmitLog" class="btn" style="width: 100%">
-                GHI SỔ TAY
+                LƯU VÀO SỔ TAY
               </button>
             </div>
+
             <h4
               style="
-                margin: 35px 0 15px 0;
-                border-bottom: 1px solid var(--border-color);
-                padding-bottom: 10px;
-                font-size: 14px;
+                margin: 40px 0 20px 0;
+                border-bottom: 2px solid var(--border-color);
+                padding-bottom: 15px;
+                font-size: 15px;
                 text-transform: uppercase;
-                color: var(--text-muted);
+                color: var(--text-main);
+                font-weight: 800;
+                letter-spacing: 0.5px;
               "
             >
-              Lịch sử hoạt động
+              Lịch sử hoạt động gần đây
             </h4>
-            <div id="logListContainer"></div>
+            <div
+              id="logListContainer"
+              style="display: flex; flex-direction: column; gap: 15px"
+            ></div>
           </div>
 
-          <div id="mTabEdit" class="modal-tab-content hidden">
+          <div
+            id="mTabEdit"
+            class="modal-tab-content hidden"
+            style="padding: 0"
+          >
             <div
               style="
-                background: #ffffff;
-                padding: 30px;
-                border-radius: 8px;
+                background: var(--bg-body);
+                padding: 35px;
+                border-radius: var(--radius-md);
                 border: 1px solid var(--border-color);
               "
             >
@@ -453,19 +611,44 @@
                   display: flex;
                   justify-content: space-between;
                   align-items: center;
-                  margin-bottom: 25px;
+                  margin-bottom: 30px;
                 "
               >
-                <h4 style="margin: 0; color: var(--text-main); font-size: 16px">
-                  CHỈNH SỬA THÔNG SỐ THIẾT BỊ
+                <h4
+                  style="
+                    margin: 0;
+                    color: var(--primary);
+                    font-size: 18px;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                  "
+                >
+                  <i
+                    class="ph ph-sliders-horizontal"
+                    style="margin-right: 8px; vertical-align: bottom"
+                  ></i>
+                  THÔNG SỐ HỆ THỐNG
                 </h4>
                 <button
                   id="btnDeleteDevice"
-                  class="btn btn-danger"
-                  style="padding: 10px 20px"
+                  class="btn-outline"
+                  style="
+                    color: var(--danger);
+                    border-color: var(--danger-light);
+                    padding: 10px 20px;
+                    font-weight: 700;
+                    background: white;
+                  "
                 >
-                  <i class="ph ph-trash" style="margin-right: 6px"></i> XÓA
-                  THIẾT BỊ
+                  <i
+                    class="ph ph-trash"
+                    style="
+                      margin-right: 6px;
+                      font-size: 18px;
+                      vertical-align: text-bottom;
+                    "
+                  ></i>
+                  XÓA THIẾT BỊ NÀY
                 </button>
               </div>
 
@@ -473,23 +656,30 @@
                 style="
                   display: grid;
                   grid-template-columns: 1fr 1fr;
-                  gap: 20px;
-                  margin-bottom: 15px;
+                  gap: 25px;
+                  margin-bottom: 20px;
                 "
               >
                 <div>
-                  <label>Trạng thái máy</label>
-                  <select id="insStatus">
-                    <option value="normal">Hoạt động tốt</option>
-                    <option value="maintenance">Đang bảo trì</option>
-                    <option value="broken">Báo lỗi sự cố</option>
+                  <label>Trạng thái máy hiện tại</label>
+                  <select id="insStatus" style="font-weight: 600">
+                    <option value="normal">🟢 Hoạt động tốt / Sẵn sàng</option>
+                    <option value="maintenance">
+                      🟡 Đang bảo trì / Kiểm định
+                    </option>
+                    <option value="broken">🔴 Đang báo lỗi sự cố</option>
                   </select>
                 </div>
                 <div>
-                  <label>Thuộc Bộ môn</label>
+                  <label>Đơn vị quản lý (Bộ môn)</label>
                   <select
                     id="insCat"
-                    style="border-color: var(--p); background-color: #f0fdf4"
+                    style="
+                      border-color: var(--primary);
+                      background-color: var(--primary-light);
+                      font-weight: 600;
+                      color: var(--primary);
+                    "
                   >
                     <option value="vat-ly-tu">Vật lý & Vật liệu từ</option>
                     <option value="quang-hoc">Quang học & Quang điện tử</option>
@@ -503,53 +693,114 @@
                 </div>
               </div>
 
-              <label>Mô tả thiết bị</label>
-              <textarea id="insInput" rows="4"></textarea>
-              <label>Quy trình vận hành</label>
-              <textarea id="insStepsInput" rows="4"></textarea>
+              <label>Mô tả kỹ thuật / Nguyên lý hoạt động</label>
+              <textarea id="insInput" rows="5"></textarea>
+
+              <label>Quy trình vận hành (Mỗi bước xuống dòng)</label>
+              <textarea
+                id="insStepsInput"
+                rows="6"
+                placeholder="Nhập văn bản, hệ thống sẽ tự động tạo ô tải ảnh bên dưới..."
+              ></textarea>
 
               <div
-                style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px"
+                style="
+                  display: grid;
+                  grid-template-columns: 1fr 1.5fr;
+                  gap: 25px;
+                  margin-top: 10px;
+                "
               >
-                <div class="upload-box">
-                  <label>Đổi ảnh đại diện</label>
+                <div class="upload-box" style="background: white">
+                  <label style="color: var(--text-main)"
+                    ><i
+                      class="ph ph-image"
+                      style="
+                        font-size: 16px;
+                        margin-right: 4px;
+                        vertical-align: text-bottom;
+                      "
+                    ></i>
+                    Ảnh đại diện thiết bị</label
+                  >
                   <input type="file" id="updateImgFile" accept="image/*" />
                   <button
                     id="btnDeleteMainImg"
-                    class="btn btn-outline"
+                    class="btn-outline"
                     style="
                       margin-top: 15px;
                       width: 100%;
-                      color: var(--a);
-                      border-color: #fecaca;
+                      color: var(--danger);
+                      border-color: var(--danger-light);
+                      padding: 10px;
                     "
                   >
                     <i
                       class="ph ph-trash"
-                      style="margin-right: 6px; vertical-align: middle"
+                      style="
+                        margin-right: 6px;
+                        font-size: 18px;
+                        vertical-align: text-bottom;
+                      "
                     ></i>
                     Gỡ ảnh hiện tại
                   </button>
                 </div>
-                <div class="upload-box">
-                  <label>Đổi ảnh từng bước</label>
-                  <div id="dynamicEditSteps"></div>
+                <div
+                  class="upload-box"
+                  style="background: white; text-align: left"
+                >
+                  <label
+                    style="
+                      color: var(--text-main);
+                      display: block;
+                      text-align: center;
+                      border-bottom: 1px solid var(--border-color);
+                      padding-bottom: 15px;
+                      margin-bottom: 15px;
+                    "
+                  >
+                    <i
+                      class="ph ph-images"
+                      style="
+                        font-size: 16px;
+                        margin-right: 4px;
+                        vertical-align: text-bottom;
+                      "
+                    ></i>
+                    Ảnh theo từng bước quy trình (SOP)
+                  </label>
+                  <div
+                    id="dynamicEditSteps"
+                    style="
+                      max-height: 250px;
+                      overflow-y: auto;
+                      padding-right: 10px;
+                    "
+                    class="custom-scrollbar"
+                  ></div>
                 </div>
               </div>
+
               <button
                 id="btnSaveUpdate"
                 class="btn"
-                style="width: 100%; margin-top: 25px"
+                style="
+                  width: 100%;
+                  margin-top: 35px;
+                  padding: 16px;
+                  font-size: 15px;
+                "
               >
                 <i
                   class="ph ph-floppy-disk"
                   style="
-                    margin-right: 6px;
-                    font-size: 16px;
+                    margin-right: 8px;
+                    font-size: 20px;
                     vertical-align: text-bottom;
                   "
                 ></i>
-                LƯU THAY ĐỔI
+                LƯU TOÀN BỘ THAY ĐỔI
               </button>
             </div>
           </div>
@@ -562,20 +813,19 @@
         class="modal-content"
         style="
           max-width: 900px;
-          height: 85vh;
+          height: 90vh;
           flex-direction: column;
           padding: 0;
-          background: #fff;
         "
       >
         <div
           style="
-            padding: 25px 40px;
+            padding: 30px 40px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #f9fafb;
+            background: var(--bg-surface);
             position: sticky;
             top: 0;
             z-index: 10;
@@ -585,22 +835,23 @@
             <div
               style="
                 font-size: 12px;
-                color: var(--text-muted);
-                font-weight: 700;
-                letter-spacing: 1px;
-                margin-bottom: 5px;
+                color: var(--primary);
+                font-weight: 800;
+                letter-spacing: 1.5px;
+                margin-bottom: 8px;
                 text-transform: uppercase;
               "
             >
-              Thông tin Cơ sở vật chất
+              Hồ sơ Cơ sở vật chất
             </div>
             <h2
               id="wTitle"
               style="
                 margin: 0;
-                font-size: 24px;
+                font-size: 26px;
                 font-weight: 800;
-                color: var(--p);
+                color: var(--text-main);
+                letter-spacing: -0.5px;
               "
             >
               Tên Phòng Thí Nghiệm
@@ -623,26 +874,37 @@
             src=""
             style="
               width: 100%;
-              height: 350px;
+              height: 400px;
               object-fit: cover;
-              border-radius: 8px;
-              margin-bottom: 35px;
+              border-radius: var(--radius-md);
+              margin-bottom: 40px;
               display: none;
-              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+              box-shadow: var(--shadow-md);
               border: 1px solid var(--border-color);
+              cursor: zoom-in;
             "
           />
+
           <h3
             style="
               color: var(--text-main);
               font-size: 18px;
-              margin-bottom: 15px;
-              border-bottom: 2px solid var(--p-light);
-              padding-bottom: 8px;
+              margin-bottom: 20px;
+              border-bottom: 2px solid var(--primary-light);
+              padding-bottom: 10px;
+              font-weight: 800;
             "
           >
-            <i class="ph ph-info" style="color: var(--p); margin-right: 8px"></i
-            >1. Thông tin chung
+            <i
+              class="ph ph-info"
+              style="
+                color: var(--primary);
+                margin-right: 10px;
+                font-size: 22px;
+                vertical-align: bottom;
+              "
+            ></i>
+            1. Thông tin chung
           </h3>
           <ul
             id="wInfo"
@@ -650,59 +912,74 @@
               list-style: none;
               padding: 0;
               font-size: 15px;
-              color: #4b5563;
+              color: var(--text-muted);
               line-height: 1.8;
-              margin-bottom: 35px;
+              margin-bottom: 40px;
             "
           ></ul>
+
           <h3
             style="
               color: var(--text-main);
               font-size: 18px;
-              margin-bottom: 15px;
-              border-bottom: 2px solid var(--p-light);
-              padding-bottom: 8px;
+              margin-bottom: 20px;
+              border-bottom: 2px solid var(--primary-light);
+              padding-bottom: 10px;
+              font-weight: 800;
             "
           >
             <i
               class="ph ph-buildings"
-              style="color: var(--p); margin-right: 8px"
-            ></i
-            >2. Giới thiệu phòng thí nghiệm
+              style="
+                color: var(--primary);
+                margin-right: 10px;
+                font-size: 22px;
+                vertical-align: bottom;
+              "
+            ></i>
+            2. Giới thiệu chức năng phòng thí nghiệm
           </h3>
           <div
             id="wIntro"
             style="
               font-size: 15px;
-              color: #4b5563;
+              color: var(--text-muted);
               line-height: 1.8;
-              margin-bottom: 35px;
+              margin-bottom: 40px;
               text-align: justify;
             "
           ></div>
+
           <h3
             style="
               color: var(--text-main);
               font-size: 18px;
-              margin-bottom: 15px;
-              border-bottom: 2px solid var(--p-light);
-              padding-bottom: 8px;
+              margin-bottom: 20px;
+              border-bottom: 2px solid var(--primary-light);
+              padding-bottom: 10px;
+              font-weight: 800;
             "
           >
             <i
               class="ph ph-list-numbers"
-              style="color: var(--p); margin-right: 8px"
-            ></i
-            >3. Các bộ thí nghiệm / Thiết bị
+              style="
+                color: var(--primary);
+                margin-right: 10px;
+                font-size: 22px;
+                vertical-align: bottom;
+              "
+            ></i>
+            3. Danh mục các bộ thí nghiệm / Thiết bị chính
           </h3>
           <ol
             id="wList"
             style="
               padding-left: 20px;
               font-size: 15px;
-              color: #4b5563;
+              color: var(--text-muted);
               line-height: 1.8;
               margin-bottom: 30px;
+              font-weight: 500;
             "
           ></ol>
         </div>
@@ -714,27 +991,42 @@
         class="modal-content"
         style="
           max-width: 850px;
-          height: 85vh;
+          height: 90vh;
           flex-direction: column;
           padding: 0;
         "
       >
         <div
           style="
-            padding: 25px 35px;
+            padding: 30px 40px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: white;
+            background: var(--bg-surface);
+            position: sticky;
+            top: 0;
+            z-index: 10;
           "
         >
-          <h2 style="margin: 0; font-size: 20px; font-weight: 800">
+          <h2
+            style="
+              margin: 0;
+              font-size: 22px;
+              font-weight: 800;
+              color: var(--primary);
+              letter-spacing: -0.5px;
+            "
+          >
             <i
               class="ph ph-book-open-text"
-              style="color: var(--p); margin-right: 10px"
+              style="
+                margin-right: 10px;
+                font-size: 28px;
+                vertical-align: bottom;
+              "
             ></i>
-            Cẩm nang Vận hành chi tiết
+            Cẩm nang Vận hành chi tiết (SOP)
           </h2>
           <button
             class="btn-close-modal"
@@ -748,7 +1040,12 @@
         </div>
         <div
           id="sopContent"
-          style="padding: 35px; overflow-y: auto; flex: 1"
+          style="
+            padding: 40px;
+            overflow-y: auto;
+            flex: 1;
+            background: var(--bg-body);
+          "
         ></div>
       </div>
     </div>
@@ -757,9 +1054,9 @@
       <div
         class="modal-content"
         style="
-          max-width: 900px;
+          max-width: 950px;
           width: 100%;
-          max-height: 90vh;
+          height: 90vh;
           display: flex;
           flex-direction: column;
           padding: 0;
@@ -767,27 +1064,35 @@
       >
         <div
           style="
-            padding: 25px 35px;
+            padding: 30px 40px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: #ffffff;
+            background: var(--bg-surface);
             position: sticky;
             top: 0;
             z-index: 10;
           "
         >
-          <h2 style="margin: 0; font-size: 22px; font-weight: 800">
+          <h2
+            style="
+              margin: 0;
+              font-size: 24px;
+              font-weight: 800;
+              color: var(--primary);
+              letter-spacing: -0.5px;
+            "
+          >
             <i
               class="ph ph-plus-circle"
               style="
-                color: var(--p);
-                margin-right: 8px;
-                vertical-align: text-bottom;
+                margin-right: 10px;
+                font-size: 28px;
+                vertical-align: bottom;
               "
             ></i>
-            KIẾN TẠO DỮ LIỆU
+            KIẾN TẠO DỮ LIỆU HỆ THỐNG
           </h2>
           <button
             class="btn-close-modal"
@@ -801,18 +1106,36 @@
         </div>
 
         <div
-          style="padding: 35px; overflow-y: auto; flex: 1"
+          style="
+            padding: 40px;
+            overflow-y: auto;
+            flex: 1;
+            background: var(--bg-body);
+          "
           class="custom-scrollbar"
         >
           <div
-            class="form-grid"
-            style="display: grid; grid-template-columns: 1fr 1fr; gap: 35px"
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 40px;
+              background: white;
+              padding: 35px;
+              border-radius: var(--radius-lg);
+              border: 1px solid var(--border-color);
+              box-shadow: var(--shadow-sm);
+            "
           >
             <div>
-              <label>Tên thiết bị / Phòng Lab</label
-              ><input type="text" id="addName" />
-              <label>Phân loại nhóm</label>
-              <select id="addCat">
+              <label>Tên thiết bị / Phòng Lab</label>
+              <input
+                type="text"
+                id="addName"
+                placeholder="Nhập tên chính thức..."
+              />
+
+              <label>Phân loại nhóm (Bộ môn quản lý)</label>
+              <select id="addCat" style="font-weight: 600">
                 <option value="vat-ly-tu">Bộ môn Vật lý & Vật liệu từ</option>
                 <option value="quang-hoc">
                   Bộ môn Quang học & Quang điện tử
@@ -820,84 +1143,133 @@
                 <option value="ly-thuyet">Bộ môn Vật lý lý thuyết</option>
                 <option value="tin-hoc">Bộ môn Vật lý tin học</option>
                 <option value="hat-nhan">
-                  BM Kỹ thuật Hạt nhân & Vật lý môi trường
+                  Bộ môn Kỹ thuật Hạt nhân & Vật lý môi trường
                 </option>
                 <option value="dai-cuong">Bộ môn Vật lý đại cương</option>
-                <option value="ptn">
-                  Phòng Thí Nghiệm (Chỉ xem - Không log)
+                <option value="ptn" style="color: var(--primary)">
+                  => Nhóm Phòng Thí Nghiệm (Cơ sở vật chất)
                 </option>
               </select>
+
               <label
                 >Mô tả kỹ thuật (Với Lab, chia bằng dấu | giữa Vị trí và Giới
                 thiệu)</label
-              ><textarea id="addDesc" rows="5"></textarea>
-            </div>
-            <div>
-              <label>Quy trình vận hành (Với Lab là Danh sách Thiết bị)</label
-              ><textarea
-                id="addSteps"
-                rows="5"
-                placeholder="Mỗi lần xuống dòng (Enter) sẽ tự tạo ô tải ảnh..."
+              >
+              <textarea
+                id="addDesc"
+                rows="6"
+                placeholder="Nhập các thông số kỹ thuật, giới hạn an toàn hoặc nguyên lý hoạt động của máy..."
               ></textarea>
-              <div class="upload-box">
-                <label
+            </div>
+
+            <div>
+              <label style="color: var(--primary)"
+                >Quy trình vận hành (Mỗi bước ấn Enter xuống dòng)</label
+              >
+              <textarea
+                id="addSteps"
+                rows="6"
+                placeholder="Ví dụ:&#10;Bật công tắc nguồn ở phía sau máy.&#10;Cài đặt nhiệt độ trên màn hình.&#10;... (Hệ thống sẽ tự động tạo ô tải ảnh bên dưới)"
+              ></textarea>
+
+              <div
+                class="upload-box"
+                style="
+                  margin-top: 10px;
+                  background: var(--bg-body);
+                  border-style: dashed;
+                "
+              >
+                <label style="color: var(--text-main); font-size: 14px"
                   ><i
                     class="ph ph-image"
                     style="
+                      font-size: 18px;
                       margin-right: 6px;
-                      font-size: 16px;
-                      vertical-align: text-bottom;
+                      vertical-align: bottom;
                     "
                   ></i>
                   Tải lên ảnh đại diện</label
-                ><input type="file" id="addImgFile" accept="image/*" />
-                <div
+                >
+                <input
+                  type="file"
+                  id="addImgFile"
+                  accept="image/*"
                   style="
                     margin-top: 15px;
-                    border-top: 1px solid var(--border-color);
-                    padding-top: 15px;
+                    border: 1px solid var(--border-color);
+                  "
+                />
+
+                <div
+                  style="
+                    margin-top: 25px;
+                    border-top: 1px dashed #cbd5e1;
+                    padding-top: 25px;
+                    text-align: left;
                   "
                 >
                   <label
+                    style="
+                      color: var(--text-main);
+                      font-size: 14px;
+                      text-align: center;
+                      display: block;
+                      margin-bottom: 15px;
+                    "
                     ><i
                       class="ph ph-images"
                       style="
+                        font-size: 18px;
                         margin-right: 6px;
-                        font-size: 16px;
-                        vertical-align: text-bottom;
+                        vertical-align: bottom;
                       "
                     ></i>
-                    Tải lên ảnh từng bước</label
+                    Tải lên ảnh từng bước (SOP)</label
                   >
-                  <div id="dynamicAddSteps">
+                  <div
+                    id="dynamicAddSteps"
+                    style="
+                      max-height: 200px;
+                      overflow-y: auto;
+                      padding-right: 10px;
+                    "
+                    class="custom-scrollbar"
+                  >
                     <p
                       style="
-                        font-size: 12px;
+                        font-size: 13px;
                         color: var(--text-muted);
                         font-style: italic;
+                        text-align: center;
                       "
                     >
-                      * Nhập quy trình để tự tạo ô tải ảnh.
+                      * Vui lòng nhập Quy trình vận hành ở ô bên trên để hệ
+                      thống tự động cấp phát khung tải ảnh.
                     </p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
           <button
             id="btnSubmitAdd"
             class="btn"
-            style="width: 100%; margin-top: 30px"
+            style="
+              width: 100%;
+              margin-top: 35px;
+              padding: 18px;
+              font-size: 16px;
+              letter-spacing: 1px;
+              box-shadow: var(--shadow-md);
+            "
           >
             <i
               class="ph ph-check-circle"
-              style="
-                margin-right: 6px;
-                font-size: 16px;
-                vertical-align: text-bottom;
-              "
+              style="margin-right: 8px; font-size: 24px; vertical-align: bottom"
             ></i>
-            LƯU VÀO HỆ THỐNG
+            LƯU VÀO CƠ SỞ DỮ LIỆU TRUNG TÂM
           </button>
         </div>
       </div>
@@ -909,102 +1281,198 @@
           src="logovien.png"
           alt="Logo"
           class="logo"
-          style="width: 110px; margin-bottom: 25px"
+          style="
+            width: 120px;
+            margin-bottom: 25px;
+            drop-shadow: var(--shadow-sm);
+          "
         />
-        <h2 style="font-weight: 800; letter-spacing: -0.5px">
+        <h2
+          style="
+            font-weight: 800;
+            letter-spacing: -1px;
+            font-size: 28px;
+            color: var(--text-main);
+            margin-bottom: 5px;
+          "
+        >
           HỆ THỐNG SEP HUST
         </h2>
         <p
-          style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px"
+          style="
+            color: var(--text-muted);
+            margin-bottom: 35px;
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          "
         >
-          Khoa Vật lý Kỹ thuật - Đại học Bách khoa Hà Nội
+          Khoa Vật lý Kỹ thuật - ĐHBK Hà Nội
         </p>
         <div style="text-align: left">
-          <label>Email đăng nhập</label>
-          <input type="email" id="lEmail" placeholder="Nhập địa chỉ email" />
-          <label>Mật khẩu</label>
-          <input type="password" id="lPass" placeholder="Nhập mật khẩu" />
+          <label>Email hệ thống</label>
+          <input
+            type="email"
+            id="lEmail"
+            placeholder="ví dụ: mssv@sis.hust.edu.vn"
+          />
+          <label>Mật khẩu an ninh</label>
+          <input type="password" id="lPass" placeholder="••••••••" />
         </div>
         <button
           class="btn"
           id="btnSignIn"
-          style="width: 100%; margin-top: 10px"
+          style="width: 100%; margin-top: 15px; padding: 16px; font-size: 15px"
         >
           ĐĂNG NHẬP
           <i
             class="ph ph-arrow-right"
-            style="margin-left: 6px; vertical-align: middle"
+            style="margin-left: 8px; font-size: 18px; vertical-align: bottom"
           ></i>
         </button>
         <div
           style="
-            margin-top: 25px;
-            font-size: 13px;
+            margin-top: 30px;
+            font-size: 14px;
             display: flex;
             justify-content: center;
             gap: 20px;
           "
         >
-          <span class="link" onclick="nav('regView')">Đăng ký tài khoản</span>
+          <span class="link" onclick="nav('regView')"
+            >Yêu cầu cấp tài khoản</span
+          >
           <span style="color: #cbd5e1">|</span>
-          <span class="link" onclick="nav('forgotView')">Quên mật khẩu?</span>
+          <span class="link" onclick="nav('forgotView')"
+            >Khôi phục truy cập</span
+          >
         </div>
       </div>
 
       <div id="regView" class="hidden">
-        <h2 style="font-weight: 800">Tạo tài khoản mới</h2>
-        <div style="text-align: left; margin-top: 20px">
-          <label>Họ và Tên</label
-          ><input type="text" id="rName" placeholder="Nhập đầy đủ họ tên" />
-          <label>Vai trò</label>
+        <h2
+          style="
+            font-weight: 800;
+            font-size: 26px;
+            color: var(--text-main);
+            margin-bottom: 10px;
+          "
+        >
+          Khởi tạo Hồ sơ
+        </h2>
+        <p
+          style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px"
+        >
+          Vui lòng điền thông tin chính xác để hệ thống phân quyền.
+        </p>
+
+        <div style="text-align: left">
+          <label>Họ và Tên đầy đủ</label>
+          <input
+            type="text"
+            id="rName"
+            placeholder="Nhập tên thật để ghi Sổ tay..."
+          />
+
+          <label>Vai trò trong hệ thống</label>
           <select id="rRole">
-            <option value="student">Sinh viên / Khách</option>
+            <option value="student">Sinh viên / Nghiên cứu sinh / Khách</option>
             <option value="instructor">Cán bộ phụ trách Lab</option>
             <option value="admin">Quản trị viên hệ thống</option>
           </select>
+
           <div id="securityCodeWrapper" class="hidden">
-            <label>Mã bảo mật Lab</label
-            ><input
+            <label style="color: var(--primary)"
+              >Mã bảo mật cấp quyền (Secret Code)</label
+            >
+            <input
               type="password"
               id="rSecurityCode"
-              placeholder="Nhập mã xác thực"
+              placeholder="Nhập mã xác thực do Khoa cung cấp"
+              style="
+                border-color: var(--primary);
+                background: var(--primary-light);
+              "
             />
           </div>
-          <label>Email</label
-          ><input type="email" id="rEmail" placeholder="Nhập email liên hệ" />
-          <label>Mật khẩu</label
-          ><input type="password" id="rPass" placeholder="Tối thiểu 6 ký tự" />
+
+          <label>Email liên hệ</label>
+          <input
+            type="email"
+            id="rEmail"
+            placeholder="Sử dụng email @sis.hust.edu.vn nếu có"
+          />
+
+          <label>Mật khẩu (Tối thiểu 6 ký tự)</label>
+          <input
+            type="password"
+            id="rPass"
+            placeholder="Tạo mật khẩu an toàn..."
+          />
         </div>
+
         <button
           class="btn"
           id="btnSignUp"
-          style="width: 100%; margin-top: 10px"
+          style="width: 100%; margin-top: 15px; padding: 16px; font-size: 15px"
         >
-          ĐĂNG KÝ NGAY
+          XÁC NHẬN ĐĂNG KÝ
         </button>
-        <p style="margin-top: 20px; font-size: 13px">
+        <p style="margin-top: 25px; font-size: 14px">
           <span class="link" onclick="nav('loginView')"
-            ><i class="ph ph-arrow-left"></i> Quay lại Đăng nhập</span
+            ><i
+              class="ph ph-arrow-left"
+              style="margin-right: 4px; vertical-align: bottom"
+            ></i>
+            Quay lại màn hình Đăng nhập</span
           >
         </p>
       </div>
 
       <div id="forgotView" class="hidden">
-        <h2 style="font-weight: 800">Khôi phục mật khẩu</h2>
-        <div style="text-align: left; margin-top: 20px">
-          <label>Email đăng ký</label
-          ><input
+        <h2
+          style="
+            font-weight: 800;
+            font-size: 26px;
+            color: var(--text-main);
+            margin-bottom: 10px;
+          "
+        >
+          Khôi phục truy cập
+        </h2>
+        <p
+          style="
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 14px;
+            line-height: 1.5;
+          "
+        >
+          Hệ thống sẽ gửi một liên kết đặt lại mật khẩu vào hòm thư của bạn.
+        </p>
+        <div style="text-align: left">
+          <label>Email đã đăng ký</label>
+          <input
             type="email"
             id="fEmail"
-            placeholder="Nhập email của bạn..."
+            placeholder="Nhập địa chỉ email của bạn..."
           />
         </div>
-        <button class="btn" id="btnReset" style="width: 100%; margin-top: 10px">
-          GỬI YÊU CẦU
+        <button
+          class="btn"
+          id="btnReset"
+          style="width: 100%; margin-top: 15px; padding: 16px; font-size: 15px"
+        >
+          GỬI YÊU CẦU KHÔI PHỤC
         </button>
-        <p style="margin-top: 20px; font-size: 13px">
+        <p style="margin-top: 25px; font-size: 14px">
           <span class="link" onclick="nav('loginView')"
-            ><i class="ph ph-arrow-left"></i> Quay lại Đăng nhập</span
+            ><i
+              class="ph ph-arrow-left"
+              style="margin-right: 4px; vertical-align: bottom"
+            ></i>
+            Quay lại Đăng nhập</span
           >
         </p>
       </div>
@@ -1012,25 +1480,23 @@
 
     <div id="systemView" class="hidden dashboard-layout">
       <aside class="sidebar">
-        <div
-          class="sidebar-header"
-          style="
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 35px;
-            border-bottom: 1px solid #f1f5f9;
-            padding-bottom: 20px;
-          "
-        >
-          <img src="logovien.png" alt="Logo" style="width: 100px" />
+        <div class="sidebar-header">
+          <img
+            src="logovien.png"
+            alt="Logo"
+            class="logo"
+            style="
+              width: 60px;
+              filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+            "
+          />
           <div>
             <h1
               style="
                 margin: 0 0 2px 0;
-                font-size: 20px;
-                color: var(--p);
-                letter-spacing: -0.5px;
+                font-size: 22px;
+                color: var(--primary);
+                letter-spacing: -1px;
                 font-weight: 800;
               "
             >
@@ -1039,15 +1505,17 @@
             <small
               style="
                 color: var(--text-muted);
-                font-size: 13px;
-                font-weight: 600;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
               "
-              >Khoa Vật lý Kỹ thuật</small
+              >Precision Framework</small
             >
           </div>
         </div>
 
-        <div class="sidebar-menu">
+        <div class="sidebar-menu custom-scrollbar">
           <div class="menu-label">CÁC BỘ MÔN QUẢN LÝ THIẾT BỊ</div>
           <button class="nav-btn active" data-cat="vat-ly-tu">
             <i class="ph ph-magnet"></i> Vật Lý & Vật Liệu Từ
@@ -1068,28 +1536,34 @@
             <i class="ph ph-atom"></i> Vật Lý Đại Cương
           </button>
 
-          <div class="menu-label" style="margin-top: 30px">
+          <div class="menu-label" style="margin-top: 35px">
             CƠ SỞ VẬT CHẤT CẤP VIỆN
           </div>
           <button
             class="nav-btn"
             data-cat="ptn"
-            style="color: var(--p); font-weight: 700"
+            style="
+              color: var(--primary);
+              font-weight: 700;
+              background: var(--primary-light);
+            "
           >
-            <i class="ph ph-buildings" style="color: var(--p)"></i> Hệ thống Cơ
-            sở vật chất
+            <i class="ph ph-buildings" style="color: var(--primary)"></i> Hệ
+            thống Phòng Thí Nghiệm
           </button>
 
           <div id="managerMenuSection" class="hidden">
-            <div class="menu-label" style="margin-top: 30px">
-              Quản lý Vận hành
+            <div class="menu-label" style="margin-top: 35px">
+              ĐIỀU HÀNH & VẬN HÀNH
             </div>
             <button class="nav-btn" data-cat="bookings">
-              <i class="ph ph-calendar-check"></i> Lịch sử & Đặt chỗ
+              <i class="ph ph-calendar-check"></i> Quản lý Lịch Đặt Chỗ
             </button>
           </div>
 
-          <div class="menu-label" style="margin-top: 30px">HỖ TRỢ</div>
+          <div class="menu-label" style="margin-top: 35px">
+            HỖ TRỢ & BÁO CÁO
+          </div>
           <button
             class="nav-btn"
             onclick="
@@ -1098,18 +1572,21 @@
                 .classList.remove('hidden')
             "
           >
-            <i class="ph ph-chat-circle-dots"></i> Gửi Góp Ý / Báo Lỗi
+            <i class="ph ph-lifebuoy"></i> Gửi Ticket Góp Ý / Báo Lỗi
           </button>
 
           <div id="adminMenuSection" class="hidden">
-            <div class="menu-label" style="margin-top: 30px">
-              CÀI ĐẶT HỆ THỐNG
+            <div
+              class="menu-label"
+              style="margin-top: 35px; color: var(--danger)"
+            >
+              CÀI ĐẶT HỆ THỐNG (ADMIN)
             </div>
             <button id="tabAdminBroadcast" class="nav-btn" data-cat="broadcast">
-              <i class="ph ph-megaphone"></i> Phát Thông báo
+              <i class="ph ph-megaphone"></i> Phát tín hiệu Thông báo
             </button>
             <button id="tabAdminFeedbacks" class="nav-btn" data-cat="feedbacks">
-              <i class="ph ph-envelope-open"></i> Hòm thư Góp ý
+              <i class="ph ph-envelope-open"></i> Xử lý Hòm thư Góp ý
             </button>
             <button id="tabAdminUsers" class="nav-btn" data-cat="users">
               <i class="ph ph-users"></i> Tài khoản & Phân quyền
@@ -1120,15 +1597,35 @@
 
       <main class="main-panel">
         <header class="top-bar">
+          <button
+            id="mobileMenuBtn"
+            class="btn-outline hidden-desktop"
+            style="
+              border: none;
+              padding: 8px;
+              margin-right: 10px;
+              background: transparent;
+            "
+          >
+            <i
+              class="ph ph-list"
+              style="font-size: 28px; color: var(--primary)"
+            ></i>
+          </button>
+
           <div class="hust-search-box">
             <i
               class="ph ph-magnifying-glass"
-              style="font-size: 18px; color: #9ca3af; margin-right: 10px"
+              style="
+                font-size: 20px;
+                color: var(--text-muted);
+                margin-right: 12px;
+              "
             ></i>
             <input
               type="text"
               id="searchDevice"
-              placeholder="Tìm kiếm tên thiết bị hoặc thông số..."
+              placeholder="Tìm kiếm nhanh tên thiết bị hoặc thông số kỹ thuật..."
               oninput="filterDevices()"
             />
           </div>
@@ -1142,13 +1639,14 @@
                   .getElementById('addDeviceModal')
                   .classList.remove('hidden')
               "
+              style="padding: 10px 20px; border-radius: 50px"
             >
               <i
                 class="ph ph-plus"
                 style="
                   margin-right: 6px;
-                  font-size: 16px;
-                  vertical-align: middle;
+                  font-size: 18px;
+                  vertical-align: text-bottom;
                 "
               ></i>
               THÊM DỮ LIỆU
@@ -1157,65 +1655,159 @@
             <div
               class="user-menu-container"
               id="notiTrigger"
-              style="padding: 8px 10px; position: relative"
+              style="
+                padding: 8px;
+                position: relative;
+                border-radius: 50%;
+                background: var(--bg-body);
+                transition: var(--transition);
+              "
             >
-              <i class="ph ph-bell" style="font-size: 22px; color: #4b5563"></i>
-              <span class="noti-badge hidden" id="notiBadge">Mới</span>
+              <i
+                class="ph ph-bell"
+                style="font-size: 24px; color: var(--text-muted)"
+              ></i>
+              <span
+                class="noti-badge hidden"
+                id="notiBadge"
+                style="
+                  position: absolute;
+                  top: -2px;
+                  right: -2px;
+                  background: var(--danger);
+                  color: white;
+                  font-size: 10px;
+                  font-weight: 800;
+                  padding: 2px 6px;
+                  border-radius: 10px;
+                  border: 2px solid white;
+                "
+                >MỚI</span
+              >
+
               <div
                 class="dropdown-menu"
                 id="notiDropdown"
-                style="width: 320px; right: -20px; top: 48px; cursor: default"
+                style="
+                  width: 360px;
+                  right: -20px;
+                  top: 55px;
+                  cursor: default;
+                  padding: 0;
+                "
               >
                 <div
                   style="
-                    padding: 12px 20px;
+                    padding: 16px 20px;
                     border-bottom: 1px solid var(--border-color);
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                    background: var(--bg-body);
+                    border-radius: var(--radius-md) var(--radius-md) 0 0;
                   "
                 >
-                  <strong style="font-size: 14px; color: var(--text-main)"
-                    ><i
-                      class="ph ph-bell-ringing"
-                      style="color: var(--p); margin-right: 5px"
-                    ></i>
-                    THÔNG BÁO</strong
+                  <strong
+                    style="
+                      font-size: 14px;
+                      color: var(--text-main);
+                      text-transform: uppercase;
+                      letter-spacing: 0.5px;
+                    "
                   >
+                    <i
+                      class="ph ph-bell-ringing"
+                      style="
+                        color: var(--primary);
+                        margin-right: 6px;
+                        font-size: 18px;
+                        vertical-align: bottom;
+                      "
+                    ></i>
+                    TRUNG TÂM THÔNG BÁO
+                  </strong>
                 </div>
                 <div
                   id="notiList"
-                  style="max-height: 350px; overflow-y: auto"
+                  style="max-height: 400px; overflow-y: auto"
+                  class="custom-scrollbar"
                 ></div>
               </div>
             </div>
 
-            <div class="user-menu-container" id="userTrigger">
+            <div
+              class="user-menu-container"
+              id="userTrigger"
+              style="
+                background: var(--bg-body);
+                padding: 6px 16px 6px 6px;
+                border-radius: 50px;
+                border: 1px solid var(--border-color);
+                transition: var(--transition);
+              "
+            >
               <div class="user-avatar-small" id="userAvatarHeader">U</div>
-              <span id="userShortLabel" style="font-weight: 600"
+              <span
+                id="userShortLabel"
+                style="font-weight: 600; font-size: 14px"
                 >Tài khoản</span
               >
               <i
                 class="ph ph-caret-down"
-                style="color: #6b7280; font-size: 12px; margin-left: 5px"
+                style="
+                  color: var(--text-muted);
+                  font-size: 14px;
+                  margin-left: 8px;
+                "
               ></i>
-              <div class="dropdown-menu" id="userDropdown">
+
+              <div
+                class="dropdown-menu"
+                id="userDropdown"
+                style="width: 240px; right: 0; top: 60px; padding: 8px"
+              >
                 <div
                   style="
-                    padding: 15px;
+                    padding: 16px;
                     border-bottom: 1px solid var(--border-color);
+                    margin-bottom: 8px;
+                    text-align: center;
                   "
                 >
-                  <strong id="userNameFull">Họ Tên</strong><br />
-                  <small
+                  <div
+                    class="user-avatar"
+                    style="
+                      margin: 0 auto 12px auto;
+                      width: 60px;
+                      height: 60px;
+                      font-size: 24px;
+                    "
+                  >
+                    U
+                  </div>
+                  <strong
+                    id="userNameFull"
+                    style="
+                      font-size: 16px;
+                      color: var(--text-main);
+                      display: block;
+                      margin-bottom: 6px;
+                    "
+                    >Họ Tên</strong
+                  >
+                  <span
                     id="userRoleBadge"
                     class="tag"
-                    style="margin-top: 8px; display: inline-block"
-                    >Vai trò</small
+                    style="
+                      background: var(--primary-light);
+                      color: var(--primary);
+                    "
+                    >Vai trò</span
                   >
                 </div>
                 <div
                   class="dropdown-item"
+                  style="border-radius: var(--radius-sm)"
                   onclick="
                     document
                       .getElementById('changePassModal')
@@ -1225,8 +1817,8 @@
                   <i
                     class="ph ph-key"
                     style="
-                      margin-right: 8px;
-                      font-size: 16px;
+                      margin-right: 10px;
+                      font-size: 20px;
                       vertical-align: text-bottom;
                     "
                   ></i>
@@ -1236,15 +1828,16 @@
                   class="dropdown-item"
                   id="btnLogOut"
                   style="
-                    color: var(--p);
-                    border-top: 1px solid var(--border-color);
+                    border-radius: var(--radius-sm);
+                    color: var(--danger);
+                    margin-top: 4px;
                   "
                 >
                   <i
                     class="ph ph-sign-out"
                     style="
-                      margin-right: 8px;
-                      font-size: 16px;
+                      margin-right: 10px;
+                      font-size: 20px;
                       vertical-align: text-bottom;
                     "
                   ></i>
@@ -1255,113 +1848,203 @@
           </div>
         </header>
 
-        <div class="content-area">
+        <div class="content-area custom-scrollbar">
           <div class="device-grid" id="deviceGrid"></div>
 
           <div
             id="bookingsGrid"
             class="hidden"
-            style="width: 100%; max-width: 1000px"
+            style="width: 100%; max-width: 1100px; margin: 0 auto"
           >
             <h2
               style="
                 margin-top: 0;
-                margin-bottom: 25px;
+                margin-bottom: 30px;
                 font-weight: 800;
-                font-size: 24px;
+                font-size: 28px;
+                color: var(--text-main);
+                letter-spacing: -0.5px;
               "
             >
-              Quản lý Lịch Đặt Máy
+              Bảng Điều Khiển Lịch Đặt Máy
             </h2>
             <div
               style="
-                background: white;
-                padding: 20px;
-                border-radius: 8px;
+                background: var(--bg-surface);
+                padding: 25px 30px;
+                border-radius: var(--radius-lg);
                 border: 1px solid var(--border-color);
-                margin-bottom: 20px;
+                box-shadow: var(--shadow-sm);
+                margin-bottom: 30px;
                 display: flex;
-                gap: 15px;
+                gap: 20px;
                 align-items: center;
               "
             >
-              <strong style="color: var(--text-muted); font-size: 14px"
-                >Lọc theo ngày:</strong
+              <strong
+                style="
+                  color: var(--text-main);
+                  font-size: 15px;
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                "
               >
+                <i
+                  class="ph ph-funnel"
+                  style="
+                    font-size: 20px;
+                    color: var(--primary);
+                    vertical-align: bottom;
+                    margin-right: 6px;
+                  "
+                ></i>
+                Lọc theo ngày:
+              </strong>
               <input
                 type="date"
                 id="filterBookingDate"
                 onchange="loadAllBookings()"
-                style="margin: 0; width: 200px"
+                style="margin: 0; width: 220px; border-color: var(--primary)"
               />
               <button
                 class="btn btn-outline"
-                style="padding: 12px 20px"
+                style="padding: 12px 24px"
                 onclick="
                   document.getElementById('filterBookingDate').value = '';
                   loadAllBookings();
                 "
               >
-                Xem tất cả sắp tới
+                <i
+                  class="ph ph-arrows-clockwise"
+                  style="
+                    margin-right: 6px;
+                    font-size: 18px;
+                    vertical-align: text-bottom;
+                  "
+                ></i>
+                Làm mới & Xem tất cả sắp tới
               </button>
             </div>
             <div
               id="allBookingsList"
-              style="display: flex; flex-direction: column; gap: 15px"
+              style="display: flex; flex-direction: column; gap: 20px"
             ></div>
           </div>
 
           <div
             id="usersGrid"
             class="hidden"
-            style="width: 100%; max-width: 1200px"
+            style="width: 100%; max-width: 1200px; margin: 0 auto"
           >
             <h2
               style="
                 margin-top: 0;
-                margin-bottom: 25px;
+                margin-bottom: 30px;
                 font-weight: 800;
-                font-size: 24px;
+                font-size: 28px;
+                color: var(--text-main);
+                letter-spacing: -0.5px;
               "
             >
-              Hồ sơ người dùng
+              Hồ sơ & Phân quyền Hệ thống
             </h2>
             <div class="admin-stats-container">
               <div class="stat-card">
-                <div>TỔNG TÀI KHOẢN</div>
+                <div
+                  style="
+                    font-size: 13px;
+                    color: var(--text-muted);
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                  "
+                >
+                  TỔNG TÀI KHOẢN
+                </div>
                 <div class="stat-value" id="statTotal">0</div>
               </div>
               <div class="stat-card">
-                <div>CÁN BỘ PHỤ TRÁCH</div>
-                <div class="stat-value" id="statInstructor">0</div>
+                <div
+                  style="
+                    font-size: 13px;
+                    color: var(--text-muted);
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                  "
+                >
+                  CÁN BỘ PHỤ TRÁCH
+                </div>
+                <div
+                  class="stat-value"
+                  id="statInstructor"
+                  style="color: #0284c7"
+                >
+                  0
+                </div>
               </div>
-              <div class="stat-card" style="border-color: var(--p-light)">
-                <div>QUẢN TRỊ VIÊN</div>
-                <div class="stat-value" id="statAdmin">0</div>
+              <div
+                class="stat-card"
+                style="
+                  border-color: var(--primary-light);
+                  background: var(--primary-light);
+                "
+              >
+                <div
+                  style="
+                    font-size: 13px;
+                    color: var(--primary);
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                  "
+                >
+                  QUẢN TRỊ VIÊN
+                </div>
+                <div
+                  class="stat-value"
+                  id="statAdmin"
+                  style="color: var(--primary)"
+                >
+                  0
+                </div>
               </div>
             </div>
-            <div class="admin-toolbar">
+
+            <div
+              style="
+                display: flex;
+                gap: 20px;
+                background: var(--bg-surface);
+                padding: 20px;
+                border-radius: var(--radius-lg);
+                border: 1px solid var(--border-color);
+                box-shadow: var(--shadow-sm);
+                margin-bottom: 30px;
+              "
+            >
               <div style="flex: 1; position: relative">
                 <i
                   class="ph ph-magnifying-glass"
                   style="
                     position: absolute;
-                    left: 15px;
-                    top: 12px;
-                    color: #9ca3af;
-                    font-size: 18px;
+                    left: 16px;
+                    top: 14px;
+                    color: var(--text-muted);
+                    font-size: 20px;
                   "
                 ></i>
                 <input
                   type="text"
                   id="searchUser"
-                  placeholder="Tìm kiếm theo tên hoặc email..."
+                  placeholder="Tìm kiếm nhanh theo tên hoặc ID tài khoản..."
                   oninput="filterUsers()"
                   style="
                     margin: 0;
-                    padding: 12px 20px 12px 42px;
-                    border-radius: 8px;
+                    padding: 14px 20px 14px 48px;
+                    border-radius: var(--radius-sm);
                     width: 100%;
+                    border-color: var(--border-color);
                   "
                 />
               </div>
@@ -1369,98 +2052,169 @@
                 id="filterRole"
                 onchange="filterUsers()"
                 style="
-                  width: 250px;
+                  width: 280px;
                   margin: 0;
-                  border-radius: 8px;
-                  padding: 12px 20px;
+                  border-radius: var(--radius-sm);
+                  padding: 14px 20px;
+                  font-weight: 600;
+                  border-color: var(--border-color);
                 "
               >
-                <option value="all">Tất cả vai trò</option>
-                <option value="student">Sinh viên</option>
-                <option value="instructor">Cán bộ phụ trách</option>
-                <option value="admin">Quản trị viên</option>
+                <option value="all">Hiển thị Tất cả vai trò</option>
+                <option value="student">Chỉ hiện Sinh viên / Khách</option>
+                <option value="instructor">Chỉ hiện Cán bộ phụ trách</option>
+                <option value="admin">Chỉ hiện Quản trị viên</option>
               </select>
             </div>
-            <div id="adminUserList" class="admin-user-list"></div>
+
+            <div
+              id="adminUserList"
+              style="display: flex; flex-direction: column; gap: 15px"
+            ></div>
           </div>
 
           <div
             id="feedbacksGrid"
             class="hidden"
-            style="width: 100%; max-width: 1200px"
+            style="width: 100%; max-width: 1100px; margin: 0 auto"
           >
             <h2
               style="
                 margin-top: 0;
-                margin-bottom: 25px;
+                margin-bottom: 30px;
                 font-weight: 800;
-                font-size: 24px;
+                font-size: 28px;
+                color: var(--text-main);
+                letter-spacing: -0.5px;
               "
             >
+              <i
+                class="ph ph-envelope-open"
+                style="
+                  color: var(--primary);
+                  margin-right: 10px;
+                  font-size: 32px;
+                  vertical-align: bottom;
+                "
+              ></i>
               Hòm thư Góp ý & Báo lỗi
             </h2>
             <div
               id="feedbacksList"
-              style="display: flex; flex-direction: column; gap: 15px"
+              style="display: flex; flex-direction: column; gap: 20px"
             ></div>
           </div>
 
           <div
             id="broadcastGrid"
             class="hidden"
-            style="width: 100%; max-width: 900px"
+            style="width: 100%; max-width: 900px; margin: 0 auto"
           >
             <h2
               style="
                 margin-top: 0;
-                margin-bottom: 25px;
+                margin-bottom: 30px;
                 font-weight: 800;
-                font-size: 24px;
+                font-size: 28px;
+                color: var(--text-main);
+                letter-spacing: -0.5px;
               "
             >
               <i
                 class="ph ph-megaphone"
-                style="color: var(--p); margin-right: 10px"
-              ></i
-              >Phát thông báo toàn hệ thống
+                style="
+                  color: var(--primary);
+                  margin-right: 10px;
+                  font-size: 32px;
+                  vertical-align: bottom;
+                "
+              ></i>
+              Phát thông báo (Broadcast)
             </h2>
             <div
               style="
-                background: white;
-                padding: 35px;
-                border-radius: var(--radius);
+                background: var(--bg-surface);
+                padding: 40px;
+                border-radius: var(--radius-lg);
                 border: 1px solid var(--border-color);
+                box-shadow: var(--shadow-sm);
                 margin-bottom: 30px;
               "
             >
-              <p
+              <div
                 style="
-                  color: var(--text-muted);
-                  margin-bottom: 20px;
-                  font-size: 14px;
+                  background: #eff6ff;
+                  border-left: 4px solid #3b82f6;
+                  padding: 20px;
+                  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+                  margin-bottom: 35px;
                 "
               >
-                Thông báo này sẽ được gửi trực tiếp vào biểu tượng Chuông của
-                tất cả sinh viên và cán bộ trên hệ thống.
-              </p>
-              <label>Tiêu đề thông báo</label>
+                <p
+                  style="
+                    color: #1e3a8a;
+                    margin: 0;
+                    font-size: 14px;
+                    line-height: 1.6;
+                  "
+                >
+                  <strong style="font-weight: 800"
+                    ><i
+                      class="ph ph-info"
+                      style="
+                        font-size: 18px;
+                        vertical-align: bottom;
+                        margin-right: 6px;
+                      "
+                    ></i>
+                    LƯU Ý HỆ THỐNG:</strong
+                  >
+                  Thông báo này sẽ được gửi trực tiếp vào biểu tượng Chuông của
+                  tất cả tài khoản (Sinh viên, Cán bộ) trên hệ thống theo thời
+                  gian thực.
+                </p>
+              </div>
+
+              <label style="font-size: 14px; color: var(--text-main)"
+                >Tiêu đề thông báo</label
+              >
               <input
                 type="text"
                 id="newNotiTitle"
-                placeholder="Ví dụ: Lịch bảo trì định kỳ máy hiển vi SEM tháng 4..."
+                placeholder="Ví dụ: Lịch bảo trì định kỳ toàn bộ máy móc tháng 4..."
+                style="padding: 16px; font-weight: 600"
               />
-              <label>Nội dung thông báo</label>
+
+              <label style="font-size: 14px; color: var(--text-main)"
+                >Nội dung truyền đạt chi tiết</label
+              >
               <textarea
                 id="newNotiMsg"
-                rows="4"
-                placeholder="Nhập nội dung chi tiết cần truyền đạt..."
+                rows="6"
+                placeholder="Nhập nội dung chi tiết cần thông báo đến người dùng..."
+                style="padding: 16px; line-height: 1.6"
               ></textarea>
+
               <button
                 id="btnBroadcastNoti"
                 class="btn"
-                style="margin-top: 10px"
+                style="
+                  margin-top: 15px;
+                  width: 100%;
+                  padding: 18px;
+                  font-size: 16px;
+                  letter-spacing: 1px;
+                  box-shadow: var(--shadow-md);
+                "
               >
-                <i class="ph ph-paper-plane-tilt" style="margin-right: 6px"></i>
+                <i
+                  class="ph ph-paper-plane-tilt"
+                  style="
+                    margin-right: 10px;
+                    font-size: 24px;
+                    vertical-align: bottom;
+                  "
+                ></i>
                 PHÁT TÍN HIỆU NGAY
               </button>
             </div>
@@ -1469,6 +2223,6 @@
       </main>
     </div>
 
-    <script type="module" src="app.js?v=9000"></script>
+    <script type="module" src="app.js?v=9009"></script>
   </body>
 </html>
