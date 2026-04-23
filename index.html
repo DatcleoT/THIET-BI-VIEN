@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
 
@@ -334,7 +334,7 @@
                     letter-spacing: 0.5px;
                   "
                 >
-                  Mô tả kỹ thuật / Nguyên lý
+                  Mô tả kỹ thuật
                 </h4>
                 <div
                   id="mDesc"
@@ -693,8 +693,16 @@
                 </div>
               </div>
 
-              <label>Mô tả kỹ thuật / Nguyên lý hoạt động</label>
-              <textarea id="insInput" rows="5"></textarea>
+              <div style="margin-bottom: 20px;">
+                 <label>Vị trí đặt máy (Ví dụ: Phòng Quang phổ)</label>
+                 <input type="text" id="insLocation" placeholder="Nhập tên phòng..." />
+              </div>
+
+              <label>Nguyên lý & Đặc tính kỹ thuật</label>
+              <textarea id="insPrinciple" rows="4"></textarea>
+
+              <label>Ứng dụng thực tiễn</label>
+              <textarea id="insApplication" rows="4"></textarea>
 
               <label>Quy trình vận hành (Mỗi bước xuống dòng)</label>
               <textarea
@@ -1135,7 +1143,7 @@
               />
 
               <label>Phân loại nhóm (Bộ môn quản lý)</label>
-              <select id="addCat" style="font-weight: 600">
+              <select id="addCat" style="font-weight: 600; margin-bottom: 20px;">
                 <option value="vat-ly-tu">Bộ môn Vật lý & Vật liệu từ</option>
                 <option value="quang-hoc">
                   Bộ môn Quang học & Quang điện tử
@@ -1151,14 +1159,21 @@
                 </option>
               </select>
 
-              <label
-                >Mô tả kỹ thuật (Với Lab, chia bằng dấu | giữa Vị trí và Giới
-                thiệu)</label
-              >
+              <label>Vị trí đặt máy</label>
+              <input type="text" id="addLocation" placeholder="Ví dụ: Phòng Quang phổ..." style="margin-bottom: 20px;" />
+
+              <label>Nguyên lý & Đặc tính kỹ thuật</label>
               <textarea
-                id="addDesc"
-                rows="6"
-                placeholder="Nhập các thông số kỹ thuật, giới hạn an toàn hoặc nguyên lý hoạt động của máy..."
+                id="addPrinciple"
+                rows="4"
+                placeholder="Nhập nguyên lý hoạt động, dải đo, độ phân giải..."
+              ></textarea>
+
+              <label>Ứng dụng thực tiễn</label>
+              <textarea
+                id="addApplication"
+                rows="3"
+                placeholder="Nhập các ứng dụng chính của máy trong nghiên cứu..."
               ></textarea>
             </div>
 
@@ -1276,80 +1291,77 @@
     </div>
 
     <div id="authWrapper">
-      <div id="loginView">
+      <div id="loginView" style="padding: 40px; width: 100%; max-width: 420px; border-radius: 16px; background: var(--bg-surface); box-shadow: var(--shadow-lg); text-align: center;">
+        
         <img
-          src="logovien.png"
+          src="logo.png"
           alt="Logo"
           class="logo"
-          style="
-            width: 120px;
-            margin-bottom: 25px;
-            drop-shadow: var(--shadow-sm);
-          "
+          style="width: 120px; height: auto; margin-bottom: 20px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));"
         />
-        <h2
-          style="
-            font-weight: 800;
-            letter-spacing: -1px;
-            font-size: 28px;
-            color: var(--text-main);
-            margin-bottom: 5px;
-          "
-        >
-          HỆ THỐNG SEP HUST
+        
+        <h2 style="font-weight: 700; font-size: 24px; color: var(--text-main); margin-bottom: 6px; letter-spacing: -0.5px;">
+          Chào mừng trở lại
         </h2>
-        <p
-          style="
-            color: var(--text-muted);
-            margin-bottom: 35px;
-            font-size: 14px;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-          "
-        >
-          Khoa Vật lý Kỹ thuật - ĐHBK Hà Nội
+        <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 14px;">
+          Đăng nhập vào hệ thống Lab Sep
         </p>
-        <div style="text-align: left">
-          <label>Email hệ thống</label>
+
+        <div style="text-align: left; margin-bottom: 20px;">
+          <label style="text-transform: none; letter-spacing: normal; font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">Email</label>
           <input
             type="email"
             id="lEmail"
-            placeholder="ví dụ: mssv@sis.hust.edu.vn"
+            placeholder="name@example.com"
+            style="padding: 12px 16px; margin-bottom: 16px;"
           />
-          <label>Mật khẩu an ninh</label>
-          <input type="password" id="lPass" placeholder="••••••••" />
+          
+          <label style="text-transform: none; letter-spacing: normal; font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 6px;">Mật khẩu</label>
+          <input 
+            type="password" 
+            id="lPass" 
+            placeholder="••••••••" 
+            style="padding: 12px 16px; margin-bottom: 8px;"
+          />
+          
+          <div style="text-align: right;">
+            <span class="link" onclick="nav('forgotView')" style="font-size: 13px; font-weight: 500; color: var(--primary);">
+              Quên mật khẩu?
+            </span>
+          </div>
         </div>
+
         <button
           class="btn"
           id="btnSignIn"
-          style="width: 100%; margin-top: 15px; padding: 16px; font-size: 15px"
+          style="width: 100%; padding: 14px; font-size: 15px; border-radius: var(--radius-sm); margin-bottom: 25px;"
         >
-          ĐĂNG NHẬP
-          <i
-            class="ph ph-arrow-right"
-            style="margin-left: 8px; font-size: 18px; vertical-align: bottom"
-          ></i>
+          Đăng nhập
         </button>
-        <div
-          style="
-            margin-top: 30px;
-            font-size: 14px;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-          "
-        >
-          <span class="link" onclick="nav('regView')"
-            >Yêu cầu cấp tài khoản</span
-          >
-          <span style="color: #cbd5e1">|</span>
-          <span class="link" onclick="nav('forgotView')"
-            >Khôi phục truy cập</span
-          >
-        </div>
-      </div>
 
+        <div style="display: flex; align-items: center; margin-bottom: 25px;">
+          <div style="flex: 1; border-bottom: 1px solid var(--border-color);"></div>
+          <span style="padding: 0 15px; font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+            Hoặc tiếp tục với
+          </span>
+          <div style="flex: 1; border-bottom: 1px solid var(--border-color);"></div>
+        </div>
+
+        <button class="btn-social" type="button" onclick="alert('Tính năng đang được phát triển!')">
+          <i class="ph ph-fingerprint" style="font-size: 20px; color: var(--primary);"></i> 
+          Đăng nhập bằng FaceID / Vân tay
+        </button>
+
+        <button class="btn-social" type="button" id="btnGoogleLogin">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style="width: 18px;" /> 
+  Đăng nhập bằng Google
+</button>
+
+        <p style="margin-top: 25px; font-size: 14px; color: var(--text-muted);">
+          Chưa có tài khoản? 
+          <span class="link" onclick="nav('regView')" style="color: var(--primary); font-weight: 600;">Đăng ký miễn phí</span>
+        </p>
+      </div>
       <div id="regView" class="hidden">
         <h2
           style="
@@ -1480,37 +1492,40 @@
 
     <div id="systemView" class="hidden dashboard-layout">
       <aside class="sidebar">
-        <div class="sidebar-header">
+        <div class="sidebar-header" style="display: flex; align-items: center; gap: 16px;">
           <img
-            src="logovien.png"
+            src="logo.png"
             alt="Logo"
             class="logo"
             style="
               width: 60px;
+              height: auto;
               filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
             "
           />
-          <div>
+          <div style="display: flex; flex-direction: column; justify-content: center;">
             <h1
               style="
-                margin: 0 0 2px 0;
-                font-size: 22px;
+                margin: 0 0 4px 0;
+                font-size: 26px;
                 color: var(--primary);
-                letter-spacing: -1px;
-                font-weight: 800;
+                letter-spacing: -0.5px;
+                font-weight: 900;
+                line-height: 1;
               "
             >
-              SEP HUST
+              LAB SEP
             </h1>
             <small
               style="
                 color: var(--text-muted);
                 font-size: 11px;
-                font-weight: 700;
+                font-weight: 800;
                 text-transform: uppercase;
-                letter-spacing: 1px;
+                letter-spacing: 1.5px;
+                line-height: 1;
               "
-              >Precision Framework</small
+              >Vật Lí Kĩ Thuật</small
             >
           </div>
         </div>

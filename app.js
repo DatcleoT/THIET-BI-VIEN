@@ -170,19 +170,20 @@ function filterAndDisplayByCat(cat) {
   displayDevices(list);
 }
 
+// Xử lý nút click toàn cục cho Device Card
+window.triggerModal = (deviceId) => {
+  const d = allDevices.find((x) => x.id == deviceId);
+  if (!d) return;
+  const isLab = d.name.toLowerCase().includes("ptn");
+  if (isLab) window.openPtnWikiModal(d);
+  else window.openDeviceModal(d);
+};
+
 function displayDevices(list) {
   const grid = document.getElementById("deviceGrid");
   grid.innerHTML = list.length
     ? ""
     : "<p style='grid-column:1/-1; text-align:center; color: var(--text-muted); padding:50px;'>Chưa có dữ liệu thiết bị/phòng lab trong nhóm này.</p>";
-
-  window.triggerModal = (deviceId) => {
-    const d = allDevices.find((x) => x.id == deviceId);
-    if (!d) return;
-    const isLab = d.name.toLowerCase().includes("ptn");
-    if (isLab) window.openPtnWikiModal(d);
-    else window.openDeviceModal(d);
-  };
 
   list.forEach((d) => {
     const safe = toSafe(d.name);
@@ -214,6 +215,7 @@ function displayDevices(list) {
 
     const div = document.createElement("div");
     div.className = "device-card";
+    // Đã gắn sự kiện click vào đây để toàn bộ thẻ (bao gồm nút "Tìm hiểu thêm") đều click được
     div.setAttribute("onclick", `triggerModal('${d.id}')`);
 
     div.innerHTML = `
@@ -335,7 +337,10 @@ window.openDeviceModal = (d) => {
   document.getElementById("qrCodeImg").src =
     `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrTarget)}`;
 
-  const formatDesc = cleanText(d.description).replace(/\n/g, "<br/>");
+  // Tự động Format in đậm cho nội dung mô tả kỹ thuật
+  let formatDesc = cleanText(d.description)
+    .replace(/\*\*(.*?)\*\*/g, '<strong style="color: var(--text-main);">$1</strong>')
+    .replace(/\n/g, "<br/>");
   document.getElementById("mDesc").innerHTML =
     formatDesc || "Dữ liệu đang được cập nhật...";
 
@@ -392,7 +397,32 @@ window.openDeviceModal = (d) => {
   document.getElementById("btnTabEdit").classList.toggle("hidden", !canEdit);
 
   if (canEdit) {
-    document.getElementById("insInput").value = d.description || "";
+    // Tách chuỗi Dữ liệu Cũ ra 3 ô Form để Edit
+    let rawDesc = d.description || "";
+    let loc = "", prin = "", app = "";
+    
+    if (rawDesc.includes("|")) {
+        let parts = rawDesc.split("|");
+        loc = parts[0].trim();
+        rawDesc = parts.slice(1).join("|").trim();
+    }
+    if (rawDesc.includes("**Ứng dụng thực tiễn:**")) {
+        let parts = rawDesc.split("**Ứng dụng thực tiễn:**");
+        prin = parts[0].replace("**Nguyên lý & Đặc tính kỹ thuật:**", "").trim();
+        app = parts[1].trim();
+    } else {
+        prin = rawDesc.replace("**Nguyên lý & Đặc tính kỹ thuật:**", "").trim();
+    }
+
+    const locInput = document.getElementById("insLocation");
+    if(locInput) locInput.value = loc;
+    
+    const prinInput = document.getElementById("insPrinciple");
+    if(prinInput) prinInput.value = prin;
+    
+    const appInput = document.getElementById("insApplication");
+    if(appInput) appInput.value = app;
+
     document.getElementById("insStepsInput").value = d.steps || "";
     document.getElementById("insStatus").value = d.status || "normal";
     const catInput = document.getElementById("insCat");
@@ -785,20 +815,33 @@ document.getElementById("btnSubmitAdd").onclick = async () => {
   const name = document.getElementById("addName").value,
     cat = document.getElementById("addCat").value,
     steps = document.getElementById("addSteps").value;
+
+  // Thu thập 3 ô text và gộp lại để lưu vào CSDL
+  const loc = document.getElementById("addLocation")?.value || "";
+  const prin = document.getElementById("addPrinciple")?.value || "";
+  const app = document.getElementById("addApplication")?.value || "";
+  
+  let combinedDesc = "";
+  if(loc || prin || app) {
+      combinedDesc = `${loc ? loc + ' | ' : ''}**Nguyên lý & Đặc tính kỹ thuật:**\n${prin}\n\n**Ứng dụng thực tiễn:**\n${app}`;
+  }
+
   if (!name) return toast("Vui lòng nhập tên thiết bị.");
   document.getElementById("btnSubmitAdd").disabled = true;
   document.getElementById("btnSubmitAdd").innerHTML =
     '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG TẢI LÊN...';
+
   await supabase.from("devices").insert([
     {
       name,
       cat,
       status: "normal",
-      description: document.getElementById("addDesc").value,
+      description: combinedDesc,
       steps,
       created_by: currentProfile.id,
     },
   ]);
+
   const mainF = document.getElementById("addImgFile").files[0];
   if (mainF)
     await supabase.storage
@@ -817,14 +860,27 @@ document.getElementById("btnSaveUpdate").onclick = async () => {
   document.getElementById("btnSaveUpdate").disabled = true;
   document.getElementById("btnSaveUpdate").innerHTML =
     '<i class="ph ph-spinner-gap ph-spin"></i> ĐANG XỬ LÝ...';
+  
   const newSteps = document.getElementById("insStepsInput").value;
   const catInput = document.getElementById("insCat");
+  
+  // Lấy dữ liệu 3 ô edit và gộp lại
+  const loc = document.getElementById("insLocation")?.value || "";
+  const prin = document.getElementById("insPrinciple")?.value || "";
+  const app = document.getElementById("insApplication")?.value || "";
+  
+  let combinedDesc = "";
+  if(loc || prin || app) {
+      combinedDesc = `${loc ? loc + ' | ' : ''}**Nguyên lý & Đặc tính kỹ thuật:**\n${prin}\n\n**Ứng dụng thực tiễn:**\n${app}`;
+  }
+
   const updateData = {
-    description: document.getElementById("insInput").value,
+    description: combinedDesc,
     steps: newSteps,
     status: document.getElementById("insStatus").value,
   };
   if (catInput) updateData.cat = catInput.value;
+  
   await supabase.from("devices").update(updateData).eq("id", selectedDevice.id);
   const mainF = document.getElementById("updateImgFile").files[0];
   if (mainF)
@@ -906,7 +962,7 @@ document.getElementById("btnSignIn").onclick = async () => {
   });
   btn.innerHTML = originalText;
   btn.disabled = false;
-  if (error) toast("Thông tin đăng nhập không chính xác.");
+  if (error) toast("Thôngumedin đăng nhập không chính xác.");
   else initApp();
 };
 
@@ -940,7 +996,30 @@ document.getElementById("btnSignUp").onclick = async () => {
     nav("loginView");
   }
 };
+// ================= ĐĂNG NHẬP BẰNG GOOGLE ===================
+const btnGoogleLogin = document.getElementById("btnGoogleLogin");
+if (btnGoogleLogin) {
+  btnGoogleLogin.onclick = async () => {
+    // Đổi giao diện nút thành đang tải
+    const originalContent = btnGoogleLogin.innerHTML;
+    btnGoogleLogin.innerHTML = '<i class="ph ph-spinner-gap ph-spin" style="font-size: 18px;"></i> Đang chuyển hướng...';
+    btnGoogleLogin.disabled = true;
 
+    // Gọi lệnh đăng nhập OAuth của Supabase
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + window.location.pathname // Tự động quay lại web sau khi Google xác nhận
+      }
+    });
+
+    if (error) {
+      toast("Lỗi đăng nhập Google: " + error.message);
+      btnGoogleLogin.innerHTML = originalContent;
+      btnGoogleLogin.disabled = false;
+    }
+  };
+}
 document.getElementById("btnLogOut").onclick = async () => {
   await supabase.auth.signOut();
   location.reload();

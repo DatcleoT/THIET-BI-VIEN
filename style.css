@@ -78,25 +78,18 @@ body {
 }
 
 /* ================== TYPOGRAPHY & BUTTONS ================== */
-h1,
-h2,
-h3,
-h4,
-h5 {
-  color: var(--text-main);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
+h1, h2, h3, h4, h5 { color: var(--text-main); font-weight: 800; letter-spacing: -0.02em; }
 
 .btn {
   background-color: var(--primary);
   color: #fff;
   border: none;
-  padding: 12px 24px;
-  border-radius: var(--radius-sm);
-  font-weight: 600;
+  padding: 16px 24px; /* Tăng độ dày cho nút bấm */
+  border-radius: var(--radius-md); /* Bo góc mềm mại hơn */
+  font-weight: 700; /* Chữ đậm hơn */
+  letter-spacing: 0.5px; /* Giãn chữ nhẹ tạo sự sang trọng */
   font-family: "Be Vietnam Pro", sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
   transition: var(--transition);
   display: inline-flex;
@@ -109,62 +102,60 @@ h5 {
 .btn:hover {
   background-color: var(--primary-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px 0 rgba(138, 21, 56, 0.3);
+  box-shadow: 0 6px 20px 0 rgba(138, 21, 56, 0.4);
 }
 
 .btn-outline {
   background-color: transparent;
   color: var(--text-main);
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #cbd5e1; /* Viền nét hơn */
   box-shadow: none;
 }
 
 .btn-outline:hover {
   background-color: #f8fafc;
-  border-color: #94a3b8;
+  border-color: var(--primary); /* Hover sáng viền màu đỏ */
   color: var(--primary);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
 }
 
-.btn:disabled {
-  background-color: #cbd5e1 !important;
-  color: #fff !important;
-  box-shadow: none !important;
-  cursor: not-allowed;
-  transform: none !important;
+/* ================== FORMS & INPUTS TRANG TRỌNG ================== */
+label { 
+  display: block; /* Bắt buộc để nhãn dán nằm riêng 1 dòng */
+  font-size: 12px; 
+  font-weight: 700; 
+  color: var(--text-muted); 
+  text-transform: uppercase; 
+  letter-spacing: 1px; /* Giãn chữ mạnh ở nhãn dán */
+  margin-bottom: 8px; /* Tách biệt với ô nhập liệu */
 }
 
-/* ================== FORMS & INPUTS ================== */
-input,
-select,
-textarea {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background-color: var(--bg-body);
-  color: var(--text-main);
-  font-family: "Be Vietnam Pro", sans-serif;
-  font-size: 14px;
-  transition: var(--transition);
-  margin-top: 6px;
-  margin-bottom: 20px;
+input, select, textarea {
+  width: 100%; 
+  padding: 15px 20px; /* Ô nhập liệu to, mập mạp và rộng rãi hơn */
+  border: 1.5px solid var(--border-color); 
+  border-radius: var(--radius-md); 
+  background-color: var(--bg-body); 
+  color: var(--text-main); 
+  font-family: "Be Vietnam Pro", sans-serif; 
+  font-size: 15px; 
+  font-weight: 500;
+  transition: var(--transition); 
+  margin-top: 0; 
+  margin-bottom: 24px; /* Tách xa các khối nhập liệu */
 }
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  background-color: var(--bg-surface);
-  box-shadow: 0 0 0 3px rgba(138, 21, 56, 0.1);
+
+input::placeholder, textarea::placeholder {
+  color: #94a3b8; /* Màu chữ mờ cho placeholder */
+  font-weight: 400;
 }
-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+
+input:focus, select:focus, textarea:focus { 
+  outline: none; 
+  border-color: var(--primary); 
+  background-color: var(--bg-surface); 
+  /* Hiệu ứng Glow phát sáng viền siêu mượt */
+  box-shadow: 0 0 0 4px rgba(138, 21, 56, 0.1); 
 }
 
 /* ================== LOGIN / AUTH SCREEN ================== */
@@ -821,4 +812,28 @@ select {
   .admin-stats-container {
     grid-template-columns: 1fr; /* Thông số admin xếp dọc */
   }
+}
+/* ================== NÚT ĐĂNG NHẬP MẠNG XÃ HỘI ================== */
+.btn-social {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Be Vietnam Pro", sans-serif;
+  color: var(--text-main);
+  background-color: white;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  margin-bottom: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.2s ease;
+}
+
+.btn-social:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
 }
